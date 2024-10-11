@@ -32,9 +32,9 @@ export const useUserStore = defineStore('userStore', {
       return data;
     },
     async logout() {
-      // const response = await api.post('/logout'); // Используем api
+      const response = await api.post('/logout'); // Используем api
       this.logoutUser();
-      // return response;
+      return response;
     },
     async getUser() {
       const { data } = await api.get('/user'); // Используем api
