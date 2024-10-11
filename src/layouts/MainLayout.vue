@@ -1,6 +1,6 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+  <q-layout view="hHh Lpr lFf">
+    <q-header elevated class="bg-deep-orange-5">
       <q-toolbar>
         <q-btn
           flat
@@ -13,7 +13,19 @@
 
         <q-toolbar-title> What-to-eat-a </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <div v-if="!userAuth()" class="row q-gutter-xs">
+          <q-btn flat>Sign in</q-btn>
+          <q-btn flat>Sign up</q-btn>
+        </div>
+        <q-btn v-else flat round dense icon="account_circle">
+          <q-menu>
+            <q-list style="min-width: 100px">
+              <q-item clickable v-close-popup>
+                <q-item-section @click="logout()">Logout</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -37,9 +49,18 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useUserStore } from '../stores/userStore';
 import EssentialLink, {
   EssentialLinkProps,
 } from 'components/EssentialLink.vue';
+
+const userStore = useUserStore();
+
+const userAuth = ref(userStore.userAuth);
+
+function logout() {
+  userStore.logout();
+}
 
 defineOptions({
   name: 'MainLayout',

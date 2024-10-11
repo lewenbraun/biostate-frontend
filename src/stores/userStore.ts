@@ -10,7 +10,7 @@ export const useUserStore = defineStore('userStore', {
   state: (): { user: UserState } => ({
     user: {
       data: {},
-      token: sessionStorage.getItem('TOKEN'),
+      token: localStorage.getItem('TOKEN'),
     },
   }),
 
@@ -32,9 +32,9 @@ export const useUserStore = defineStore('userStore', {
       return data;
     },
     async logout() {
-      const response = await api.post('/logout'); // Используем api
+      // const response = await api.post('/logout'); // Используем api
       this.logoutUser();
-      return response;
+      // return response;
     },
     async getUser() {
       const { data } = await api.get('/user'); // Используем api
@@ -50,6 +50,9 @@ export const useUserStore = defineStore('userStore', {
     setToken(token: string) {
       this.user.token = token;
       localStorage.setItem('TOKEN', token);
+    },
+    userAuth() {
+      return this.user.token ? true : false;
     },
     logoutUser() {
       this.user.token = null;
