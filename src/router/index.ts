@@ -4,33 +4,40 @@ import {
   createRouter,
   createWebHashHistory,
   createWebHistory,
+  Router,
 } from 'vue-router';
-
 import routes from './routes';
+import { useUserStore } from '../stores/userStore'; // Импорт Pinia store
 
-/*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
- */
-
-export default route(function (/* { store, ssrContext } */) {
+export default route(function (): Router {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
-    : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
+    : process.env.VUE_ROUTER_MODE === 'history'
+    ? createWebHistory
+    : createWebHashHistory;
 
-  const Router = createRouter({
+  const router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
-    routes,
-
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
+    routes, // Массив маршрутов
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
 
-  return Router;
+  // Добавление перехватчика маршрутов
+  router.beforeEach((to, from, next) => {
+    const userStore = useUserStore(); // Получаем Pinia store
+
+    // Проверяем наличие токена и редиректы
+    if (to.meta.requiresAuth && !userStore.user.token) {
+      next({ name: 'login' });
+    } else if (
+      userStore.user.token &&
+      (to.name === 'login' || to.name === 'register')
+    ) {
+      next({ name: 'main' });
+    } else {
+      next();
+    }
+  });
+
+  return router;
 });
