@@ -20,28 +20,28 @@ export const useUserStore = defineStore('userStore', {
 
   actions: {
     async register(user: Record<string, unknown>) {
-      const { data } = await api.post('/register', user); // Используем api
+      const { data } = await api.post('/register', user);
       this.setUser(data.user);
       this.setToken(data.token);
       return data;
     },
     async login(user: Record<string, unknown>) {
-      const { data } = await api.post('/login', user); // Используем api
+      const { data } = await api.post('/login', user);
       this.setUser(data.user);
       this.setToken(data.token);
       return data;
     },
     async logout() {
-      const response = await api.post('/logout'); // Используем api
+      const response = await api.post('/logout');
       this.logoutUser();
       return response;
     },
     async getUser() {
-      const { data } = await api.get('/user'); // Используем api
+      const { data } = await api.get('/user');
       this.setUser(data);
     },
     async getCategories() {
-      const { data } = await api.get('/categories'); // Используем api
+      const { data } = await api.get('/categories');
       return data;
     },
     setUser(user: Record<string, unknown>) {
