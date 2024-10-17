@@ -17,10 +17,10 @@
       <!-- КБЖУ информация -->
       <q-card-section class="q-pa-sm">
         <div class="nutrients-info row">
-          <div class="col text-caption"><b>К:</b> {{ product.calories }} г</div>
-          <div class="col text-caption"><b>Б:</b> {{ product.proteins }} г</div>
-          <div class="col text-caption"><b>Ж:</b> {{ product.fats }} г</div>
-          <div class="col text-caption"><b>У:</b> {{ product.carbs }} г</div>
+          <div class="col text-caption"><b>К:</b> {{ product.calories }}</div>
+          <div class="col text-caption"><b>Б:</b> {{ product.protein }}</div>
+          <div class="col text-caption"><b>Ж:</b> {{ product.fats }}</div>
+          <div class="col text-caption"><b>У:</b> {{ product.carbs }}</div>
         </div>
       </q-card-section>
     </q-card>
@@ -29,6 +29,10 @@
 
 <script lang="ts" setup>
 import { defineProps } from 'vue';
+
+defineOptions({
+  name: 'ProductCard',
+});
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const props = defineProps({
@@ -42,6 +46,6 @@ const props = defineProps({
 <style scoped>
 .nutrients-info {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 </style>
