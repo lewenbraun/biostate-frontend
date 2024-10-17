@@ -1,6 +1,6 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+  <q-layout view="hHh Lpr lFf">
+    <q-header elevated class="bg-deep-orange-5">
       <q-toolbar>
         <q-btn
           flat
@@ -11,9 +11,25 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> What-to-eat-a </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
+        <q-toolbar-title
+          @click="$router.push({ name: 'main' })"
+          style="cursor: pointer"
+        >
+          What-to-eat-a
+        </q-toolbar-title>
+        <div v-if="!userAuth()" class="row q-gutter-xs">
+          <q-btn flat :to="{ name: 'login' }">Sign in</q-btn>
+          <q-btn flat :to="{ name: 'register' }">Sign up</q-btn>
+        </div>
+        <q-btn v-else flat round dense icon="account_circle">
+          <q-menu>
+            <q-list style="min-width: 100px">
+              <q-item clickable v-close-popup>
+                <q-item-section @click="logout()">Logout</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
@@ -37,9 +53,18 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useUserStore } from '../stores/userStore';
 import EssentialLink, {
   EssentialLinkProps,
 } from 'components/EssentialLink.vue';
+
+const userStore = useUserStore();
+
+const userAuth = ref(userStore.userAuth);
+
+function logout() {
+  userStore.logout();
+}
 
 defineOptions({
   name: 'MainLayout',
@@ -47,45 +72,44 @@ defineOptions({
 
 const linksList: EssentialLinkProps[] = [
   {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev',
+    title: 'Products',
+    icon: 'egg',
+    link: 'products',
   },
   {
     title: 'Github',
     caption: 'github.com/quasarframework',
-    icon: 'code',
+    icon: 'local_pizza',
     link: 'https://github.com/quasarframework',
   },
   {
     title: 'Discord Chat Channel',
     caption: 'chat.quasar.dev',
-    icon: 'chat',
+    icon: 'lunch_dining',
     link: 'https://chat.quasar.dev',
   },
   {
     title: 'Forum',
     caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
+    icon: 'tapas',
     link: 'https://forum.quasar.dev',
   },
   {
     title: 'Twitter',
     caption: '@quasarframework',
-    icon: 'rss_feed',
+    icon: 'breakfast_dining',
     link: 'https://twitter.quasar.dev',
   },
   {
     title: 'Facebook',
     caption: '@QuasarFramework',
-    icon: 'public',
+    icon: 'egg',
     link: 'https://facebook.quasar.dev',
   },
   {
     title: 'Quasar Awesome',
     caption: 'Community Quasar projects',
-    icon: 'favorite',
+    icon: 'fastfood',
     link: 'https://awesome.quasar.dev',
   },
 ];
