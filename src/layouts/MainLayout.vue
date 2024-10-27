@@ -77,10 +77,9 @@ const linksList: EssentialLinkProps[] = [
     link: 'products',
   },
   {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
+    title: 'Daily Meal',
     icon: 'local_pizza',
-    link: 'https://github.com/quasarframework',
+    link: 'dailyMeal',
   },
   {
     title: 'Discord Chat Channel',
