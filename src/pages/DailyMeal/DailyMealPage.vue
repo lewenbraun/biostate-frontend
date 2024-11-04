@@ -8,145 +8,174 @@
           :label="formatDate(date)"
           outline
           :class="{ 'today-btn': isToday(date) }"
+          @click="selectDate(date)"
         />
       </div>
       <q-separator inset />
-      <div class="flex justify-center q-my-md">
-        <q-table
-          title="Breakfast"
-          flat
-          dense
-          hide-pagination
-          :rows="rows"
-          :columns="columns"
-          row-key="name"
-        >
-          <template v-slot:body="props">
-            <q-tr :props="props">
-              <q-td key="name" :props="props">
-                {{ props.row.name }}
-                <q-popup-edit v-model="props.row.name" v-slot="scope">
-                  <q-input
-                    v-model="scope.value"
-                    dense
-                    autofocus
-                    counter
-                    @keyup.enter="scope.set"
-                  />
-                </q-popup-edit>
-              </q-td>
-              <q-td key="calories" class="cursor-pointer" :props="props">
-                <div style="border-style: dotted">{{ props.row.calories }}</div>
-                <q-popup-edit
-                  v-model="props.row.calories"
-                  title="Update calories"
-                  buttons
-                  v-slot="scope"
-                >
-                  <q-input
-                    type="number"
-                    v-model="scope.value"
-                    dense
-                    autofocus
-                  />
-                </q-popup-edit>
-              </q-td>
-              <q-td key="fat" :props="props">
-                <div class="text-pre-wrap">{{ props.row.fat }}</div>
-                <q-popup-edit v-model="props.row.fat" v-slot="scope">
-                  <q-input
-                    type="textarea"
-                    v-model="scope.value"
-                    dense
-                    autofocus
-                  />
-                </q-popup-edit>
-              </q-td>
-              <q-td key="carbs" :props="props">
-                {{ props.row.carbs }}
-                <q-popup-edit
-                  v-model="props.row.carbs"
-                  title="Update carbs"
-                  buttons
-                  persistent
-                  v-slot="scope"
-                >
-                  <q-input
-                    type="number"
-                    v-model="scope.value"
-                    dense
-                    autofocus
-                    hint="Use buttons to close"
-                  />
-                </q-popup-edit>
-              </q-td>
-              <q-td key="protein" :props="props">{{ props.row.protein }}</q-td>
-              <q-td key="sodium" :props="props">{{ props.row.sodium }}</q-td>
-              <q-td key="calcium" :props="props">{{ props.row.calcium }}</q-td>
-              <q-td key="weight" :props="props">{{ props.row.weight }}</q-td>
-            </q-tr>
+      <q-card-section horizontal>
+        <q-card-section class="col-7">
+          <template
+            v-for="(addedProductGroup, groupIndex) in meals"
+            :key="groupIndex"
+          >
+            <div class="row justify-between items-center">
+              <div class="text-h6">First meal</div>
+              <q-btn
+                round
+                outline
+                color="green"
+                size="10px"
+                dense
+                icon="add"
+                @click="setCurrentMealOrder(addedProductGroup.meal_order)"
+              />
+            </div>
+            <q-list v-if="meals.length > 0">
+              <!-- Пройдемся по каждому продукту внутри текущего addedProducts -->
+              <AddedProduct
+                v-for="(product, productIndex) in addedProductGroup.products"
+                :key="`${groupIndex}-${productIndex}`"
+                :product="product"
+                :mealOrder="addedProductGroup.meal_order"
+                @deleteProduct="
+                  deleteProductFromDailyMeal(product.id, addedProductGroup.id)
+                "
+              />
+            </q-list>
           </template>
-        </q-table>
-      </div>
-      <q-separator inset />
-      <div class="flex justify-center q-my-md">
-        <q-table
-          title="Lunch"
-          flat
-          dense
-          hide-pagination
-          :rows="rows"
-          :columns="columns"
-          row-key="name"
-        />
-      </div>
-      <q-separator inset />
-      <q-list>
-        <q-item>
-          <q-item-section>
-            <q-item-label>Frozen Yogurt</q-item-label>
-            <q-item-label>23</q-item-label>
-            <q-item-label caption lines="1">23</q-item-label>
-          </q-item-section>
-
-          <q-item-section side top>
-            <q-item-label caption>5 min ago</q-item-label>
-            <q-icon name="star" color="yellow" />
-          </q-item-section>
-        </q-item>
-
-        <q-separator spaced inset />
-
-        <q-item>
-          <q-item-section>
-            <q-item-label>Single line item</q-item-label>
-            <q-item-label caption
-              >Secondary line text. Lorem ipsum dolor sit amet, consectetur
-              adipiscit elit.</q-item-label
-            >
-          </q-item-section>
-
-          <q-item-section side top>
-            <q-item-label caption>Voted!</q-item-label>
-          </q-item-section>
-        </q-item>
-      </q-list>
-      <q-separator class="q-mt-md" />
+          <div class="q-ma-md">
+            <q-btn
+              outline
+              color="green"
+              class="full-width"
+              size="10px"
+              dense
+              icon="add"
+              style="opacity: 60%"
+              @click="createMeal"
+            />
+          </div>
+        </q-card-section>
+        <q-separator inset vertical />
+        <q-card-section class="col-5">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </q-card-section>
+      </q-card-section>
     </q-card>
+
+    <q-dialog v-model="card">
+      <q-card class="q-px-md">
+        <ProductList :addProduct="addProductToDailyMeal" />
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { Product } from 'src/stores/productStore';
+import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
+import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
+import ProductList from 'src/components/Product/ProductList.vue';
+
+const dailyMealStore = useDailyMealStore();
+
+const card = ref(false);
+const selectedDate = ref<Date>();
+
+const meals = ref<Array<Meal>>([]);
+const countMeal = ref<number>(0);
+
+const currentMealOrder = ref<number>(0);
+
+// const newMeal = ref<Meal>({
+//   products: [],
+//   meal_order: 0,
+// });
+
+function setCurrentMealOrder(meal_order: number) {
+  // const selectedDate = new Date();
+
+  card.value = true;
+
+  currentMealOrder.value = meal_order;
+
+  console.log('dsefsf', currentMealOrder.value);
+
+  // dailyMealStore.createMeal(selectedDate, countMeal.value);
+}
+function createMeal() {
+  // const selectedDate = new Date();
+  meals.value.push({
+    id: null,
+    products: [],
+    meal_order: getLastMealOrder(),
+  });
+}
+
+function getLastMealOrder() {
+  const lastMeal = meals.value[meals.value.length - 1];
+
+  return lastMeal ? lastMeal.meal_order + 1 : 1;
+}
+
+function addProductToDailyMeal(product: Product) {
+  const selectedDate = new Date();
+
+  const existingGroup = meals.value.find(
+    (group) => group.meal_order === currentMealOrder.value
+  );
+
+  if (existingGroup) {
+    existingGroup.products.push(product);
+  } else {
+    meals.value.push({
+      id: null,
+      products: [product],
+      meal_order: currentMealOrder.value,
+    });
+  }
+
+  // Обновляем store
+  dailyMealStore.addProductToMeal(
+    product.id,
+    selectedDate,
+    currentMealOrder.value
+  );
+}
+
+function deleteProductFromDailyMeal(
+  product_id: number,
+  meal_id: number | null
+) {
+  dailyMealStore.deleteProductFromMeal(product_id, meal_id);
+}
+
+onMounted(async () => {
+  const today = new Date();
+
+  await dailyMealStore.fetchDailyMeal(today);
+
+  dailyMealStore.meal.forEach((meal) => {
+    meals.value.push({
+      id: meal.id,
+      products: meal.products,
+      meal_order: meal.meal_order,
+    });
+
+    countMeal.value += 1;
+  });
+});
 
 // Определяем количество дней до и после текущей даты
-const DAYS_RANGE = 3;
+const DAYS_RANGE = 4;
 const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 
 // Генерация массива дат на основе диапазона
 function generateDates(range: number): Date[] {
   const result: Date[] = [];
   const today = new Date();
+  console.log('🚀 ~ generateDates ~ today:', today.getDate() + 1);
 
   for (let i = -range; i <= range; i++) {
     const newDate = new Date(today);
@@ -174,6 +203,11 @@ function isToday(date: Date): boolean {
   );
 }
 
+function selectDate(date: Date): void {
+  selectedDate.value = date;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const columns: Array<{
   name: string;
   required?: boolean;
@@ -208,12 +242,18 @@ const columns: Array<{
     sortable: true,
   },
   { name: 'carbs', label: 'Carbs (g)', align: 'center', field: 'carbs' },
-  { name: 'protein', label: 'Protein (g)', align: 'center', field: 'protein' },
+  {
+    name: 'proteins',
+    label: 'Proteins (g)',
+    align: 'center',
+    field: 'proteins',
+  },
   { name: 'sodium', label: 'Sodium (g)', align: 'center', field: 'sodium' },
   { name: 'calcium', label: 'Calcium (g)', align: 'center', field: 'calcium' },
   { name: 'weight', label: 'Weight (g)', align: 'center', field: 'weight' },
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const rows = [
   {
     name: 'Frozen Yogurt',
