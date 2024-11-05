@@ -40,6 +40,12 @@
                 @deleteProduct="
                   deleteProductFromDailyMeal(product.id, addedProductGroup.id)
                 "
+                @increase="
+                  increaseCountProduct(product.id, addedProductGroup.id)
+                "
+                @decrease="
+                  decreaseCountProduct(product.id, addedProductGroup.id)
+                "
               />
             </q-list>
           </template>
@@ -100,10 +106,35 @@ function setCurrentMealOrder(meal_order: number) {
 
   currentMealOrder.value = meal_order;
 
-  console.log('dsefsf', currentMealOrder.value);
-
   // dailyMealStore.createMeal(selectedDate, countMeal.value);
 }
+
+function increaseCountProduct(product_id: number, meal_id: number | null) {
+  dailyMealStore.meals.forEach((meal) => {
+    if (meal.id === meal_id) {
+      meal.products.forEach((product) => {
+        if (product.id === product_id) {
+          product.count++;
+        }
+      });
+    }
+  });
+  dailyMealStore.increaseCountProduct(product_id, meal_id);
+}
+
+function decreaseCountProduct(product_id: number, meal_id: number | null) {
+  dailyMealStore.meals.forEach((meal) => {
+    if (meal.id === meal_id) {
+      meal.products.forEach((product) => {
+        if (product.id === product_id) {
+          product.count--;
+        }
+      });
+    }
+  });
+  dailyMealStore.decreaseCountProduct(product_id, meal_id);
+}
+
 function createMeal() {
   // const selectedDate = new Date();
   meals.value.push({
@@ -156,7 +187,7 @@ onMounted(async () => {
 
   await dailyMealStore.fetchDailyMeal(today);
 
-  dailyMealStore.meal.forEach((meal) => {
+  dailyMealStore.meals.forEach((meal) => {
     meals.value.push({
       id: meal.id,
       products: meal.products,

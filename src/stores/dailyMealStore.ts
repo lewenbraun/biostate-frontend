@@ -9,7 +9,7 @@ export interface Meal {
 }
 
 export interface DailylMealState {
-  meal: Meal[];
+  meals: Meal[];
   loading: boolean;
 }
 
@@ -20,7 +20,7 @@ export interface Category {
 
 export const useDailyMealStore = defineStore('dailyMealStore', {
   state: (): DailylMealState => ({
-    meal: [],
+    meals: [],
     loading: false,
   }),
 
@@ -34,7 +34,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         const { data } = await api.get('/daily-meal', {
           params: { date: date },
         });
-        this.meal = data.data;
+        this.meals = data.data;
       } catch (error) {
         console.error('Error loading categories:', error);
       } finally {
@@ -67,6 +67,28 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     async deleteProductFromMeal(product_id: number, meal_id: number | null) {
       try {
         const { data } = await api.post('/daily-meal/product/delete', {
+          product_id,
+          meal_id,
+        });
+        console.log('Data:', data);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    },
+    async increaseCountProduct(product_id: number, meal_id: number | null) {
+      try {
+        const { data } = await api.post('/daily-meal/product/increase-count', {
+          product_id,
+          meal_id,
+        });
+        console.log('Data:', data);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    },
+    async decreaseCountProduct(product_id: number, meal_id: number | null) {
+      try {
+        const { data } = await api.post('/daily-meal/product/decrease-count', {
           product_id,
           meal_id,
         });

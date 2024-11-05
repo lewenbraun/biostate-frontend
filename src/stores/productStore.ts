@@ -17,6 +17,7 @@ export interface Product {
   proteins: number;
   carbs: number;
   fats: number;
+  count: number;
   category: Category;
 }
 
