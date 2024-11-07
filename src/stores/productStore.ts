@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 
-interface ProductState {
+export interface ProductState {
   products: Product[];
   loading: boolean;
 }
@@ -17,6 +17,7 @@ export interface Product {
   proteins: number;
   carbs: number;
   fats: number;
+  count: number;
   category: Category;
 }
 
@@ -26,7 +27,7 @@ export interface CreateProduct {
   price: number;
   weight: number;
   calories: number;
-  protein: number;
+  proteins: number;
   carbs: number;
   fats: number;
   category_id: number;

@@ -99,14 +99,14 @@
             </q-item>
             <q-item class="q-px-none">
               <q-item-section>
-                <q-item-label class="text-body1">Protein:</q-item-label>
+                <q-item-label class="text-body1">Proteins:</q-item-label>
               </q-item-section>
 
               <q-item-section>
                 <q-input
                   outlined
                   dense
-                  v-model="productData.protein"
+                  v-model="productData.proteins"
                   label="Proteins"
                   style="max-width: 150px"
                   type="number"
@@ -174,7 +174,7 @@ const productData = ref<Omit<CreateProduct, 'id' | 'image'>>({
   category_id: 0,
   description: '',
   calories: 0,
-  protein: 0,
+  proteins: 0,
   carbs: 0,
   fats: 0,
   for_weight: 0,

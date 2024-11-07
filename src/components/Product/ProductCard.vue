@@ -1,11 +1,22 @@
 <template>
   <div class="col-12 col-sm-6 col-md-4 q-py-md q-px-sm">
     <q-card class="my-card" bordered flat>
-      <img src="https://cdn.quasar.dev/img/mountains.jpg" />
-
       <q-card-section class="q-pa-none">
-        <div class="text-h8 q-mx-sm q-mt-sm">
-          {{ product.name }}
+        <div class="row justify-between items-center">
+          <div class="text-h8 q-mx-sm q-mt-sm">
+            {{ product.name }}
+          </div>
+          <q-btn
+            round
+            class="q-mt-xs q-mr-sm"
+            size="8px"
+            dense
+            outline
+            color="green"
+            icon="add"
+            @click="handleAddProduct(product)"
+            v-close-popup
+          />
         </div>
       </q-card-section>
 
@@ -17,10 +28,10 @@
       <!-- КБЖУ информация -->
       <q-card-section class="q-pa-sm">
         <div class="nutrients-info row">
-          <div class="col text-caption"><b>К:</b> {{ product.calories }}</div>
-          <div class="col text-caption"><b>Б:</b> {{ product.protein }}</div>
-          <div class="col text-caption"><b>Ж:</b> {{ product.fats }}</div>
-          <div class="col text-caption"><b>У:</b> {{ product.carbs }}</div>
+          <div class="col text-caption"><b>C:</b> {{ product.calories }}</div>
+          <div class="col text-caption"><b>P:</b> {{ product.proteins }}</div>
+          <div class="col text-caption"><b>F:</b> {{ product.fats }}</div>
+          <div class="col text-caption"><b>C:</b> {{ product.carbs }}</div>
         </div>
       </q-card-section>
     </q-card>
@@ -28,16 +39,25 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps } from 'vue';
+import { Product } from 'src/stores/productStore';
+import { defineProps, defineEmits, PropType } from 'vue';
 
 defineOptions({
   name: 'ProductCard',
 });
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const props = defineProps({
+// Определяем эмиттер для отправки события добавления продукта
+const emit = defineEmits<{
+  (e: 'addProduct', product: Product): void;
+}>();
+
+function handleAddProduct(product: Product) {
+  emit('addProduct', product);
+}
+
+defineProps({
   product: {
-    type: Object,
+    type: Object as PropType<Product>,
     required: true,
   },
 });

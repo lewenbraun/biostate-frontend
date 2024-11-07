@@ -9,7 +9,17 @@ declare module 'vue' {
   }
 }
 
-const api = axios.create({ baseURL: import.meta.env.VITE_BACKEND_URL });
+const api = axios.create({
+  baseURL: import.meta.env.VITE_BACKEND_URL,
+  transformRequest: [
+    (data) => {
+      return JSON.stringify(data);
+    },
+  ],
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 api.interceptors.request.use((config) => {
   const userStore = useUserStore();
