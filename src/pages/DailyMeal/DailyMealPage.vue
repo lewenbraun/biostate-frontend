@@ -7,7 +7,7 @@
           :key="index"
           :label="formatDate(date)"
           outline
-          :class="{ 'today-btn': isToday(date) }"
+          :class="{ 'today-btn': isSelectedDate(date) }"
           @click="selectDate(date)"
         />
       </div>
@@ -19,7 +19,7 @@
             :key="groupIndex"
           >
             <div class="row justify-between items-center">
-              <div class="text-h6">First meal</div>
+              <div class="text-h6">{{ getMealTitle(groupIndex) }}</div>
               <q-btn
                 round
                 outline
@@ -30,7 +30,7 @@
                 @click="setCurrentMealOrder(addedProductGroup.meal_order)"
               />
             </div>
-            <q-list v-if="meals.length > 0">
+            <q-list v-if="addedProductGroup.products.length > 0">
               <!-- Пройдемся по каждому продукту внутри текущего addedProducts -->
               <AddedProduct
                 v-for="(product, productIndex) in addedProductGroup.products"
@@ -48,6 +48,13 @@
                 "
               />
             </q-list>
+            <q-item-label
+              class="flex justify-center text-grey-6 q-my-sm"
+              style="user-select: none"
+              v-else
+            >
+              Empty
+            </q-item-label>
           </template>
           <div class="q-ma-md">
             <q-btn
@@ -87,7 +94,8 @@ import ProductList from 'src/components/Product/ProductList.vue';
 const dailyMealStore = useDailyMealStore();
 
 const card = ref(false);
-const selectedDate = ref<Date>();
+const selectedDate = ref<Date>(new Date());
+// const selectedDate = ref<string>('');
 
 const meals = ref<Array<Meal>>([]);
 const countMeal = ref<number>(0);
@@ -98,6 +106,32 @@ const currentMealOrder = ref<number>(0);
 //   products: [],
 //   meal_order: 0,
 // });
+
+function getMealTitle(index: number): string {
+  const mealTitles = [
+    'First',
+    'Second',
+    'Third',
+    'Fourth',
+    'Fifth',
+    'Sixth',
+    'Seventh',
+    'Eighth',
+    'Ninth',
+    'Tenth',
+    'Eleventh',
+    'Twelfth',
+    'Thirteenth',
+    'Fourteenth',
+    'Fifteenth',
+    'Sixteenth',
+    'Seventeenth',
+    'Eighteenth',
+    'Nineteenth',
+    'Twentieth',
+  ];
+  return `${mealTitles[index]} meal`;
+}
 
 function setCurrentMealOrder(meal_order: number) {
   // const selectedDate = new Date();
@@ -135,12 +169,21 @@ function decreaseCountProduct(product_id: number, meal_id: number | null) {
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
-function createMeal() {
-  // const selectedDate = new Date();
+async function createMeal() {
+  // Ожидание результата асинхронного запроса
+  let lastMealOrder = await getLastMealOrder();
+
+  // Ожидание результата создания нового приема пищи
+  let meal_id = await dailyMealStore.createMeal(
+    selectedDate.value,
+    lastMealOrder
+  );
+
   meals.value.push({
-    id: null,
+    id: meal_id,
     products: [],
-    meal_order: getLastMealOrder(),
+    meal_order: lastMealOrder,
+    date: selectedDate.value,
   });
 }
 
@@ -151,39 +194,63 @@ function getLastMealOrder() {
 }
 
 function addProductToDailyMeal(product: Product) {
-  const selectedDate = new Date();
+  // Обновляем store
+  dailyMealStore.addProductToMeal(
+    product.id,
+    selectedDate.value,
+    currentMealOrder.value
+  );
 
   const existingGroup = meals.value.find(
     (group) => group.meal_order === currentMealOrder.value
   );
 
+  product.count = 1;
   if (existingGroup) {
-    existingGroup.products.push(product);
+    let existingProduct = existingGroup.products.find(
+      (productInGroup) => productInGroup.id === product.id
+    );
+    if (existingProduct) {
+      meals.value.forEach((meal) => {
+        if (meal.id === existingGroup.id) {
+          meal.products.forEach((productInGroup) => {
+            if (productInGroup.id === product.id) {
+              productInGroup.count++;
+            }
+          });
+        }
+      });
+    } else {
+      existingGroup.products.push(product);
+    }
   } else {
     meals.value.push({
       id: null,
       products: [product],
       meal_order: currentMealOrder.value,
+      date: selectedDate.value,
     });
   }
-
-  // Обновляем store
-  dailyMealStore.addProductToMeal(
-    product.id,
-    selectedDate,
-    currentMealOrder.value
-  );
 }
 
 function deleteProductFromDailyMeal(
   product_id: number,
   meal_id: number | null
 ) {
+  meals.value.forEach((meal) => {
+    if (meal.id === meal_id) {
+      meal.products = meal.products.filter(
+        (product) => product.id !== product_id
+      );
+    }
+  });
   dailyMealStore.deleteProductFromMeal(product_id, meal_id);
 }
 
 onMounted(async () => {
   const today = new Date();
+
+  selectedDate.value = today;
 
   await dailyMealStore.fetchDailyMeal(today);
 
@@ -192,6 +259,7 @@ onMounted(async () => {
       id: meal.id,
       products: meal.products,
       meal_order: meal.meal_order,
+      date: meal.date,
     });
 
     countMeal.value += 1;
@@ -206,7 +274,6 @@ const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 function generateDates(range: number): Date[] {
   const result: Date[] = [];
   const today = new Date();
-  console.log('🚀 ~ generateDates ~ today:', today.getDate() + 1);
 
   for (let i = -range; i <= range; i++) {
     const newDate = new Date(today);
@@ -225,17 +292,49 @@ function formatDate(date: Date): string {
 }
 
 // Проверка, является ли дата сегодняшним днём
-function isToday(date: Date): boolean {
-  const today = new Date();
+// function isToday(date: Date): boolean {
+//   const today = new Date();
+//   return (
+//     date.getDate() === today.getDate() &&
+//     date.getMonth() === today.getMonth() &&
+//     date.getFullYear() === today.getFullYear()
+//   );
+// }
+
+function isSelectedDate(date: Date): boolean {
   return (
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
+    date.getDate() === selectedDate.value.getDate() &&
+    date.getMonth() === selectedDate.value.getMonth() &&
+    date.getFullYear() === selectedDate.value.getFullYear()
   );
 }
 
-function selectDate(date: Date): void {
+async function selectDate(date: Date) {
   selectedDate.value = date;
+
+  // Запрос данных для конкретной даты
+  await dailyMealStore.fetchDailyMeal(date);
+
+  // Если данные с бэка пустые, очищаем meals
+  if (dailyMealStore.meals.length === 0) {
+    meals.value = [];
+  } else {
+    // Обновляем meals, добавляя только уникальные элементы
+    dailyMealStore.meals.forEach((meal) => {
+      const exists = meals.value.some(
+        (existingMeal) => existingMeal.id === meal.id
+      );
+
+      if (!exists) {
+        meals.value.push({
+          id: meal.id,
+          products: meal.products,
+          meal_order: meal.meal_order,
+          date: date,
+        });
+      }
+    });
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

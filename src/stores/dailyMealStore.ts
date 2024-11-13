@@ -6,6 +6,7 @@ export interface Meal {
   id: number | null;
   products: Product[];
   meal_order: number;
+  date: Date;
 }
 
 export interface DailylMealState {
@@ -24,29 +25,50 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     loading: false,
   }),
 
-  getters: {},
+  getters: {
+    getMealsByDate: (state) => (date: Date) => {
+      return state.meals.filter((meal) => meal.date === date);
+    },
+  },
 
   actions: {
     async fetchDailyMeal(date: Date) {
       this.loading = true;
+      const formatedDate = date.toISOString().split('T')[0];
+
       try {
-        // Передаем параметр date в GET запрос
         const { data } = await api.get('/daily-meal', {
-          params: { date: date },
+          params: { date: formatedDate },
         });
         this.meals = data.data;
       } catch (error) {
-        console.error('Error loading categories:', error);
+        console.error('Error loading meals:', error);
       } finally {
         this.loading = false;
       }
     },
-    async createMeal(date: Date, countMeal: number) {
+    async getOrFetchMealsByDate(date: Date) {
+      const mealsForDate = this.getMealsByDate(date);
+
+      // Если для указанной даты нет данных, делаем запрос
+      if (mealsForDate.length === 0) {
+        await this.fetchDailyMeal(date);
+        return this.getMealsByDate(date); // Возвращаем обновленные данные
+      }
+
+      // Если данные уже есть, возвращаем их
+      return mealsForDate;
+    },
+    async createMeal(date: Date, meal_order: number) {
       try {
+        const formatedDate = date.toISOString().split('T')[0];
+
         const { data } = await api.post('/daily-meal/meal/create', {
-          date,
-          countMeal,
+          formatedDate,
+          meal_order,
         });
+
+        return data.id;
         console.log('Data:', data);
       } catch (error) {
         console.error('Error loading categories:', error);
