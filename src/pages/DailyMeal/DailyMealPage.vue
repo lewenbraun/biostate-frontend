@@ -178,12 +178,13 @@ async function createMeal() {
     selectedDate.value,
     lastMealOrder
   );
+  const formatedDate = selectedDate.value.toISOString().split('T')[0];
 
   meals.value.push({
     id: meal_id,
     products: [],
     meal_order: lastMealOrder,
-    date: selectedDate.value,
+    date: formatedDate,
   });
 }
 
@@ -224,11 +225,13 @@ function addProductToDailyMeal(product: Product) {
       existingGroup.products.push(product);
     }
   } else {
+    const formatedDate = selectedDate.value.toISOString().split('T')[0];
+
     meals.value.push({
       id: null,
       products: [product],
       meal_order: currentMealOrder.value,
-      date: selectedDate.value,
+      date: formatedDate,
     });
   }
 }
@@ -291,16 +294,6 @@ function formatDate(date: Date): string {
   return `${day}.${month}`;
 }
 
-// Проверка, является ли дата сегодняшним днём
-// function isToday(date: Date): boolean {
-//   const today = new Date();
-//   return (
-//     date.getDate() === today.getDate() &&
-//     date.getMonth() === today.getMonth() &&
-//     date.getFullYear() === today.getFullYear()
-//   );
-// }
-
 function isSelectedDate(date: Date): boolean {
   return (
     date.getDate() === selectedDate.value.getDate() &&
@@ -311,181 +304,35 @@ function isSelectedDate(date: Date): boolean {
 
 async function selectDate(date: Date) {
   selectedDate.value = date;
+  const formatedDate = date.toISOString().split('T')[0];
 
-  // Запрос данных для конкретной даты
-  await dailyMealStore.fetchDailyMeal(date);
+  const mealsForDate = await dailyMealStore.getOrFetchMealsByDate(date);
 
-  // Если данные с бэка пустые, очищаем meals
-  if (dailyMealStore.meals.length === 0) {
-    meals.value = [];
-  } else {
-    // Обновляем meals, добавляя только уникальные элементы
-    dailyMealStore.meals.forEach((meal) => {
-      const exists = meals.value.some(
-        (existingMeal) => existingMeal.id === meal.id
-      );
+  switch (dailyMealStore.mealsStatus[formatedDate]) {
+    case 'empty':
+      console.warn(`Для даты ${formatedDate} данных нет.`);
+      meals.value = [];
+      break;
 
-      if (!exists) {
-        meals.value.push({
-          id: meal.id,
-          products: meal.products,
-          meal_order: meal.meal_order,
-          date: date,
-        });
-      }
-    });
+    case 'loaded':
+      meals.value = mealsForDate.map((meal: Meal) => ({
+        id: meal.id,
+        products: meal.products,
+        meal_order: meal.meal_order,
+        date: formatedDate,
+      }));
+      break;
+
+    case 'error':
+      console.error(`Произошла ошибка при загрузке данных для ${formatedDate}`);
+      meals.value = [];
+      break;
+
+    default:
+      console.log(`Данные для ${formatedDate} ещё загружаются.`);
+      meals.value = [];
   }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const columns: Array<{
-  name: string;
-  required?: boolean;
-  label: string;
-  align?: 'left' | 'center' | 'right';
-  field: string | ((row: Record<string, unknown>) => unknown);
-  format?: (val: unknown) => string;
-  sortable?: boolean;
-  sort?: (a: unknown, b: unknown) => number;
-}> = [
-  {
-    name: 'name',
-    required: true,
-    label: 'Name',
-    align: 'left', // 'left', 'center' или 'right'
-    field: (row: Record<string, unknown>) => row.name,
-    format: (val: unknown) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: 'calories',
-    align: 'center',
-    label: 'Calories',
-    field: 'calories',
-    sortable: true,
-  },
-  {
-    name: 'fat',
-    label: 'Fat (g)',
-    align: 'center',
-    field: 'fat',
-    sortable: true,
-  },
-  { name: 'carbs', label: 'Carbs (g)', align: 'center', field: 'carbs' },
-  {
-    name: 'proteins',
-    label: 'Proteins (g)',
-    align: 'center',
-    field: 'proteins',
-  },
-  { name: 'sodium', label: 'Sodium (g)', align: 'center', field: 'sodium' },
-  { name: 'calcium', label: 'Calcium (g)', align: 'center', field: 'calcium' },
-  { name: 'weight', label: 'Weight (g)', align: 'center', field: 'weight' },
-];
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const rows = [
-  {
-    name: 'Frozen Yogurt',
-    calories: 159,
-    fat: 6.0,
-    carbs: 24,
-    protein: 4.0,
-    sodium: 87,
-    calcium: '14%',
-    weight: '1%',
-  },
-  {
-    name: 'Ice cream sandwich',
-    calories: 237,
-    fat: 9.0,
-    carbs: 37,
-    protein: 4.3,
-    sodium: 129,
-    calcium: '8%',
-    weight: '1%',
-  },
-  {
-    name: 'Eclair',
-    calories: 262,
-    fat: 16.0,
-    carbs: 23,
-    protein: 6.0,
-    sodium: 337,
-    calcium: '6%',
-    weight: '7%',
-  },
-  {
-    name: 'Cupcake',
-    calories: 305,
-    fat: 3.7,
-    carbs: 67,
-    protein: 4.3,
-    sodium: 413,
-    calcium: '3%',
-    weight: '8%',
-  },
-  {
-    name: 'Gingerbread',
-    calories: 356,
-    fat: 16.0,
-    carbs: 49,
-    protein: 3.9,
-    sodium: 327,
-    calcium: '7%',
-    weight: '16%',
-  },
-  {
-    name: 'Jelly bean',
-    calories: 375,
-    fat: 0.0,
-    carbs: 94,
-    protein: 0.0,
-    sodium: 50,
-    calcium: '0%',
-    weight: '0%',
-  },
-  {
-    name: 'Lollipop',
-    calories: 392,
-    fat: 0.2,
-    carbs: 98,
-    protein: 0,
-    sodium: 38,
-    calcium: '0%',
-    weight: '2%',
-  },
-  {
-    name: 'Honeycomb',
-    calories: 408,
-    fat: 3.2,
-    carbs: 87,
-    protein: 6.5,
-    sodium: 562,
-    calcium: '0%',
-    weight: '45%',
-  },
-  {
-    name: 'Donut',
-    calories: 452,
-    fat: 25.0,
-    carbs: 51,
-    protein: 4.9,
-    sodium: 326,
-    calcium: '2%',
-    weight: '22%',
-  },
-  {
-    name: 'KitKat',
-    calories: 518,
-    fat: 26.0,
-    carbs: 65,
-    protein: 7,
-    sodium: 54,
-    calcium: '12%',
-    weight: '6%',
-  },
-];
 </script>
 
 <style scoped>
