@@ -83,8 +83,8 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         const formatedDate = date.toISOString().split('T')[0];
 
         const { data } = await api.post('/daily-meal/meal/create', {
-          formatedDate,
-          meal_order,
+          date: formatedDate,
+          meal_order: meal_order,
         });
 
         return data.id;

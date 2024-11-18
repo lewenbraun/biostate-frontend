@@ -240,14 +240,20 @@ function deleteProductFromDailyMeal(
   product_id: number,
   meal_id: number | null
 ) {
+  dailyMealStore.deleteProductFromMeal(product_id, meal_id);
+
+  // Удаляем продукт из meals
   meals.value.forEach((meal) => {
-    if (meal.id === meal_id) {
-      meal.products = meal.products.filter(
-        (product) => product.id !== product_id
+    
+    if (meal.id === meal_id && meal_id !== null) {
+      const index = meal.products.findIndex(
+        (product) => product.id === product_id
       );
+      if (index !== -1) {
+        meal.products.splice(index, 1);
+      }
     }
   });
-  dailyMealStore.deleteProductFromMeal(product_id, meal_id);
 }
 
 onMounted(async () => {
