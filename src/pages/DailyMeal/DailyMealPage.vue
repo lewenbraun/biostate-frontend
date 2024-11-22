@@ -7,7 +7,7 @@
           :key="index"
           :label="formatDate(date)"
           outline
-          :class="{ 'today-btn': isToday(date) }"
+          :class="{ 'today-btn': isSelectedDate(date) }"
           @click="selectDate(date)"
         />
       </div>
@@ -15,11 +15,11 @@
       <q-card-section horizontal>
         <q-card-section class="col-7">
           <template
-            v-for="(addedProductGroup, groupIndex) in meals"
+            v-for="(addedProductGroup, groupIndex) in dailyMealStore.meals"
             :key="groupIndex"
           >
             <div class="row justify-between items-center">
-              <div class="text-h6">First meal</div>
+              <div class="text-h6">{{ getMealTitle(groupIndex) }}</div>
               <q-btn
                 round
                 outline
@@ -30,7 +30,7 @@
                 @click="setCurrentMealOrder(addedProductGroup.meal_order)"
               />
             </div>
-            <q-list v-if="meals.length > 0">
+            <q-list v-if="addedProductGroup.products.length > 0">
               <!-- Пройдемся по каждому продукту внутри текущего addedProducts -->
               <AddedProduct
                 v-for="(product, productIndex) in addedProductGroup.products"
@@ -48,6 +48,13 @@
                 "
               />
             </q-list>
+            <q-item-label
+              class="flex justify-center text-grey-6 q-my-sm"
+              style="user-select: none"
+              v-else
+            >
+              Empty
+            </q-item-label>
           </template>
           <div class="q-ma-md">
             <q-btn
@@ -78,19 +85,21 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
+// import { onMounted, ref } from 'vue';
 import { Product } from 'src/stores/productStore';
-import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
+import { Meal, useDailyMealStore } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
 import ProductList from 'src/components/Product/ProductList.vue';
 
 const dailyMealStore = useDailyMealStore();
 
 const card = ref(false);
-const selectedDate = ref<Date>();
+const selectedDate = ref<Date>(new Date());
+// const selectedDate = ref<string>('');
 
-const meals = ref<Array<Meal>>([]);
-const countMeal = ref<number>(0);
+// const meals = ref<Array<Meal>>([]);
+// const countMeal = ref<number>(0);
 
 const currentMealOrder = ref<number>(0);
 
@@ -98,6 +107,32 @@ const currentMealOrder = ref<number>(0);
 //   products: [],
 //   meal_order: 0,
 // });
+
+function getMealTitle(index: number): string {
+  const mealTitles = [
+    'First',
+    'Second',
+    'Third',
+    'Fourth',
+    'Fifth',
+    'Sixth',
+    'Seventh',
+    'Eighth',
+    'Ninth',
+    'Tenth',
+    'Eleventh',
+    'Twelfth',
+    'Thirteenth',
+    'Fourteenth',
+    'Fifteenth',
+    'Sixteenth',
+    'Seventeenth',
+    'Eighteenth',
+    'Nineteenth',
+    'Twentieth',
+  ];
+  return `${mealTitles[index]} meal`;
+}
 
 function setCurrentMealOrder(meal_order: number) {
   // const selectedDate = new Date();
@@ -135,44 +170,86 @@ function decreaseCountProduct(product_id: number, meal_id: number | null) {
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
-function createMeal() {
-  // const selectedDate = new Date();
-  meals.value.push({
+// DailyMealPage.vue
+async function createMeal(): Promise<void> {
+  const lastMealOrder = await getLastMealOrder();
+
+  const newMeal: Meal = {
     id: null,
     products: [],
-    meal_order: getLastMealOrder(),
-  });
+    meal_order: lastMealOrder,
+    date: selectedDate.value.toISOString().split('T')[0],
+  };
+
+  dailyMealStore.meals.push(newMeal);
+
+  try {
+    const meal_id = await dailyMealStore.createMeal(
+      selectedDate.value,
+      lastMealOrder
+    );
+
+    const createdMealIndex = dailyMealStore.meals.findIndex(
+      (meal) => meal.id === null
+    );
+    if (createdMealIndex !== -1) {
+      dailyMealStore.meals[createdMealIndex] = {
+        ...dailyMealStore.meals[createdMealIndex],
+        id: meal_id,
+      };
+    }
+  } catch (error) {
+    dailyMealStore.meals.pop();
+    console.error('Ошибка:', error);
+  }
 }
 
 function getLastMealOrder() {
-  const lastMeal = meals.value[meals.value.length - 1];
+  const lastMeal = dailyMealStore.meals[dailyMealStore.meals.length - 1];
 
   return lastMeal ? lastMeal.meal_order + 1 : 1;
 }
 
 function addProductToDailyMeal(product: Product) {
-  const selectedDate = new Date();
-
-  const existingGroup = meals.value.find(
-    (group) => group.meal_order === currentMealOrder.value
-  );
-
-  if (existingGroup) {
-    existingGroup.products.push(product);
-  } else {
-    meals.value.push({
-      id: null,
-      products: [product],
-      meal_order: currentMealOrder.value,
-    });
-  }
-
   // Обновляем store
   dailyMealStore.addProductToMeal(
     product.id,
-    selectedDate,
+    selectedDate.value,
     currentMealOrder.value
   );
+
+  const existingGroup = dailyMealStore.meals.find(
+    (group) => group.meal_order === currentMealOrder.value
+  );
+
+  product.count = 1;
+  if (existingGroup) {
+    let existingProduct = existingGroup.products.find(
+      (productInGroup) => productInGroup.id === product.id
+    );
+    if (existingProduct) {
+      dailyMealStore.meals.forEach((meal) => {
+        if (meal.id === existingGroup.id) {
+          meal.products.forEach((productInGroup) => {
+            if (productInGroup.id === product.id) {
+              productInGroup.count++;
+            }
+          });
+        }
+      });
+    } else {
+      existingGroup.products.push(product);
+    }
+  } else {
+    const formatedDate = selectedDate.value.toISOString().split('T')[0];
+
+    dailyMealStore.meals.push({
+      id: null,
+      products: [product],
+      meal_order: currentMealOrder.value,
+      date: formatedDate,
+    });
+  }
 }
 
 function deleteProductFromDailyMeal(
@@ -180,23 +257,19 @@ function deleteProductFromDailyMeal(
   meal_id: number | null
 ) {
   dailyMealStore.deleteProductFromMeal(product_id, meal_id);
-}
 
-onMounted(async () => {
-  const today = new Date();
-
-  await dailyMealStore.fetchDailyMeal(today);
-
+  // Удаляем продукт из meals
   dailyMealStore.meals.forEach((meal) => {
-    meals.value.push({
-      id: meal.id,
-      products: meal.products,
-      meal_order: meal.meal_order,
-    });
-
-    countMeal.value += 1;
+    if (meal.id === meal_id && meal_id !== null) {
+      const index = meal.products.findIndex(
+        (product) => product.id === product_id
+      );
+      if (index !== -1) {
+        meal.products.splice(index, 1);
+      }
+    }
   });
-});
+}
 
 // Определяем количество дней до и после текущей даты
 const DAYS_RANGE = 4;
@@ -206,7 +279,6 @@ const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 function generateDates(range: number): Date[] {
   const result: Date[] = [];
   const today = new Date();
-  console.log('🚀 ~ generateDates ~ today:', today.getDate() + 1);
 
   for (let i = -range; i <= range; i++) {
     const newDate = new Date(today);
@@ -224,169 +296,28 @@ function formatDate(date: Date): string {
   return `${day}.${month}`;
 }
 
-// Проверка, является ли дата сегодняшним днём
-function isToday(date: Date): boolean {
-  const today = new Date();
+function isSelectedDate(date: Date): boolean {
   return (
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
+    date.getDate() === selectedDate.value.getDate() &&
+    date.getMonth() === selectedDate.value.getMonth() &&
+    date.getFullYear() === selectedDate.value.getFullYear()
   );
 }
 
-function selectDate(date: Date): void {
+async function selectDate(date: Date) {
   selectedDate.value = date;
+  const formattedDate = date.toISOString().split('T')[0];
+
+  // Проверяем, есть ли данные в store
+  if (!dailyMealStore.hasDataForDate(formattedDate)) {
+    try {
+      // Загружаем данные, если их нет
+      await dailyMealStore.fetchMealsByDate(formattedDate);
+    } catch (error) {
+      console.error('Не удалось загрузить данные:', error);
+    }
+  }
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const columns: Array<{
-  name: string;
-  required?: boolean;
-  label: string;
-  align?: 'left' | 'center' | 'right';
-  field: string | ((row: Record<string, unknown>) => unknown);
-  format?: (val: unknown) => string;
-  sortable?: boolean;
-  sort?: (a: unknown, b: unknown) => number;
-}> = [
-  {
-    name: 'name',
-    required: true,
-    label: 'Name',
-    align: 'left', // 'left', 'center' или 'right'
-    field: (row: Record<string, unknown>) => row.name,
-    format: (val: unknown) => `${val}`,
-    sortable: true,
-  },
-  {
-    name: 'calories',
-    align: 'center',
-    label: 'Calories',
-    field: 'calories',
-    sortable: true,
-  },
-  {
-    name: 'fat',
-    label: 'Fat (g)',
-    align: 'center',
-    field: 'fat',
-    sortable: true,
-  },
-  { name: 'carbs', label: 'Carbs (g)', align: 'center', field: 'carbs' },
-  {
-    name: 'proteins',
-    label: 'Proteins (g)',
-    align: 'center',
-    field: 'proteins',
-  },
-  { name: 'sodium', label: 'Sodium (g)', align: 'center', field: 'sodium' },
-  { name: 'calcium', label: 'Calcium (g)', align: 'center', field: 'calcium' },
-  { name: 'weight', label: 'Weight (g)', align: 'center', field: 'weight' },
-];
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const rows = [
-  {
-    name: 'Frozen Yogurt',
-    calories: 159,
-    fat: 6.0,
-    carbs: 24,
-    protein: 4.0,
-    sodium: 87,
-    calcium: '14%',
-    weight: '1%',
-  },
-  {
-    name: 'Ice cream sandwich',
-    calories: 237,
-    fat: 9.0,
-    carbs: 37,
-    protein: 4.3,
-    sodium: 129,
-    calcium: '8%',
-    weight: '1%',
-  },
-  {
-    name: 'Eclair',
-    calories: 262,
-    fat: 16.0,
-    carbs: 23,
-    protein: 6.0,
-    sodium: 337,
-    calcium: '6%',
-    weight: '7%',
-  },
-  {
-    name: 'Cupcake',
-    calories: 305,
-    fat: 3.7,
-    carbs: 67,
-    protein: 4.3,
-    sodium: 413,
-    calcium: '3%',
-    weight: '8%',
-  },
-  {
-    name: 'Gingerbread',
-    calories: 356,
-    fat: 16.0,
-    carbs: 49,
-    protein: 3.9,
-    sodium: 327,
-    calcium: '7%',
-    weight: '16%',
-  },
-  {
-    name: 'Jelly bean',
-    calories: 375,
-    fat: 0.0,
-    carbs: 94,
-    protein: 0.0,
-    sodium: 50,
-    calcium: '0%',
-    weight: '0%',
-  },
-  {
-    name: 'Lollipop',
-    calories: 392,
-    fat: 0.2,
-    carbs: 98,
-    protein: 0,
-    sodium: 38,
-    calcium: '0%',
-    weight: '2%',
-  },
-  {
-    name: 'Honeycomb',
-    calories: 408,
-    fat: 3.2,
-    carbs: 87,
-    protein: 6.5,
-    sodium: 562,
-    calcium: '0%',
-    weight: '45%',
-  },
-  {
-    name: 'Donut',
-    calories: 452,
-    fat: 25.0,
-    carbs: 51,
-    protein: 4.9,
-    sodium: 326,
-    calcium: '2%',
-    weight: '22%',
-  },
-  {
-    name: 'KitKat',
-    calories: 518,
-    fat: 26.0,
-    carbs: 65,
-    protein: 7,
-    sodium: 54,
-    calcium: '12%',
-    weight: '6%',
-  },
-];
 </script>
 
 <style scoped>
