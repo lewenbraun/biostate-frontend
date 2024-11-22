@@ -9,89 +9,103 @@ export interface Meal {
   date: string;
 }
 
-export interface DailylMealState {
+export interface DailyMealState {
   meals: Meal[];
-  loading: boolean;
-  mealsStatus: Record<string, 'loading' | 'loaded' | 'empty' | 'error'>;
-}
-
-export interface Category {
-  id: string;
-  name: string;
+  loadedDates: Set<string>; // Даты с загруженными данными
+  emptyDates: Set<string>;  // Даты, где данных нет
 }
 
 export const useDailyMealStore = defineStore('dailyMealStore', {
-  state: (): DailylMealState => ({
+  state: (): DailyMealState => ({
     meals: [],
-    loading: false,
-    mealsStatus: {},
+    loadedDates: new Set(),
+    emptyDates: new Set(),
   }),
 
   getters: {
+    // Получение списка приемов пищи за дату
     getMealsByDate: (state) => (date: string) => {
-      return state.meals.filter((meal) => meal.date == date);
+      return state.meals.filter((meal) => meal.date === date);
+    },
+
+    // Проверка наличия данных для даты
+    hasDataForDate: (state) => (date: string) => {
+      return state.loadedDates.has(date) || state.emptyDates.has(date);
+    },
+
+    // Проверка, является ли дата пустой
+    isEmptyDate: (state) => (date: string) => {
+      return state.emptyDates.has(date);
     },
   },
 
   actions: {
-    async fetchDailyMeal(date: Date) {
-      const formatedDate = date.toISOString().split('T')[0];
-      this.mealsStatus[formatedDate] = 'loading';
+    // Загрузка данных за определенную дату
+    async fetchMealsByDate(date: string) {
+      if (this.loadedDates.has(date) || this.emptyDates.has(date)) {
+        return; // Не делаем повторный запрос
+      }
 
       try {
-        const { data } = await api.get('/daily-meal', {
-          params: { date: formatedDate },
-        });
+        const { data } = await api.get('/daily-meal', { params: { date } });
 
+        // Если данных нет, помечаем дату как пустую
         if (!data.data || data.data.length === 0) {
-          console.warn(`Нет данных для даты ${formatedDate}`);
-          this.mealsStatus[formatedDate] = 'empty'; // Данных нет
+          this.emptyDates.add(date);
           return [];
         }
 
-        this.mealsStatus[formatedDate] = 'loaded'; // Данные успешно загружены
-        this.meals = [...this.meals, ...data.data]; // Добавляем данные
-        return data.data;
+        // Добавляем новые приемы пищи в store
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const newMeals = data.data.map((meal: any) => ({
+          ...meal,
+          date, // Гарантируем, что дата установлена корректно
+        }));
+
+        this.meals = [...this.meals, ...newMeals];
+        this.loadedDates.add(date);
+
+        return newMeals;
       } catch (error) {
-        console.error('Ошибка при загрузке meals:', error);
-        this.mealsStatus[formatedDate] = 'error'; // Ошибка загрузки
-        return [];
+        console.error(`Ошибка при загрузке данных для ${date}:`, error);
+        throw error;
       }
     },
-    async getOrFetchMealsByDate(date: Date) {
-      const formatedDate = date.toISOString().split('T')[0];
 
-      if (this.mealsStatus[formatedDate] === 'loading') {
-        console.log(`Данные для ${formatedDate} уже загружаются.`);
-        return [];
+    // Добавление нового приема пищи
+    addMeal(meal: Meal) {
+      this.meals.push(meal);
+      if (!this.loadedDates.has(meal.date)) {
+        this.loadedDates.add(meal.date);
       }
-
-      if (this.mealsStatus[formatedDate] === 'empty') {
-        console.warn(`Для даты ${formatedDate} данных нет.`);
-        return [];
-      }
-
-      if (this.mealsStatus[formatedDate] === 'loaded') {
-        return this.meals.filter((meal) => meal.date === formatedDate);
-      }
-
-      // Если статус неизвестен, загружаем данные
-      return await this.fetchDailyMeal(date);
     },
-    async createMeal(date: Date, meal_order: number) {
+
+    // Очистка данных
+    clearStore() {
+      this.meals = [];
+      this.loadedDates.clear();
+      this.emptyDates.clear();
+    },
+
+    // Создание приема пищи
+    async createMeal(date: Date, meal_order: number): Promise<number> {
+      const formattedDate = date.toISOString().split('T')[0];
       try {
-        const formatedDate = date.toISOString().split('T')[0];
-
         const { data } = await api.post('/daily-meal/meal/create', {
-          date: formatedDate,
-          meal_order: meal_order,
+          date: formattedDate,
+          meal_order,
         });
 
         return data.id;
-        console.log('Data:', data);
       } catch (error) {
-        console.error('Error loading categories:', error);
+        console.error('Ошибка при создании приема пищи:', error);
+        throw error;
       }
+    },
+
+
+    removeMeal(meal: Meal) {
+      this.meals = this.meals.filter((m) => m !== meal); // Удаляем из `store`
     },
     async addProductToMeal(product_id: number, date: Date, meal_order: number) {
       try {
