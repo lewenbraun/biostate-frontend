@@ -15,7 +15,7 @@
       <q-card-section horizontal>
         <q-card-section class="col-7">
           <template
-            v-for="(addedProductGroup, groupIndex) in dailyMealStore.meals"
+            v-for="(addedProductGroup, groupIndex) in meals"
             :key="groupIndex"
           >
             <div class="row justify-between items-center">
@@ -85,10 +85,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-// import { onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { Product } from 'src/stores/productStore';
-import { Meal, useDailyMealStore } from 'src/stores/dailyMealStore';
+import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
 import ProductList from 'src/components/Product/ProductList.vue';
 
@@ -98,8 +97,8 @@ const card = ref(false);
 const selectedDate = ref<Date>(new Date());
 // const selectedDate = ref<string>('');
 
-// const meals = ref<Array<Meal>>([]);
-// const countMeal = ref<number>(0);
+const meals = ref<Array<Meal>>([]);
+const countMeal = ref<number>(0);
 
 const currentMealOrder = ref<number>(0);
 
@@ -170,42 +169,25 @@ function decreaseCountProduct(product_id: number, meal_id: number | null) {
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
-// DailyMealPage.vue
-async function createMeal(): Promise<void> {
-  const lastMealOrder = await getLastMealOrder();
-
-  const newMeal: Meal = {
-    id: null,
-    products: [],
-    meal_order: lastMealOrder,
-    date: selectedDate.value.toISOString().split('T')[0],
-  };
-
-  dailyMealStore.meals.push(newMeal);
-
+async function createMeal() {
   try {
-    const meal_id = await dailyMealStore.createMeal(
+    // Получение последнего порядка
+    let lastMealOrder = await getLastMealOrder();
+
+    // Создание нового приема пищи
+    let updated_meals = await dailyMealStore.createMeal(
       selectedDate.value,
       lastMealOrder
     );
 
-    const createdMealIndex = dailyMealStore.meals.findIndex(
-      (meal) => meal.id === null
-    );
-    if (createdMealIndex !== -1) {
-      dailyMealStore.meals[createdMealIndex] = {
-        ...dailyMealStore.meals[createdMealIndex],
-        id: meal_id,
-      };
-    }
+    meals.value = updated_meals;
   } catch (error) {
-    dailyMealStore.meals.pop();
-    console.error('Ошибка:', error);
+    console.error('Ошибка при создании приема пищи:', error);
   }
 }
 
 function getLastMealOrder() {
-  const lastMeal = dailyMealStore.meals[dailyMealStore.meals.length - 1];
+  const lastMeal = meals.value[meals.value.length - 1];
 
   return lastMeal ? lastMeal.meal_order + 1 : 1;
 }
@@ -217,11 +199,12 @@ function addProductToDailyMeal(product: Product) {
     selectedDate.value,
     currentMealOrder.value
   );
+  const formatedDate = selectedDate.value.toISOString().split('T')[0];
 
   const existingGroup = dailyMealStore.meals.find(
-    (group) => group.meal_order === currentMealOrder.value
+    (group) =>
+      group.meal_order === currentMealOrder.value && group.date === formatedDate
   );
-
   product.count = 1;
   if (existingGroup) {
     let existingProduct = existingGroup.products.find(
@@ -241,8 +224,6 @@ function addProductToDailyMeal(product: Product) {
       existingGroup.products.push(product);
     }
   } else {
-    const formatedDate = selectedDate.value.toISOString().split('T')[0];
-
     dailyMealStore.meals.push({
       id: null,
       products: [product],
@@ -256,20 +237,34 @@ function deleteProductFromDailyMeal(
   product_id: number,
   meal_id: number | null
 ) {
-  dailyMealStore.deleteProductFromMeal(product_id, meal_id);
-
-  // Удаляем продукт из meals
-  dailyMealStore.meals.forEach((meal) => {
-    if (meal.id === meal_id && meal_id !== null) {
-      const index = meal.products.findIndex(
-        (product) => product.id === product_id
+  meals.value.forEach((meal) => {
+    if (meal.id === meal_id) {
+      meal.products = meal.products.filter(
+        (product) => product.id !== product_id
       );
-      if (index !== -1) {
-        meal.products.splice(index, 1);
-      }
     }
   });
+  dailyMealStore.deleteProductFromMeal(product_id, meal_id);
 }
+
+onMounted(async () => {
+  const today = new Date();
+
+  selectedDate.value = today;
+
+  await dailyMealStore.fetchDailyMeal(today);
+
+  dailyMealStore.meals.forEach((meal) => {
+    meals.value.push({
+      id: meal.id,
+      products: meal.products,
+      meal_order: meal.meal_order,
+      date: meal.date,
+    });
+
+    countMeal.value += 1;
+  });
+});
 
 // Определяем количество дней до и после текущей даты
 const DAYS_RANGE = 4;
@@ -306,16 +301,34 @@ function isSelectedDate(date: Date): boolean {
 
 async function selectDate(date: Date) {
   selectedDate.value = date;
-  const formattedDate = date.toISOString().split('T')[0];
 
-  // Проверяем, есть ли данные в store
-  if (!dailyMealStore.hasDataForDate(formattedDate)) {
-    try {
-      // Загружаем данные, если их нет
-      await dailyMealStore.fetchMealsByDate(formattedDate);
-    } catch (error) {
-      console.error('Не удалось загрузить данные:', error);
-    }
+  const formatedDate = date.toISOString().split('T')[0];
+
+  const mealsForDate = await dailyMealStore.getOrFetchMealsByDate(date);
+
+  switch (dailyMealStore.mealsStatus[formatedDate]) {
+    case 'empty':
+      console.warn(`Для даты ${formatedDate} данных нет.`);
+      meals.value = [];
+      break;
+
+    case 'loaded':
+      meals.value = mealsForDate.map((meal: Meal) => ({
+        id: meal.id,
+        products: meal.products,
+        meal_order: meal.meal_order,
+        date: formatedDate,
+      }));
+      break;
+
+    case 'error':
+      console.error(`Произошла ошибка при загрузке данных для ${formatedDate}`);
+      meals.value = [];
+      break;
+
+    default:
+      console.log(`Данные для ${formatedDate} ещё загружаются.`);
+      meals.value = [];
   }
 }
 </script>
