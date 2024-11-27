@@ -31,7 +31,6 @@
               />
             </div>
             <q-list v-if="addedProductGroup.products.length > 0">
-              <!-- Пройдемся по каждому продукту внутри текущего addedProducts -->
               <AddedProduct
                 v-for="(product, productIndex) in addedProductGroup.products"
                 :key="`${groupIndex}-${productIndex}`"
@@ -95,17 +94,11 @@ const dailyMealStore = useDailyMealStore();
 
 const card = ref(false);
 const selectedDate = ref<Date>(new Date());
-// const selectedDate = ref<string>('');
 
 const meals = ref<Array<Meal>>([]);
 const countMeal = ref<number>(0);
 
 const currentMealOrder = ref<number>(0);
-
-// const newMeal = ref<Meal>({
-//   products: [],
-//   meal_order: 0,
-// });
 
 function getMealTitle(index: number): string {
   const mealTitles = [
@@ -134,13 +127,9 @@ function getMealTitle(index: number): string {
 }
 
 function setCurrentMealOrder(meal_order: number) {
-  // const selectedDate = new Date();
-
   card.value = true;
 
   currentMealOrder.value = meal_order;
-
-  // dailyMealStore.createMeal(selectedDate, countMeal.value);
 }
 
 function increaseCountProduct(product_id: number, meal_id: number | null) {
@@ -171,10 +160,8 @@ function decreaseCountProduct(product_id: number, meal_id: number | null) {
 
 async function createMeal() {
   try {
-    // Получение последнего порядка
     let lastMealOrder = await getLastMealOrder();
 
-    // Создание нового приема пищи
     let updated_meals = await dailyMealStore.createMeal(
       selectedDate.value,
       lastMealOrder
@@ -182,7 +169,7 @@ async function createMeal() {
 
     meals.value = updated_meals;
   } catch (error) {
-    console.error('Ошибка при создании приема пищи:', error);
+    console.error('Error creating meal:', error);
   }
 }
 
@@ -193,7 +180,6 @@ function getLastMealOrder() {
 }
 
 function addProductToDailyMeal(product: Product) {
-  // Обновляем store
   dailyMealStore.addProductToMeal(
     product.id,
     selectedDate.value,
@@ -266,11 +252,9 @@ onMounted(async () => {
   });
 });
 
-// Определяем количество дней до и после текущей даты
 const DAYS_RANGE = 4;
 const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 
-// Генерация массива дат на основе диапазона
 function generateDates(range: number): Date[] {
   const result: Date[] = [];
   const today = new Date();
@@ -284,7 +268,6 @@ function generateDates(range: number): Date[] {
   return result;
 }
 
-// Форматирование даты в "dd.MM"
 function formatDate(date: Date): string {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -308,7 +291,7 @@ async function selectDate(date: Date) {
 
   switch (dailyMealStore.mealsStatus[formatedDate]) {
     case 'empty':
-      console.warn(`Для даты ${formatedDate} данных нет.`);
+      console.warn(`For date ${formatedDate} data is empty.`);
       meals.value = [];
       break;
 
@@ -322,12 +305,12 @@ async function selectDate(date: Date) {
       break;
 
     case 'error':
-      console.error(`Произошла ошибка при загрузке данных для ${formatedDate}`);
+      console.error(`Error loading ${formatedDate}`);
       meals.value = [];
       break;
 
     default:
-      console.log(`Данные для ${formatedDate} ещё загружаются.`);
+      console.log(`Data for ${formatedDate} still loading.`);
       meals.value = [];
   }
 }
