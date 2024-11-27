@@ -19,7 +19,18 @@
             :key="groupIndex"
           >
             <div class="row justify-between items-center">
-              <div class="text-h6">{{ getMealTitle(groupIndex) }}</div>
+              <div class="row items-center">
+                <div class="text-h6">{{ getMealTitle(groupIndex) }}</div>
+                <q-btn
+                  color="red-5"
+                  flat
+                  size="10px"
+                  class="q-ml-sm"
+                  dense
+                  icon="delete"
+                  @click="deleteMeal(addedProductGroup.id)"
+                />
+              </div>
               <q-btn
                 round
                 outline
@@ -128,33 +139,14 @@ function getMealTitle(index: number): string {
 
 function setCurrentMealOrder(meal_order: number) {
   card.value = true;
-
   currentMealOrder.value = meal_order;
 }
 
 function increaseCountProduct(product_id: number, meal_id: number | null) {
-  dailyMealStore.meals.forEach((meal) => {
-    if (meal.id === meal_id) {
-      meal.products.forEach((product) => {
-        if (product.id === product_id) {
-          product.count++;
-        }
-      });
-    }
-  });
   dailyMealStore.increaseCountProduct(product_id, meal_id);
 }
 
 function decreaseCountProduct(product_id: number, meal_id: number | null) {
-  dailyMealStore.meals.forEach((meal) => {
-    if (meal.id === meal_id) {
-      meal.products.forEach((product) => {
-        if (product.id === product_id) {
-          product.count--;
-        }
-      });
-    }
-  });
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
@@ -165,6 +157,20 @@ async function createMeal() {
     let updated_meals = await dailyMealStore.createMeal(
       selectedDate.value,
       lastMealOrder
+    );
+
+    meals.value = updated_meals;
+  } catch (error) {
+    console.error('Error creating meal:', error);
+  }
+}
+
+async function deleteMeal(meal_id: number) {
+  try {
+
+    let updated_meals = await dailyMealStore.deleteMeal(
+      selectedDate.value,
+      meal_id
     );
 
     meals.value = updated_meals;
@@ -209,14 +215,7 @@ function addProductToDailyMeal(product: Product) {
     } else {
       existingGroup.products.push(product);
     }
-  } else {
-    dailyMealStore.meals.push({
-      id: null,
-      products: [product],
-      meal_order: currentMealOrder.value,
-      date: formatedDate,
-    });
-  }
+  } 
 }
 
 function deleteProductFromDailyMeal(

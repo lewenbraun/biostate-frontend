@@ -3,7 +3,7 @@ import { api } from '../boot/axios';
 import { Product } from './productStore';
 
 export interface Meal {
-  id: number | null;
+  id: number;
   products: Product[];
   meal_order: number;
   date: string;
@@ -45,16 +45,16 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         if (!data.data || data.data.length === 0) {
           console.warn(`Нет данных для даты ${formatedDate}`);
-          this.mealsStatus[formatedDate] = 'empty'; // Данных нет
+          this.mealsStatus[formatedDate] = 'empty';
           return [];
         }
 
-        this.mealsStatus[formatedDate] = 'loaded'; // Данные успешно загружены
-        this.meals = [...this.meals, ...data.data]; // Добавляем данные
+        this.mealsStatus[formatedDate] = 'loaded';
+        this.meals = [...this.meals, ...data.data];
         return data.data;
       } catch (error) {
-        console.error('Ошибка при загрузке meals:', error);
-        this.mealsStatus[formatedDate] = 'error'; // Ошибка загрузки
+        console.error('Error loading meals:', error);
+        this.mealsStatus[formatedDate] = 'error';
         return [];
       }
     },
@@ -62,12 +62,12 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       const formatedDate = date.toISOString().split('T')[0];
 
       if (this.mealsStatus[formatedDate] === 'loading') {
-        console.log(`Данные для ${formatedDate} уже загружаются.`);
+        console.log(`Data for ${formatedDate} still loading.`);
         return [];
       }
 
       if (this.mealsStatus[formatedDate] === 'empty') {
-        console.warn(`Для даты ${formatedDate} данных нет.`);
+        console.warn(`For date ${formatedDate} data is empty.`);
         return [];
       }
 
@@ -75,20 +75,17 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         return this.meals.filter((meal) => meal.date === formatedDate);
       }
 
-      // Если статус неизвестен, загружаем данные
       return await this.fetchDailyMeal(date);
     },
     async createMeal(date: Date, meal_order: number) {
       try {
         const formatedDate = date.toISOString().split('T')[0];
 
-        // Отправка запроса на сервер
         const { data } = await api.post('/daily-meal/meal/create', {
           date: formatedDate,
           meal_order,
         });
 
-        // Обновление данных в store
         this.meals.push({
           id: data.id,
           products: [],
@@ -102,8 +99,25 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         return this.meals.filter((meal) => meal.date === formatedDate);
       } catch (error) {
-        console.error('Ошибка при создании приема пищи в store:', error);
-        throw error; // Пробрасываем ошибку
+        console.error('Error create new meal:', error);
+        throw error;
+      }
+    },
+    async deleteMeal(date: Date, meal_id: number) {
+      try {
+        const formatedDate = date.toISOString().split('T')[0];
+
+        await api.post('/daily-meal/meal/delete', {
+          date,
+          meal_id,
+        });
+
+        this.meals = this.meals.filter((meal) => meal.id !== meal_id);
+
+        return this.meals.filter((meal) => meal.date === formatedDate);
+      } catch (error) {
+        console.error('Error delete meal:', error);
+        throw error;
       }
     },
     async addProductToMeal(product_id: number, date: Date, meal_order: number) {
@@ -135,6 +149,15 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
           product_id,
           meal_id,
         });
+        this.meals.forEach((meal) => {
+          if (meal.id === meal_id) {
+            meal.products.forEach((product) => {
+              if (product.id === product_id) {
+                product.count++;
+              }
+            });
+          }
+        });
         console.log('Data:', data);
       } catch (error) {
         console.error('Error loading categories:', error);
@@ -145,6 +168,15 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         const { data } = await api.post('/daily-meal/product/decrease-count', {
           product_id,
           meal_id,
+        });
+        this.meals.forEach((meal) => {
+          if (meal.id === meal_id) {
+            meal.products.forEach((product) => {
+              if (product.id === product_id) {
+                product.count--;
+              }
+            });
+          }
         });
         console.log('Data:', data);
       } catch (error) {

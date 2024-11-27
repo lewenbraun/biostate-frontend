@@ -20,27 +20,6 @@
         <span caption>Fats: {{ product.fats }}</span>
       </q-item-label>
     </q-item-section>
-    <!-- <q-item-section side>
-      <q-field dense bottom-slots stack-label borderless>
-        <template v-slot:control>
-          <div class="self-center full-width no-outline" tabindex="0">
-            {{ count }}
-          </div>
-        </template>
-
-        <template v-slot:before>
-          <q-btn icon="remove" flat dense size="sm" />
-        </template>
-        <template v-slot:after>
-          <q-btn icon="add" flat dense size="sm" />
-        </template>
-      </q-field>
-    </q-item-section> -->
-    <!-- <q-item-section side>
-      <q-item-label class="text-subtitle2 text-dark">
-        Calories: {{ product.calories }}
-      </q-item-label>
-    </q-item-section> -->
     <q-item-section side>
       <div class="row q-gutter-sm items-center">
         <div>
