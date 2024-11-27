@@ -1,97 +1,116 @@
 <template>
-  <q-page class="flex items-center column">
-    <q-card class="q-mt-md full-width-card" bordered flat>
-      <div class="q-pa-md q-gutter-md row justify-around">
-        <q-btn
-          v-for="(date, index) in dates"
-          :key="index"
-          :label="formatDate(date)"
-          outline
-          :class="{ 'today-btn': isSelectedDate(date) }"
-          @click="selectDate(date)"
-        />
-      </div>
-      <q-separator inset />
-      <q-card-section horizontal>
-        <q-card-section class="col-7">
-          <template
-            v-for="(addedProductGroup, groupIndex) in meals"
-            :key="groupIndex"
-          >
-            <div class="row justify-between items-center">
-              <div class="row items-center">
-                <div class="text-h6">{{ getMealTitle(groupIndex) }}</div>
+  <transition
+    appear
+    enter-active-class="animated fadeIn"
+    leave-active-class="animated fadeOut"
+  >
+    <q-page class="flex items-center column">
+      <q-card class="q-mt-md full-width-card" bordered flat>
+        <div class="q-pa-md q-gutter-md row justify-around">
+          <q-btn
+            v-for="(date, index) in dates"
+            :key="index"
+            :label="formatDate(date)"
+            outline
+            :class="{ 'today-btn': isSelectedDate(date) }"
+            @click="selectDate(date)"
+          />
+        </div>
+        <q-separator inset />
+
+        <q-card-section horizontal>
+          <q-card-section class="col-7">
+            <template
+              v-for="(addedProductGroup, groupIndex) in meals"
+              :key="groupIndex"
+            >
+              <div class="row justify-between items-center">
+                <div class="row items-center">
+                  <div class="text-h6">{{ getMealTitle(groupIndex) }}</div>
+                  <q-btn
+                    color="red-5"
+                    flat
+                    size="10px"
+                    class="q-ml-sm"
+                    dense
+                    icon="delete"
+                    @click="deleteMeal(addedProductGroup.id)"
+                  />
+                </div>
                 <q-btn
-                  color="red-5"
-                  flat
+                  round
+                  outline
+                  color="green"
                   size="10px"
-                  class="q-ml-sm"
                   dense
-                  icon="delete"
-                  @click="deleteMeal(addedProductGroup.id)"
+                  icon="add"
+                  @click="setCurrentMealOrder(addedProductGroup.meal_order)"
                 />
               </div>
+              <transition
+                appear
+                enter-active-class="animated fadeIn"
+                leave-active-class="animated fadeOut"
+              >
+                <q-list v-if="addedProductGroup.products.length > 0">
+                  <AddedProduct
+                    v-for="(
+                      product, productIndex
+                    ) in addedProductGroup.products"
+                    :key="`${groupIndex}-${productIndex}`"
+                    :product="product"
+                    :mealOrder="addedProductGroup.meal_order"
+                    @deleteProduct="
+                      deleteProductFromDailyMeal(
+                        product.id,
+                        addedProductGroup.id
+                      )
+                    "
+                    @increase="
+                      increaseCountProduct(product.id, addedProductGroup.id)
+                    "
+                    @decrease="
+                      decreaseCountProduct(product.id, addedProductGroup.id)
+                    "
+                  />
+                </q-list>
+                <q-item-label
+                  class="flex justify-center text-grey-6 q-my-sm"
+                  style="user-select: none"
+                  v-else
+                >
+                  Empty
+                </q-item-label>
+              </transition>
+            </template>
+            <div class="q-ma-md">
               <q-btn
-                round
                 outline
                 color="green"
+                class="full-width"
                 size="10px"
                 dense
                 icon="add"
-                @click="setCurrentMealOrder(addedProductGroup.meal_order)"
+                style="opacity: 60%"
+                @click="createMeal"
               />
             </div>
-            <q-list v-if="addedProductGroup.products.length > 0">
-              <AddedProduct
-                v-for="(product, productIndex) in addedProductGroup.products"
-                :key="`${groupIndex}-${productIndex}`"
-                :product="product"
-                :mealOrder="addedProductGroup.meal_order"
-                @deleteProduct="
-                  deleteProductFromDailyMeal(product.id, addedProductGroup.id)
-                "
-                @increase="
-                  increaseCountProduct(product.id, addedProductGroup.id)
-                "
-                @decrease="
-                  decreaseCountProduct(product.id, addedProductGroup.id)
-                "
-              />
-            </q-list>
-            <q-item-label
-              class="flex justify-center text-grey-6 q-my-sm"
-              style="user-select: none"
-              v-else
-            >
-              Empty
-            </q-item-label>
-          </template>
-          <div class="q-ma-md">
-            <q-btn
-              outline
-              color="green"
-              class="full-width"
-              size="10px"
-              dense
-              icon="add"
-              style="opacity: 60%"
-              @click="createMeal"
-            />
-          </div>
-        </q-card-section>
-        <q-separator inset vertical />
-        <q-card-section class="col-5">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-        </q-card-section>
-      </q-card-section>
-    </q-card>
+          </q-card-section>
 
-    <q-dialog v-model="card">
-      <q-card class="q-px-md">
-        <ProductList :addProduct="addProductToDailyMeal" />
+          <q-separator inset vertical />
+          <q-card-section class="col-5">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </q-card-section>
+        </q-card-section>
       </q-card>
-    </q-dialog>
-  </q-page>
+
+      <q-dialog v-model="card">
+        <q-card class="q-px-md">
+          <ProductList :addProduct="addProductToDailyMeal" />
+        </q-card>
+      </q-dialog>
+    </q-page>
+  </transition>
 </template>
 
 <script setup lang="ts">
@@ -107,7 +126,6 @@ const card = ref(false);
 const selectedDate = ref<Date>(new Date());
 
 const meals = ref<Array<Meal>>([]);
-const countMeal = ref<number>(0);
 
 const currentMealOrder = ref<number>(0);
 
@@ -167,7 +185,6 @@ async function createMeal() {
 
 async function deleteMeal(meal_id: number) {
   try {
-
     let updated_meals = await dailyMealStore.deleteMeal(
       selectedDate.value,
       meal_id
@@ -215,7 +232,7 @@ function addProductToDailyMeal(product: Product) {
     } else {
       existingGroup.products.push(product);
     }
-  } 
+  }
 }
 
 function deleteProductFromDailyMeal(
@@ -237,7 +254,7 @@ onMounted(async () => {
 
   selectedDate.value = today;
 
-  await dailyMealStore.fetchDailyMeal(today);
+  await dailyMealStore.getOrFetchMealsByDate(today);
 
   dailyMealStore.meals.forEach((meal) => {
     meals.value.push({
@@ -246,8 +263,6 @@ onMounted(async () => {
       meal_order: meal.meal_order,
       date: meal.date,
     });
-
-    countMeal.value += 1;
   });
 });
 
