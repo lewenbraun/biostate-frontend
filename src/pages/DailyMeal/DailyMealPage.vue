@@ -1,94 +1,122 @@
 <template>
-  <q-page class="flex items-center column">
-    <q-card class="q-mt-md full-width-card" bordered flat>
-      <div class="q-pa-md q-gutter-md row justify-around">
-        <q-btn
-          v-for="(date, index) in dates"
-          :key="index"
-          :label="formatDate(date)"
-          outline
-          :class="{ 'today-btn': isSelectedDate(date) }"
-          @click="selectDate(date)"
-        />
-      </div>
-      <q-separator inset />
-      <q-card-section horizontal>
-        <q-card-section class="col-7">
-          <template
-            v-for="(addedProductGroup, groupIndex) in dailyMealStore.meals"
-            :key="groupIndex"
-          >
-            <div class="row justify-between items-center">
-              <div class="text-h6">{{ getMealTitle(groupIndex) }}</div>
+  <transition
+    appear
+    enter-active-class="animated fadeIn"
+    leave-active-class="animated fadeOut"
+  >
+    <q-page class="flex items-center column">
+      <q-card class="q-mt-md full-width-card" bordered flat>
+        <div class="q-pa-md q-gutter-md row justify-around">
+          <q-btn
+            v-for="(date, index) in dates"
+            :key="index"
+            :label="formatDate(date)"
+            outline
+            :class="{ 'today-btn': isSelectedDate(date) }"
+            @click="selectDate(date)"
+          />
+        </div>
+        <q-separator inset />
+
+        <q-card-section horizontal>
+          <q-card-section class="col-7">
+            <template
+              v-for="(addedProductGroup, groupIndex) in meals"
+              :key="groupIndex"
+            >
+              <div class="row justify-between items-center">
+                <div class="row items-center">
+                  <div class="text-h6">{{ getMealTitle(groupIndex) }}</div>
+                  <q-btn
+                    color="red-5"
+                    flat
+                    size="10px"
+                    class="q-ml-sm"
+                    dense
+                    icon="delete"
+                    @click="deleteMeal(addedProductGroup.id)"
+                  />
+                </div>
+                <q-btn
+                  round
+                  outline
+                  color="green"
+                  size="10px"
+                  dense
+                  icon="add"
+                  @click="setCurrentMealOrder(addedProductGroup.meal_order)"
+                />
+              </div>
+              <transition
+                appear
+                enter-active-class="animated fadeIn"
+                leave-active-class="animated fadeOut"
+              >
+                <q-list v-if="addedProductGroup.products.length > 0">
+                  <AddedProduct
+                    v-for="(
+                      product, productIndex
+                    ) in addedProductGroup.products"
+                    :key="`${groupIndex}-${productIndex}`"
+                    :product="product"
+                    :mealOrder="addedProductGroup.meal_order"
+                    @deleteProduct="
+                      deleteProductFromDailyMeal(
+                        product.id,
+                        addedProductGroup.id
+                      )
+                    "
+                    @increase="
+                      increaseCountProduct(product.id, addedProductGroup.id)
+                    "
+                    @decrease="
+                      decreaseCountProduct(product.id, addedProductGroup.id)
+                    "
+                  />
+                </q-list>
+                <q-item-label
+                  class="flex justify-center text-grey-6 q-my-sm"
+                  style="user-select: none"
+                  v-else
+                >
+                  Empty
+                </q-item-label>
+              </transition>
+            </template>
+            <div class="q-ma-md">
               <q-btn
-                round
                 outline
                 color="green"
+                class="full-width"
                 size="10px"
                 dense
                 icon="add"
-                @click="setCurrentMealOrder(addedProductGroup.meal_order)"
+                style="opacity: 60%"
+                @click="createMeal"
               />
             </div>
-            <q-list v-if="addedProductGroup.products.length > 0">
-              <!-- Пройдемся по каждому продукту внутри текущего addedProducts -->
-              <AddedProduct
-                v-for="(product, productIndex) in addedProductGroup.products"
-                :key="`${groupIndex}-${productIndex}`"
-                :product="product"
-                :mealOrder="addedProductGroup.meal_order"
-                @deleteProduct="
-                  deleteProductFromDailyMeal(product.id, addedProductGroup.id)
-                "
-                @increase="
-                  increaseCountProduct(product.id, addedProductGroup.id)
-                "
-                @decrease="
-                  decreaseCountProduct(product.id, addedProductGroup.id)
-                "
-              />
-            </q-list>
-            <q-item-label
-              class="flex justify-center text-grey-6 q-my-sm"
-              style="user-select: none"
-              v-else
-            >
-              Empty
-            </q-item-label>
-          </template>
-          <div class="q-ma-md">
-            <q-btn
-              outline
-              color="green"
-              class="full-width"
-              size="10px"
-              dense
-              icon="add"
-              style="opacity: 60%"
-              @click="createMeal"
-            />
-          </div>
-        </q-card-section>
-        <q-separator inset vertical />
-        <q-card-section class="col-5">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-        </q-card-section>
-      </q-card-section>
-    </q-card>
+          </q-card-section>
 
-    <q-dialog v-model="card">
-      <q-card class="q-px-md">
-        <ProductList :addProduct="addProductToDailyMeal" />
+          <q-separator inset vertical />
+          <q-card-section class="col-5">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </q-card-section>
+        </q-card-section>
       </q-card>
-    </q-dialog>
-  </q-page>
+
+      <q-dialog v-model="card">
+        <q-card class="q-px-md">
+          <ProductList :addProduct="addProductToDailyMeal" />
+        </q-card>
+      </q-dialog>
+    </q-page>
+  </transition>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-// import { onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { Product } from 'src/stores/productStore';
-import { Meal, useDailyMealStore } from 'src/stores/dailyMealStore';
+import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
 import ProductList from 'src/components/Product/ProductList.vue';
 
@@ -96,17 +124,10 @@ const dailyMealStore = useDailyMealStore();
 
 const card = ref(false);
 const selectedDate = ref<Date>(new Date());
-// const selectedDate = ref<string>('');
 
-// const meals = ref<Array<Meal>>([]);
-// const countMeal = ref<number>(0);
+const meals = ref<Array<Meal>>([]);
 
 const currentMealOrder = ref<number>(0);
-
-// const newMeal = ref<Meal>({
-//   products: [],
-//   meal_order: 0,
-// });
 
 function getMealTitle(index: number): string {
   const mealTitles = [
@@ -134,94 +155,71 @@ function getMealTitle(index: number): string {
   return `${mealTitles[index]} meal`;
 }
 
-function setCurrentMealOrder(meal_order: number) {
-  // const selectedDate = new Date();
-
+function setCurrentMealOrder(meal_order: number): void {
   card.value = true;
-
   currentMealOrder.value = meal_order;
-
-  // dailyMealStore.createMeal(selectedDate, countMeal.value);
 }
 
-function increaseCountProduct(product_id: number, meal_id: number | null) {
-  dailyMealStore.meals.forEach((meal) => {
-    if (meal.id === meal_id) {
-      meal.products.forEach((product) => {
-        if (product.id === product_id) {
-          product.count++;
-        }
-      });
-    }
-  });
+function increaseCountProduct(
+  product_id: number,
+  meal_id: number | null
+): void {
   dailyMealStore.increaseCountProduct(product_id, meal_id);
 }
 
-function decreaseCountProduct(product_id: number, meal_id: number | null) {
-  dailyMealStore.meals.forEach((meal) => {
-    if (meal.id === meal_id) {
-      meal.products.forEach((product) => {
-        if (product.id === product_id) {
-          product.count--;
-        }
-      });
-    }
-  });
+function decreaseCountProduct(
+  product_id: number,
+  meal_id: number | null
+): void {
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
-// DailyMealPage.vue
 async function createMeal(): Promise<void> {
-  const lastMealOrder = await getLastMealOrder();
-
-  const newMeal: Meal = {
-    id: null,
-    products: [],
-    meal_order: lastMealOrder,
-    date: selectedDate.value.toISOString().split('T')[0],
-  };
-
-  dailyMealStore.meals.push(newMeal);
-
   try {
-    const meal_id = await dailyMealStore.createMeal(
+    let lastMealOrder = await getLastMealOrder();
+
+    let updated_meals = await dailyMealStore.createMeal(
       selectedDate.value,
       lastMealOrder
     );
 
-    const createdMealIndex = dailyMealStore.meals.findIndex(
-      (meal) => meal.id === null
-    );
-    if (createdMealIndex !== -1) {
-      dailyMealStore.meals[createdMealIndex] = {
-        ...dailyMealStore.meals[createdMealIndex],
-        id: meal_id,
-      };
-    }
+    meals.value = updated_meals;
   } catch (error) {
-    dailyMealStore.meals.pop();
-    console.error('Ошибка:', error);
+    console.error('Error creating meal:', error);
+  }
+}
+
+async function deleteMeal(meal_id: number): Promise<void> {
+  try {
+    let updated_meals = await dailyMealStore.deleteMeal(
+      selectedDate.value,
+      meal_id
+    );
+
+    meals.value = updated_meals;
+  } catch (error) {
+    console.error('Error creating meal:', error);
   }
 }
 
 function getLastMealOrder() {
-  const lastMeal = dailyMealStore.meals[dailyMealStore.meals.length - 1];
+  const lastMeal = meals.value[meals.value.length - 1];
 
   return lastMeal ? lastMeal.meal_order + 1 : 1;
 }
 
-function addProductToDailyMeal(product: Product) {
-  // Обновляем store
+function addProductToDailyMeal(product: Product): void {
   dailyMealStore.addProductToMeal(
     product.id,
     selectedDate.value,
     currentMealOrder.value
   );
+  const formatedDate = selectedDate.value.toISOString().split('T')[0];
 
   const existingGroup = dailyMealStore.meals.find(
-    (group) => group.meal_order === currentMealOrder.value
+    (group) =>
+      group.meal_order === currentMealOrder.value && group.date === formatedDate
   );
-
   product.count = 1;
   if (existingGroup) {
     let existingProduct = existingGroup.products.find(
@@ -240,42 +238,43 @@ function addProductToDailyMeal(product: Product) {
     } else {
       existingGroup.products.push(product);
     }
-  } else {
-    const formatedDate = selectedDate.value.toISOString().split('T')[0];
-
-    dailyMealStore.meals.push({
-      id: null,
-      products: [product],
-      meal_order: currentMealOrder.value,
-      date: formatedDate,
-    });
   }
 }
 
 function deleteProductFromDailyMeal(
   product_id: number,
   meal_id: number | null
-) {
-  dailyMealStore.deleteProductFromMeal(product_id, meal_id);
-
-  // Удаляем продукт из meals
-  dailyMealStore.meals.forEach((meal) => {
-    if (meal.id === meal_id && meal_id !== null) {
-      const index = meal.products.findIndex(
-        (product) => product.id === product_id
+): void {
+  meals.value.forEach((meal) => {
+    if (meal.id === meal_id) {
+      meal.products = meal.products.filter(
+        (product) => product.id !== product_id
       );
-      if (index !== -1) {
-        meal.products.splice(index, 1);
-      }
     }
   });
+  dailyMealStore.deleteProductFromMeal(product_id, meal_id);
 }
 
-// Определяем количество дней до и после текущей даты
+onMounted(async () => {
+  const today = new Date();
+
+  selectedDate.value = today;
+
+  await dailyMealStore.getOrFetchMealsByDate(today);
+
+  dailyMealStore.meals.forEach((meal) => {
+    meals.value.push({
+      id: meal.id,
+      products: meal.products,
+      meal_order: meal.meal_order,
+      date: meal.date,
+    });
+  });
+});
+
 const DAYS_RANGE = 4;
 const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 
-// Генерация массива дат на основе диапазона
 function generateDates(range: number): Date[] {
   const result: Date[] = [];
   const today = new Date();
@@ -289,7 +288,6 @@ function generateDates(range: number): Date[] {
   return result;
 }
 
-// Форматирование даты в "dd.MM"
 function formatDate(date: Date): string {
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -304,18 +302,36 @@ function isSelectedDate(date: Date): boolean {
   );
 }
 
-async function selectDate(date: Date) {
+async function selectDate(date: Date): Promise<void> {
   selectedDate.value = date;
-  const formattedDate = date.toISOString().split('T')[0];
 
-  // Проверяем, есть ли данные в store
-  if (!dailyMealStore.hasDataForDate(formattedDate)) {
-    try {
-      // Загружаем данные, если их нет
-      await dailyMealStore.fetchMealsByDate(formattedDate);
-    } catch (error) {
-      console.error('Не удалось загрузить данные:', error);
-    }
+  const formatedDate = date.toISOString().split('T')[0];
+
+  const mealsForDate = await dailyMealStore.getOrFetchMealsByDate(date);
+
+  switch (dailyMealStore.mealsStatus[formatedDate]) {
+    case 'empty':
+      console.warn(`For date ${formatedDate} data is empty.`);
+      meals.value = [];
+      break;
+
+    case 'loaded':
+      meals.value = mealsForDate.map((meal: Meal) => ({
+        id: meal.id,
+        products: meal.products,
+        meal_order: meal.meal_order,
+        date: formatedDate,
+      }));
+      break;
+
+    case 'error':
+      console.error(`Error loading ${formatedDate}`);
+      meals.value = [];
+      break;
+
+    default:
+      console.log(`Data for ${formatedDate} still loading.`);
+      meals.value = [];
   }
 }
 </script>
