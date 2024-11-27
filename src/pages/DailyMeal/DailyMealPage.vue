@@ -155,20 +155,26 @@ function getMealTitle(index: number): string {
   return `${mealTitles[index]} meal`;
 }
 
-function setCurrentMealOrder(meal_order: number) {
+function setCurrentMealOrder(meal_order: number): void {
   card.value = true;
   currentMealOrder.value = meal_order;
 }
 
-function increaseCountProduct(product_id: number, meal_id: number | null) {
+function increaseCountProduct(
+  product_id: number,
+  meal_id: number | null
+): void {
   dailyMealStore.increaseCountProduct(product_id, meal_id);
 }
 
-function decreaseCountProduct(product_id: number, meal_id: number | null) {
+function decreaseCountProduct(
+  product_id: number,
+  meal_id: number | null
+): void {
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
-async function createMeal() {
+async function createMeal(): void {
   try {
     let lastMealOrder = await getLastMealOrder();
 
@@ -183,7 +189,7 @@ async function createMeal() {
   }
 }
 
-async function deleteMeal(meal_id: number) {
+async function deleteMeal(meal_id: number): void {
   try {
     let updated_meals = await dailyMealStore.deleteMeal(
       selectedDate.value,
@@ -202,7 +208,7 @@ function getLastMealOrder() {
   return lastMeal ? lastMeal.meal_order + 1 : 1;
 }
 
-function addProductToDailyMeal(product: Product) {
+function addProductToDailyMeal(product: Product): void {
   dailyMealStore.addProductToMeal(
     product.id,
     selectedDate.value,
@@ -238,7 +244,7 @@ function addProductToDailyMeal(product: Product) {
 function deleteProductFromDailyMeal(
   product_id: number,
   meal_id: number | null
-) {
+): void {
   meals.value.forEach((meal) => {
     if (meal.id === meal_id) {
       meal.products = meal.products.filter(
