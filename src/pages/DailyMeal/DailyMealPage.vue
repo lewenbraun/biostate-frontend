@@ -174,7 +174,7 @@ function decreaseCountProduct(
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
-async function createMeal(): void {
+async function createMeal(): Promise<void> {
   try {
     let lastMealOrder = await getLastMealOrder();
 
@@ -189,7 +189,7 @@ async function createMeal(): void {
   }
 }
 
-async function deleteMeal(meal_id: number): void {
+async function deleteMeal(meal_id: number): Promise<void> {
   try {
     let updated_meals = await dailyMealStore.deleteMeal(
       selectedDate.value,
@@ -302,7 +302,7 @@ function isSelectedDate(date: Date): boolean {
   );
 }
 
-async function selectDate(date: Date) {
+async function selectDate(date: Date): Promise<void> {
   selectedDate.value = date;
 
   const formatedDate = date.toISOString().split('T')[0];
