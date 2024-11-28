@@ -22,18 +22,17 @@ export interface Product {
 }
 
 export interface CreateProduct {
-  name: string;
+  name?: string;
   description: string;
-  price: number;
-  weight: number;
-  calories: number;
-  proteins: number;
-  carbs: number;
-  fats: number;
-  category_id: number;
-  for_weight: number;
+  price?: number;
+  weight?: number;
+  calories?: number;
+  proteins?: number;
+  carbs?: number;
+  fats?: number;
+  category_id?: number;
+  for_weight?: number;
 }
-
 export interface Category {
   id: string;
   name: string;
@@ -66,9 +65,11 @@ export const useProductStore = defineStore('productStore', {
       this.loading = true;
       try {
         const { data } = await api.post('/products', productData);
-        this.products.push(data); // Добавляем новый продукт в список
+        this.products.push(data);
+        return data;
       } catch (error) {
         console.error('Ошибка при создании продукта:', error);
+        throw error; 
       } finally {
         this.loading = false;
       }
