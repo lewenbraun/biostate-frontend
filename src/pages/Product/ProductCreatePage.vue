@@ -21,21 +21,19 @@
               <q-input
                 outlined
                 dense
-                v-model="productData.price"
+                v-model.number="productData.price"
                 label="Price"
                 class="q-mb-md"
-                type="number"
               />
             </div>
-
             <div class="col-3">
               <q-input
                 outlined
                 dense
                 v-model="productData.weight"
                 label="Weight"
+                :rules="ruleNumber"
                 style="min-width: 50px"
-                type="number"
               />
             </div>
             <div class="col">
@@ -46,6 +44,8 @@
                 label="Category"
                 option-label="name"
                 option-value="id"
+                emit-value
+                map-options
                 :options="categories"
                 style="min-width: 50px"
               />
@@ -74,10 +74,9 @@
                 <q-input
                   outlined
                   dense
-                  v-model="productData.for_weight"
+                  v-model="productData.weight_for_features"
                   label="Weight"
                   style="max-width: 150px"
-                  type="number"
                 />
               </q-item-section>
             </q-item>
@@ -93,7 +92,6 @@
                   v-model="productData.calories"
                   label="Calories"
                   style="max-width: 150px"
-                  type="number"
                 />
               </q-item-section>
             </q-item>
@@ -109,7 +107,6 @@
                   v-model="productData.proteins"
                   label="Proteins"
                   style="max-width: 150px"
-                  type="number"
                 />
               </q-item-section>
             </q-item>
@@ -125,7 +122,6 @@
                   v-model="productData.carbs"
                   label="Carbohydrates"
                   style="max-width: 150px"
-                  type="number"
                 />
               </q-item-section>
             </q-item>
@@ -141,7 +137,6 @@
                   v-model="productData.fats"
                   label="Fats"
                   style="max-width: 150px"
-                  type="number"
                 />
               </q-item-section>
             </q-item>
@@ -158,6 +153,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { Notify } from 'quasar';
 import { useCategoryStore } from '../../stores/categoryStore';
 import { useProductStore } from '../../stores/productStore';
 import type { Category, CreateProduct } from '../../stores/productStore';
@@ -166,19 +163,15 @@ defineOptions({
   name: 'ProductCreatePage',
 });
 
-// Исправление: Явно задаем типы для productData и category
-const productData = ref<Omit<CreateProduct, 'id' | 'image'>>({
-  name: '',
-  price: 0,
-  weight: 0,
-  category_id: 0,
+const router = useRouter();
+
+const productData = ref<CreateProduct>({
   description: '',
-  calories: 0,
-  proteins: 0,
-  carbs: 0,
-  fats: 0,
-  for_weight: 0,
 });
+
+const ruleNumber = [
+  (val: string) => /^\d+(\.\d{1,2})?$/.test(val) || 'Only numbers allowed',
+];
 
 const categoryStore = useCategoryStore();
 const productStore = useProductStore();
@@ -186,13 +179,24 @@ const categories = ref<Category[]>([]);
 
 onMounted(async () => {
   await categoryStore.fetchCategories();
-  categories.value = categoryStore.categories; // Теперь тип categories корректный
+  categories.value = categoryStore.categories;
 });
 
 const submitProduct = async () => {
   try {
-    await productStore.createProduct(productData.value);
+    const createdProduct = await productStore.createProduct(productData.value);
+    if (createdProduct) {
+      Notify.create({
+        type: 'positive',
+        message: 'Productt created successfully!',
+      });
+      router.push({ name: 'products' });
+    }
   } catch (error) {
+    Notify.create({
+      type: 'negative',
+      message: 'Failed to create product.',
+    });
     console.error('Error creating product:', error);
   }
 };
