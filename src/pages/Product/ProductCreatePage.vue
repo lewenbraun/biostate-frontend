@@ -44,6 +44,8 @@
                 label="Category"
                 option-label="name"
                 option-value="id"
+                emit-value
+                map-options
                 :options="categories"
                 style="min-width: 50px"
               />

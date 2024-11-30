@@ -108,11 +108,11 @@ import ProductCard from '../../components/Product/ProductCard.vue';
 import { useProductStore, Product } from '../../stores/productStore';
 
 const productStore = useProductStore();
-const products = ref<Product[]>([]); // Задаем правильный тип для products
+const products = ref<Product[]>([]);
 
 onMounted(async () => {
   await productStore.fetchProducts();
-  products.value = productStore.products; // Присваиваем данные из store
+  products.value = productStore.products;
 });
 
 products.value = productStore.products;
@@ -125,7 +125,6 @@ const onSearch = () => {};
 </script>
 
 <style scoped>
-/* Центрирование формы поиска, смещенной чуть выше */
 .search-container {
   display: flex;
   flex-direction: column;
