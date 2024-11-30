@@ -74,7 +74,7 @@
                 <q-input
                   outlined
                   dense
-                  v-model="productData.for_weight"
+                  v-model="productData.weight_for_features"
                   label="Weight"
                   style="max-width: 150px"
                 />

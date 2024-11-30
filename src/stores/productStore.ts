@@ -26,6 +26,7 @@ export interface CreateProduct {
   description: string;
   price?: number;
   weight?: number;
+  weight_for_features?: number;
   calories?: number;
   proteins?: number;
   carbs?: number;
@@ -69,7 +70,7 @@ export const useProductStore = defineStore('productStore', {
         return data;
       } catch (error) {
         console.error('Ошибка при создании продукта:', error);
-        throw error; 
+        throw error;
       } finally {
         this.loading = false;
       }
