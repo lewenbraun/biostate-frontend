@@ -5,7 +5,7 @@
         <div>
           <span class="text-subtitle1 q-mr-sm">{{ product.name }}</span>
           <span class="cursor-pointer text-weight-regular text-grey-8"
-            >{{ product.weight }} gr (1 un)</span
+            >{{ product.weight }} gr</span
           >
         </div>
         <div>
