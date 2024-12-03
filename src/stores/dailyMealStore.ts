@@ -120,12 +120,18 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         throw error;
       }
     },
-    async addProductToMeal(product_id: number, date: Date, meal_order: number) {
+    async addProductToMeal(
+      product_id: number,
+      date: Date,
+      meal_order: number,
+      weight: number
+    ) {
       try {
         const { data } = await api.post('/daily-meal/product/add', {
           product_id,
           date,
           meal_order,
+          weight,
         });
         console.log('Data:', data);
       } catch (error) {

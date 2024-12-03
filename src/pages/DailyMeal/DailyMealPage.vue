@@ -106,7 +106,8 @@
 
       <q-dialog v-model="card">
         <q-card class="q-px-md">
-          <ProductList :addProduct="addProductToDailyMeal" />
+          <!-- <ProductList :addProduct="addProductToDailyMeal" /> -->
+          <SelectProductList @add-product="addProductToDailyMeal" />
         </q-card>
       </q-dialog>
     </q-page>
@@ -118,7 +119,8 @@ import { onMounted, ref } from 'vue';
 import { Product } from 'src/stores/productStore';
 import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
-import ProductList from 'src/components/Product/ProductList.vue';
+// import ProductList from 'src/components/Product/ProductList.vue';
+import SelectProductList from 'src/components/Product/Meal/SelectProductList.vue';
 
 const dailyMealStore = useDailyMealStore();
 
@@ -212,7 +214,8 @@ function addProductToDailyMeal(product: Product): void {
   dailyMealStore.addProductToMeal(
     product.id,
     selectedDate.value,
-    currentMealOrder.value
+    currentMealOrder.value,
+    product.weight
   );
   const formatedDate = selectedDate.value.toISOString().split('T')[0];
 
