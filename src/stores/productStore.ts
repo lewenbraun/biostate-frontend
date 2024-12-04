@@ -34,6 +34,7 @@ export interface CreateProduct {
   category_id?: number;
   for_weight?: number;
 }
+
 export interface Category {
   id: string;
   name: string;

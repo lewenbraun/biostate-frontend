@@ -59,7 +59,7 @@
                     ) in addedProductGroup.products"
                     :key="`${groupIndex}-${productIndex}`"
                     :product="product"
-                    :mealOrder="addedProductGroup.meal_order"
+                    :meal_id="addedProductGroup.id"
                     @deleteProduct="
                       deleteProductFromDailyMeal(
                         product.id,
@@ -119,7 +119,6 @@ import { onMounted, ref } from 'vue';
 import { Product } from 'src/stores/productStore';
 import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
-// import ProductList from 'src/components/Product/ProductList.vue';
 import SelectProductList from 'src/components/Product/Meal/SelectProductList.vue';
 
 const dailyMealStore = useDailyMealStore();

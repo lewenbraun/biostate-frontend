@@ -4,6 +4,25 @@
       <q-item-label class="row q-gutter-md items-center">
         <div>
           <span class="text-subtitle1 q-mr-sm">{{ product.name }}</span>
+          <q-popup-edit v-model="changeWeight" v-slot="scope">
+            <q-input
+              v-model="changeWeight"
+              dense
+              autofocus
+              @keyup.enter="scope.set"
+              class="q-mb-sm"
+            />
+            <div class="flex justify-end">
+              <q-btn
+                label="Save"
+                flat
+                v-close-popup
+                color="success"
+                @click="changeWeightInMeal"
+                no-caps
+              />
+            </div>
+          </q-popup-edit>
           <span class="cursor-pointer text-weight-regular text-grey-8"
             >{{ product.weight }} gr</span
           >
@@ -68,15 +87,33 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+import { useDailyMealStore } from 'src/stores/dailyMealStore';
 import { Product } from 'src/stores/productStore';
 import { PropType } from 'vue';
 
-defineProps({
+const dailyMealStore = useDailyMealStore();
+
+const props = defineProps({
   product: {
     type: Object as PropType<Product>,
     required: true,
   },
+  meal_id: {
+    type: Number,
+    required: true,
+  },
 });
+
+const changeWeight = ref(props.product.weight);
+
+async function changeWeightInMeal() {
+  await dailyMealStore.updateProductWeight(
+    props.product.id,
+    props.meal_id,
+    changeWeight.value
+  );
+}
 </script>
 
 <style scoped></style>

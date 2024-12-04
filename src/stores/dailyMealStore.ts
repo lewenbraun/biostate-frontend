@@ -189,5 +189,30 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         console.error('Error loading categories:', error);
       }
     },
+    async updateProductWeight(
+      product_id: number,
+      meal_id: number | null,
+      changed_weight: number
+    ) {
+      try {
+        const { data } = await api.post('/daily-meal/product/update-weight', {
+          product_id,
+          meal_id,
+          changed_weight,
+        });
+        this.meals.forEach((meal) => {
+          if (meal.id === meal_id) {
+            meal.products.forEach((product) => {
+              if (product.id === product_id) {
+                product.weight = changed_weight;
+              }
+            });
+          }
+        });
+        console.log('Data:', data);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    },
   },
 });
