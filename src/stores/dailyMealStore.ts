@@ -50,8 +50,17 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         }
 
         this.mealsStatus[formatedDate] = 'loaded';
-        this.meals = [...this.meals, ...data.data];
-        return data.data;
+
+        const mealsWithRecalculatedProducts = data.data.map((meal: Meal) => {
+          meal.products = meal.products.map((product: Product) => {
+            this.recalculateProduct(product, 100);
+            return product;
+          });
+          return meal;
+        });
+
+        this.meals = [...this.meals, ...mealsWithRecalculatedProducts];
+        return mealsWithRecalculatedProducts;
       } catch (error) {
         console.error('Error loading meals:', error);
         this.mealsStatus[formatedDate] = 'error';
@@ -120,19 +129,41 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         throw error;
       }
     },
-    async addProductToMeal(
-      product_id: number,
-      date: Date,
-      meal_order: number,
-      weight: number
-    ) {
+    async addProductToMeal(product: Product, date: Date, meal_order: number) {
       try {
         const { data } = await api.post('/daily-meal/product/add', {
-          product_id,
+          product_id: product.id,
+          weight: product.weight,
           date,
           meal_order,
-          weight,
         });
+
+        const formatedDate = date.toISOString().split('T')[0];
+
+        const existingGroup = this.meals.find(
+          (group) =>
+            group.meal_order === meal_order && group.date === formatedDate
+        );
+        product.count = 1;
+        if (existingGroup) {
+          const existingProduct = existingGroup.products.find(
+            (productInGroup) => productInGroup.id === product.id
+          );
+          if (existingProduct) {
+            this.meals.forEach((meal) => {
+              if (meal.id === existingGroup.id) {
+                meal.products.forEach((productInGroup) => {
+                  if (productInGroup.id === product.id) {
+                    productInGroup.count++;
+                  }
+                });
+              }
+            });
+          } else {
+            this.recalculateProduct(product, 100);
+            existingGroup.products.push(product);
+          }
+        }
         console.log('Data:', data);
       } catch (error) {
         console.error('Error loading categories:', error);
@@ -204,7 +235,9 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
           if (meal.id === meal_id) {
             meal.products.forEach((product) => {
               if (product.id === product_id) {
+                const weight_for_calculating = product.weight;
                 product.weight = changed_weight;
+                this.recalculateProduct(product, weight_for_calculating);
               }
             });
           }
@@ -213,6 +246,12 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       } catch (error) {
         console.error('Error loading categories:', error);
       }
+    },
+    recalculateProduct(product: Product, weight: number) {
+      product.proteins = (product.proteins / weight) * product.weight;
+      product.carbs = (product.carbs / weight) * product.weight;
+      product.fats = (product.fats / weight) * product.weight;
+      product.calories = (product.calories / weight) * product.weight;
     },
   },
 });

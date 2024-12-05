@@ -211,36 +211,10 @@ function getLastMealOrder() {
 
 function addProductToDailyMeal(product: Product): void {
   dailyMealStore.addProductToMeal(
-    product.id,
+    product,
     selectedDate.value,
     currentMealOrder.value,
-    product.weight
   );
-  const formatedDate = selectedDate.value.toISOString().split('T')[0];
-
-  const existingGroup = dailyMealStore.meals.find(
-    (group) =>
-      group.meal_order === currentMealOrder.value && group.date === formatedDate
-  );
-  product.count = 1;
-  if (existingGroup) {
-    let existingProduct = existingGroup.products.find(
-      (productInGroup) => productInGroup.id === product.id
-    );
-    if (existingProduct) {
-      dailyMealStore.meals.forEach((meal) => {
-        if (meal.id === existingGroup.id) {
-          meal.products.forEach((productInGroup) => {
-            if (productInGroup.id === product.id) {
-              productInGroup.count++;
-            }
-          });
-        }
-      });
-    } else {
-      existingGroup.products.push(product);
-    }
-  }
 }
 
 function deleteProductFromDailyMeal(
