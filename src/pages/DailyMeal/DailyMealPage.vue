@@ -99,14 +99,16 @@
 
           <q-separator inset vertical />
           <q-card-section class="col-5">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            <StaticsDailyFeatures
+              v-if="meals.length > 0"
+              :date="selectedDate"
+            />
           </q-card-section>
         </q-card-section>
       </q-card>
 
       <q-dialog v-model="card">
         <q-card class="q-px-md">
-          <!-- <ProductList :addProduct="addProductToDailyMeal" /> -->
           <SelectProductList @add-product="addProductToDailyMeal" />
         </q-card>
       </q-dialog>
@@ -120,6 +122,7 @@ import { Product } from 'src/stores/productStore';
 import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
 import SelectProductList from 'src/components/Product/Meal/SelectProductList.vue';
+import StaticsDailyFeatures from 'src/components/DailyMeal/StaticsDailyFeatures.vue';
 
 const dailyMealStore = useDailyMealStore();
 
@@ -213,7 +216,7 @@ function addProductToDailyMeal(product: Product): void {
   dailyMealStore.addProductToMeal(
     product,
     selectedDate.value,
-    currentMealOrder.value,
+    currentMealOrder.value
   );
 }
 

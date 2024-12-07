@@ -31,6 +31,34 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     getMealsByDate: (state) => (date: string) => {
       return state.meals.filter((meal) => meal.date == date);
     },
+    WEIGHT_FACTOR_BASE: () => 100,
+    getMaxNutritonalQuantity: () => {
+      return {
+        calories: 2000,
+        fats: 65,
+        carbs: 300,
+        proteins: 150,
+      };
+    },
+    getNutritionalSummary: (state) => (date: string) => {
+      const mealsByDate = state.meals.filter((meal) => meal.date === date);
+
+      return mealsByDate.reduce(
+        (totals, meal) => {
+          meal.products.forEach((product) => {
+            const factor = (product.count * product.weight) / 100;
+
+            totals.calories += product.calories * factor;
+            totals.fats += product.fats * factor;
+            totals.carbs += product.carbs * factor;
+            totals.proteins += product.proteins * factor;
+          });
+
+          return totals;
+        },
+        { calories: 0, fats: 0, carbs: 0, proteins: 0 }
+      );
+    },
   },
 
   actions: {
@@ -53,7 +81,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         const mealsWithRecalculatedProducts = data.data.map((meal: Meal) => {
           meal.products = meal.products.map((product: Product) => {
-            this.recalculateProduct(product, 100);
+            this.recalculateProduct(product, this.WEIGHT_FACTOR_BASE);
             return product;
           });
           return meal;
@@ -160,7 +188,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
               }
             });
           } else {
-            this.recalculateProduct(product, 100);
+            this.recalculateProduct(product, this.WEIGHT_FACTOR_BASE);
             existingGroup.products.push(product);
           }
         }
