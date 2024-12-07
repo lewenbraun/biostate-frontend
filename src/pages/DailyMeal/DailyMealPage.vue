@@ -123,6 +123,8 @@ import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
 import SelectProductList from 'src/components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from 'src/components/DailyMeal/StaticsDailyFeatures.vue';
+import { useUserStore } from 'src/stores/userStore';
+const userStore = useUserStore();
 
 const dailyMealStore = useDailyMealStore();
 
@@ -233,6 +235,7 @@ function deleteProductFromDailyMeal(
   });
   dailyMealStore.deleteProductFromMeal(product_id, meal_id);
 }
+const user = ref();
 
 onMounted(async () => {
   const today = new Date();
@@ -240,6 +243,11 @@ onMounted(async () => {
   selectedDate.value = today;
 
   await dailyMealStore.getOrFetchMealsByDate(today);
+
+  // user.value = getUser();
+  await userStore.getUser();
+
+  console.log('afeaesfawesfaw', user.value);
 
   dailyMealStore.meals.forEach((meal) => {
     meals.value.push({

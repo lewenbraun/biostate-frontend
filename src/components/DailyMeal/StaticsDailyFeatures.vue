@@ -6,6 +6,7 @@
       :value="dailyCalories"
       size="120px"
       :max="maxNutritonalQuantity.calories"
+      track-color="grey-3"
       color="orange-8"
       rounded
       :angle="180"
@@ -14,7 +15,9 @@
         <div class="text-h5 text-grey-8 q-ma-none">
           {{ dailyCalories }}
         </div>
-        <div class="text-h6 text-grey-8">/ {{ maxNutritonalQuantity.calories }}</div>
+        <div class="text-h6 text-grey-8">
+          / {{ maxNutritonalQuantity.calories }}
+        </div>
       </div>
     </q-circular-progress>
 
@@ -28,6 +31,7 @@
           size="65px"
           :max="maxNutritonalQuantity.proteins"
           color="orange-8"
+          track-color="grey-3"
           rounded
           :angle="180"
         >
@@ -49,6 +53,7 @@
           :value="dailyCarbs"
           size="65px"
           :max="maxNutritonalQuantity.carbs"
+          track-color="grey-3"
           color="orange-8"
           rounded
           :angle="180"
@@ -71,6 +76,7 @@
           :value="dailyFats"
           size="65px"
           :max="maxNutritonalQuantity.fats"
+          track-color="grey-3"
           color="orange-8"
           rounded
           :angle="180"
@@ -91,26 +97,45 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useDailyMealStore } from 'src/stores/dailyMealStore';
+import { useUserStore } from 'src/stores/userStore';
 
 const props = defineProps<{
   date: Date;
 }>();
 
 const dailyMealStore = useDailyMealStore();
+const userStore = useUserStore();
+const user = ref();
 
 const maxNutritonalQuantity = dailyMealStore.getMaxNutritonalQuantity;
 
-const formatedDate = props.date.toISOString().split('T')[0];
+// const formatedDate = props.date.toISOString().split('T')[0];
+// const formatedDate = computed(() => props.date.toISOString().split('T')[0]);
+
+const formatedDate = computed(() => props.date.toISOString().split('T')[0]);
+
+console.log('🚀 ~ formatedDate:', formatedDate);
 
 const nutritionalSummary = computed(() =>
-  dailyMealStore.getNutritionalSummary(formatedDate)
+  dailyMealStore.getNutritionalSummary(formatedDate.value)
 );
 const dailyCalories = computed(() => nutritionalSummary.value.calories);
 const dailyFats = computed(() => nutritionalSummary.value.fats);
 const dailyCarbs = computed(() => nutritionalSummary.value.carbs);
 const dailyProteins = computed(() => nutritionalSummary.value.proteins);
+
+onMounted(async () => {
+  // user.value = getUser();
+  user.value = await userStore.getUser;
+
+  console.log('afeaesfawesfaw', user.value);
+});
+
+// async function getUser() {
+//   user.value = await userStore.getUser;
+// }
 </script>
 
 <style scoped></style>

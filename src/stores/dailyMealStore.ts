@@ -46,15 +46,18 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       return mealsByDate.reduce(
         (totals, meal) => {
           meal.products.forEach((product) => {
-            const factor = (product.count * product.weight) / 100;
-
-            totals.calories += product.calories * factor;
-            totals.fats += product.fats * factor;
-            totals.carbs += product.carbs * factor;
-            totals.proteins += product.proteins * factor;
+            totals.calories += product.calories * product.count;
+            totals.fats += product.fats * product.count;
+            totals.carbs += product.carbs * product.count;
+            totals.proteins += product.proteins * product.count;
           });
 
-          return totals;
+          return {
+            calories: parseFloat(totals.calories.toFixed(1)),
+            fats: parseFloat(totals.fats.toFixed(1)),
+            carbs: parseFloat(totals.carbs.toFixed(1)),
+            proteins: parseFloat(totals.proteins.toFixed(1)),
+          };
         },
         { calories: 0, fats: 0, carbs: 0, proteins: 0 }
       );
@@ -276,10 +279,18 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       }
     },
     recalculateProduct(product: Product, weight: number) {
-      product.proteins = (product.proteins / weight) * product.weight;
-      product.carbs = (product.carbs / weight) * product.weight;
-      product.fats = (product.fats / weight) * product.weight;
-      product.calories = (product.calories / weight) * product.weight;
+      product.proteins = parseFloat(
+        ((product.proteins / weight) * product.weight).toFixed(1)
+      );
+      product.carbs = parseFloat(
+        ((product.carbs / weight) * product.weight).toFixed(1)
+      );
+      product.fats = parseFloat(
+        ((product.fats / weight) * product.weight).toFixed(1)
+      );
+      product.calories = parseFloat(
+        ((product.calories / weight) * product.weight).toFixed(1)
+      );
     },
   },
 });
