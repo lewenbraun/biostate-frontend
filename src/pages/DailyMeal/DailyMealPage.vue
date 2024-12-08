@@ -59,7 +59,7 @@
                     ) in addedProductGroup.products"
                     :key="`${groupIndex}-${productIndex}`"
                     :product="product"
-                    :mealOrder="addedProductGroup.meal_order"
+                    :meal_id="addedProductGroup.id"
                     @deleteProduct="
                       deleteProductFromDailyMeal(
                         product.id,
@@ -99,14 +99,16 @@
 
           <q-separator inset vertical />
           <q-card-section class="col-5">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            <StaticsDailyFeatures
+              v-if="meals.length > 0"
+              :date="selectedDate"
+            />
           </q-card-section>
         </q-card-section>
       </q-card>
 
       <q-dialog v-model="card">
         <q-card class="q-px-md">
-          <!-- <ProductList :addProduct="addProductToDailyMeal" /> -->
           <SelectProductList @add-product="addProductToDailyMeal" />
         </q-card>
       </q-dialog>
@@ -119,8 +121,10 @@ import { onMounted, ref } from 'vue';
 import { Product } from 'src/stores/productStore';
 import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
-// import ProductList from 'src/components/Product/ProductList.vue';
 import SelectProductList from 'src/components/Product/Meal/SelectProductList.vue';
+import StaticsDailyFeatures from 'src/components/DailyMeal/StaticsDailyFeatures.vue';
+import { useUserStore } from 'src/stores/userStore';
+const userStore = useUserStore();
 
 const dailyMealStore = useDailyMealStore();
 
@@ -212,36 +216,10 @@ function getLastMealOrder() {
 
 function addProductToDailyMeal(product: Product): void {
   dailyMealStore.addProductToMeal(
-    product.id,
+    product,
     selectedDate.value,
-    currentMealOrder.value,
-    product.weight
+    currentMealOrder.value
   );
-  const formatedDate = selectedDate.value.toISOString().split('T')[0];
-
-  const existingGroup = dailyMealStore.meals.find(
-    (group) =>
-      group.meal_order === currentMealOrder.value && group.date === formatedDate
-  );
-  product.count = 1;
-  if (existingGroup) {
-    let existingProduct = existingGroup.products.find(
-      (productInGroup) => productInGroup.id === product.id
-    );
-    if (existingProduct) {
-      dailyMealStore.meals.forEach((meal) => {
-        if (meal.id === existingGroup.id) {
-          meal.products.forEach((productInGroup) => {
-            if (productInGroup.id === product.id) {
-              productInGroup.count++;
-            }
-          });
-        }
-      });
-    } else {
-      existingGroup.products.push(product);
-    }
-  }
 }
 
 function deleteProductFromDailyMeal(
@@ -257,6 +235,7 @@ function deleteProductFromDailyMeal(
   });
   dailyMealStore.deleteProductFromMeal(product_id, meal_id);
 }
+const user = ref();
 
 onMounted(async () => {
   const today = new Date();
@@ -264,6 +243,11 @@ onMounted(async () => {
   selectedDate.value = today;
 
   await dailyMealStore.getOrFetchMealsByDate(today);
+
+  // user.value = getUser();
+  await userStore.getUser();
+
+  console.log('afeaesfawesfaw', user.value);
 
   dailyMealStore.meals.forEach((meal) => {
     meals.value.push({

@@ -31,6 +31,37 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     getMealsByDate: (state) => (date: string) => {
       return state.meals.filter((meal) => meal.date == date);
     },
+    WEIGHT_FACTOR_BASE: () => 100,
+    getMaxNutritonalQuantity: () => {
+      return {
+        calories: 2000,
+        fats: 65,
+        carbs: 300,
+        proteins: 150,
+      };
+    },
+    getNutritionalSummary: (state) => (date: string) => {
+      const mealsByDate = state.meals.filter((meal) => meal.date === date);
+
+      return mealsByDate.reduce(
+        (totals, meal) => {
+          meal.products.forEach((product) => {
+            totals.calories += product.calories * product.count;
+            totals.fats += product.fats * product.count;
+            totals.carbs += product.carbs * product.count;
+            totals.proteins += product.proteins * product.count;
+          });
+
+          return {
+            calories: parseFloat(totals.calories.toFixed(0)),
+            fats: parseFloat(totals.fats.toFixed(0)),
+            carbs: parseFloat(totals.carbs.toFixed(0)),
+            proteins: parseFloat(totals.proteins.toFixed(0)),
+          };
+        },
+        { calories: 0, fats: 0, carbs: 0, proteins: 0 }
+      );
+    },
   },
 
   actions: {
@@ -50,8 +81,17 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         }
 
         this.mealsStatus[formatedDate] = 'loaded';
-        this.meals = [...this.meals, ...data.data];
-        return data.data;
+
+        const mealsWithRecalculatedProducts = data.data.map((meal: Meal) => {
+          meal.products = meal.products.map((product: Product) => {
+            this.recalculateProduct(product, this.WEIGHT_FACTOR_BASE);
+            return product;
+          });
+          return meal;
+        });
+
+        this.meals = [...this.meals, ...mealsWithRecalculatedProducts];
+        return mealsWithRecalculatedProducts;
       } catch (error) {
         console.error('Error loading meals:', error);
         this.mealsStatus[formatedDate] = 'error';
@@ -120,19 +160,41 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         throw error;
       }
     },
-    async addProductToMeal(
-      product_id: number,
-      date: Date,
-      meal_order: number,
-      weight: number
-    ) {
+    async addProductToMeal(product: Product, date: Date, meal_order: number) {
       try {
         const { data } = await api.post('/daily-meal/product/add', {
-          product_id,
+          product_id: product.id,
+          weight: product.weight,
           date,
           meal_order,
-          weight,
         });
+
+        const formatedDate = date.toISOString().split('T')[0];
+
+        const existingGroup = this.meals.find(
+          (group) =>
+            group.meal_order === meal_order && group.date === formatedDate
+        );
+        product.count = 1;
+        if (existingGroup) {
+          const existingProduct = existingGroup.products.find(
+            (productInGroup) => productInGroup.id === product.id
+          );
+          if (existingProduct) {
+            this.meals.forEach((meal) => {
+              if (meal.id === existingGroup.id) {
+                meal.products.forEach((productInGroup) => {
+                  if (productInGroup.id === product.id) {
+                    productInGroup.count++;
+                  }
+                });
+              }
+            });
+          } else {
+            this.recalculateProduct(product, this.WEIGHT_FACTOR_BASE);
+            existingGroup.products.push(product);
+          }
+        }
         console.log('Data:', data);
       } catch (error) {
         console.error('Error loading categories:', error);
@@ -188,6 +250,47 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       } catch (error) {
         console.error('Error loading categories:', error);
       }
+    },
+    async updateProductWeight(
+      product_id: number,
+      meal_id: number | null,
+      changed_weight: number
+    ) {
+      try {
+        const { data } = await api.post('/daily-meal/product/update-weight', {
+          product_id,
+          meal_id,
+          changed_weight,
+        });
+        this.meals.forEach((meal) => {
+          if (meal.id === meal_id) {
+            meal.products.forEach((product) => {
+              if (product.id === product_id) {
+                const weight_for_calculating = product.weight;
+                product.weight = changed_weight;
+                this.recalculateProduct(product, weight_for_calculating);
+              }
+            });
+          }
+        });
+        console.log('Data:', data);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    },
+    recalculateProduct(product: Product, weight: number) {
+      product.proteins = parseFloat(
+        ((product.proteins / weight) * product.weight).toFixed(1)
+      );
+      product.carbs = parseFloat(
+        ((product.carbs / weight) * product.weight).toFixed(1)
+      );
+      product.fats = parseFloat(
+        ((product.fats / weight) * product.weight).toFixed(1)
+      );
+      product.calories = parseFloat(
+        ((product.calories / weight) * product.weight).toFixed(1)
+      );
     },
   },
 });

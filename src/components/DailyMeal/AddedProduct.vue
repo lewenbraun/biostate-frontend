@@ -1,17 +1,42 @@
 <template>
   <q-item>
     <q-item-section>
-      <q-item-label class="row q-gutter-md items-center">
-        <div>
-          <span class="text-subtitle1 q-mr-sm">{{ product.name }}</span>
-          <span class="cursor-pointer text-weight-regular text-grey-8"
-            >{{ product.weight }} gr</span
-          >
-        </div>
-        <div>
-          <span class="text-subtitle2 text-dark item-end"
-            >Calories: {{ product.calories }}</span
-          >
+      <q-item-label class="row ">
+        <div class="fit row justify-between ">
+          <div class="flex ">
+            <span
+              class="text-subtitle1 q-mr-sm wrap-name "
+              style="max-width: 100px"
+              >{{ product.name }} </span
+            >
+            <q-popup-edit v-model="changeWeight" v-slot="scope">
+              <q-input
+                v-model="changeWeight"
+                dense
+                autofocus
+                @keyup.enter="scope.set"
+                class="q-mb-sm"
+              />
+              <div class="flex justify-end">
+                <q-btn
+                  label="Save"
+                  flat
+                  v-close-pop
+                  color="success"
+                  @click="changeWeightInMeal"
+                  no-caps
+                />
+              </div>
+            </q-popup-edit>
+            <span class="cursor-pointer text-weight-regular text-grey-8 self-center"
+              >{{ product.weight }} gr</span
+            >
+          </div>
+          <div class="flex">
+            <span class="text-subtitle2 text-dark item-end self-center"
+              >Calories: {{ parseFloat(product.calories.toFixed(0)) }}</span
+            >
+          </div>
         </div>
       </q-item-label>
       <q-item-label caption class="row q-gutter-md" lines="2">
@@ -68,15 +93,37 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+import { useDailyMealStore } from 'src/stores/dailyMealStore';
 import { Product } from 'src/stores/productStore';
 import { PropType } from 'vue';
 
-defineProps({
+const dailyMealStore = useDailyMealStore();
+
+const props = defineProps({
   product: {
     type: Object as PropType<Product>,
     required: true,
   },
+  meal_id: {
+    type: Number,
+    required: true,
+  },
 });
+
+const changeWeight = ref(props.product.weight);
+
+async function changeWeightInMeal() {
+  await dailyMealStore.updateProductWeight(
+    props.product.id,
+    props.meal_id,
+    changeWeight.value
+  );
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.wrap-name {
+  line-height: 1.2rem;
+}
+</style>
