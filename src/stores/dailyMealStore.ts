@@ -53,10 +53,10 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
           });
 
           return {
-            calories: parseFloat(totals.calories.toFixed(1)),
-            fats: parseFloat(totals.fats.toFixed(1)),
-            carbs: parseFloat(totals.carbs.toFixed(1)),
-            proteins: parseFloat(totals.proteins.toFixed(1)),
+            calories: parseFloat(totals.calories.toFixed(0)),
+            fats: parseFloat(totals.fats.toFixed(0)),
+            carbs: parseFloat(totals.carbs.toFixed(0)),
+            proteins: parseFloat(totals.proteins.toFixed(0)),
           };
         },
         { calories: 0, fats: 0, carbs: 0, proteins: 0 }
