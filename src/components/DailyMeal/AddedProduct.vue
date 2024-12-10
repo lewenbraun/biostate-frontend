@@ -1,14 +1,14 @@
 <template>
   <q-item>
     <q-item-section>
-      <q-item-label class="row ">
-        <div class="fit row justify-between ">
-          <div class="flex ">
+      <q-item-label class="row">
+        <div class="fit row justify-between">
+          <div class="flex">
             <span
-              class="text-subtitle1 q-mr-sm wrap-name "
+              class="text-subtitle1 q-mr-sm wrap-name"
               style="max-width: 100px"
-              >{{ product.name }} </span
-            >
+              >{{ product.name }}
+            </span>
             <q-popup-edit v-model="changeWeight" v-slot="scope">
               <q-input
                 v-model="changeWeight"
@@ -28,7 +28,8 @@
                 />
               </div>
             </q-popup-edit>
-            <span class="cursor-pointer text-weight-regular text-grey-8 self-center"
+            <span
+              class="cursor-pointer text-weight-regular text-grey-8 self-center"
               >{{ product.weight }} gr</span
             >
           </div>
@@ -60,6 +61,7 @@
                 icon="remove"
                 flat
                 dense
+                :disable="product.count === 1"
                 size="sm"
                 @click="$emit('decrease')"
               />
