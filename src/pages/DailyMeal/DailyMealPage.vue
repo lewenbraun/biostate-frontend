@@ -70,7 +70,11 @@
                       increaseCountProduct(product.id, addedProductGroup.id)
                     "
                     @decrease="
-                      decreaseCountProduct(product.id, addedProductGroup.id)
+                      decreaseCountProduct(
+                        product.id,
+                        product.count,
+                        addedProductGroup.id
+                      )
                     "
                   />
                 </q-list>
@@ -123,16 +127,11 @@ import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
 import SelectProductList from 'src/components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from 'src/components/DailyMeal/StaticsDailyFeatures.vue';
-import { useUserStore } from 'src/stores/userStore';
-const userStore = useUserStore();
 
 const dailyMealStore = useDailyMealStore();
-
 const card = ref(false);
 const selectedDate = ref<Date>(new Date());
-
 const meals = ref<Array<Meal>>([]);
-
 const currentMealOrder = ref<number>(0);
 
 function getMealTitle(index: number): string {
@@ -175,8 +174,18 @@ function increaseCountProduct(
 
 function decreaseCountProduct(
   product_id: number,
+  product_count: number,
   meal_id: number | null
 ): void {
+  if (product_count === 0) {
+    meals.value.forEach((meal) => {
+      if (meal.id === meal_id) {
+        meal.products = meal.products.filter(
+          (product) => product.id !== product_id
+        );
+      }
+    });
+  }
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
@@ -235,19 +244,12 @@ function deleteProductFromDailyMeal(
   });
   dailyMealStore.deleteProductFromMeal(product_id, meal_id);
 }
-const user = ref();
-
 onMounted(async () => {
   const today = new Date();
 
   selectedDate.value = today;
 
   await dailyMealStore.getOrFetchMealsByDate(today);
-
-  // user.value = getUser();
-  await userStore.getUser();
-
-  console.log('afeaesfawesfaw', user.value);
 
   dailyMealStore.meals.forEach((meal) => {
     meals.value.push({
