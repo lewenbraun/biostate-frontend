@@ -14,7 +14,6 @@
         title="Select product"
         icon="settings"
         :done="step > 1"
-        class="q-pa-none"
         style="padding: 0px"
       >
         <q-input dense rounded placeholder="Name product" v-model="searchQuery">
@@ -27,7 +26,9 @@
           flat
           :rows="products"
           :columns="columns"
+          dense
           row-key="name"
+          :rows-per-page-options="[10]"
         >
           <template v-slot:header="props">
             <q-tr :props="props">
@@ -88,17 +89,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { QStepper } from 'quasar';
 import { useProductStore, Product } from '../../../stores/productStore';
 
 const productStore = useProductStore();
 const products = ref<Product[]>([]);
-
+const searchQuery = ref('');
 const selectedProduct = ref<Product>();
 
 const step = ref(1);
 
-// const stepperRef = ref<QStepper | null>(null);
+async function onSearch() {
+  products.value = await productStore.searchProducts(searchQuery.value);
+}
 
 onMounted(async () => {
   await productStore.fetchProducts();
@@ -157,17 +159,6 @@ const columns = [
 ];
 
 products.value = productStore.products;
-
-// defineProps({
-//   products: {
-//     type: Object as PropType<Product[]>,
-//     required: true,
-//   },
-// });
-
-const searchQuery = ref('');
-
-const onSearch = () => {};
 </script>
 
 <style scoped>
