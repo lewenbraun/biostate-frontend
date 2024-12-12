@@ -40,23 +40,29 @@
           </template>
 
           <template v-slot:body="props">
-            <q-tr :props="props">
-              <q-td v-for="col in props.cols" :key="col.name" :props="props">
-                {{ col.value }}
-              </q-td>
-              <q-td auto-width>
-                <q-btn
-                  round
-                  class="q-mt-xs q-mr-sm"
-                  size="8px"
-                  dense
-                  outline
-                  color="green"
-                  icon="add"
-                  @click="selectProduct(props.row)"
-                />
-              </q-td>
-            </q-tr>
+            <transition
+              appear
+              enter-active-class="animated fadeIn"
+              leave-active-class="animated fadeOut"
+            >
+              <q-tr :props="props">
+                <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                  {{ col.value }}
+                </q-td>
+                <q-td auto-width>
+                  <q-btn
+                    round
+                    class="q-mt-xs q-mr-sm"
+                    size="8px"
+                    dense
+                    outline
+                    color="green"
+                    icon="add"
+                    @click="selectProduct(props.row)"
+                  />
+                </q-td>
+              </q-tr>
+            </transition>
           </template>
         </q-table>
       </q-step>
