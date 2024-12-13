@@ -111,31 +111,20 @@ const user = ref();
 
 const maxNutritonalQuantity = dailyMealStore.getMaxNutritonalQuantity;
 
-// const formatedDate = props.date.toISOString().split('T')[0];
-// const formatedDate = computed(() => props.date.toISOString().split('T')[0]);
-
 const formatedDate = computed(() => props.date.toISOString().split('T')[0]);
-
-console.log('🚀 ~ formatedDate:', formatedDate);
 
 const nutritionalSummary = computed(() =>
   dailyMealStore.getNutritionalSummary(formatedDate.value)
 );
+
 const dailyCalories = computed(() => nutritionalSummary.value.calories);
 const dailyFats = computed(() => nutritionalSummary.value.fats);
 const dailyCarbs = computed(() => nutritionalSummary.value.carbs);
 const dailyProteins = computed(() => nutritionalSummary.value.proteins);
 
 onMounted(async () => {
-  // user.value = getUser();
   user.value = await userStore.getUser;
-
-  console.log('afeaesfawesfaw', user.value);
 });
-
-// async function getUser() {
-//   user.value = await userStore.getUser;
-// }
 </script>
 
 <style scoped></style>
