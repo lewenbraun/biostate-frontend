@@ -46,7 +46,6 @@ defineOptions({
   name: 'ProductCard',
 });
 
-// Определяем эмиттер для отправки события добавления продукта
 const emit = defineEmits<{
   (e: 'addProduct', product: Product): void;
 }>();

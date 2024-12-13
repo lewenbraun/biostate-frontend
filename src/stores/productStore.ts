@@ -66,7 +66,7 @@ export const useProductStore = defineStore('productStore', {
     async createProduct(productData: CreateProduct) {
       this.loading = true;
       try {
-        const { data } = await api.post('/products', productData);
+        const { data } = await api.post('/products/update', productData);
         this.products.push(data);
         return data;
       } catch (error) {
@@ -74,6 +74,15 @@ export const useProductStore = defineStore('productStore', {
         throw error;
       } finally {
         this.loading = false;
+      }
+    },
+    async searchProducts(query: string) {
+      try {
+        const { data } = await api.get(`/products/search/${query}`);
+        return data;
+      } catch (error) {
+        console.error('Error search products:', error);
+        throw error;
       }
     },
   },

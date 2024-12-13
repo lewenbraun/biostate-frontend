@@ -14,7 +14,6 @@
         title="Select product"
         icon="settings"
         :done="step > 1"
-        class="q-pa-none"
         style="padding: 0px"
       >
         <q-input dense rounded placeholder="Name product" v-model="searchQuery">
@@ -27,7 +26,9 @@
           flat
           :rows="products"
           :columns="columns"
+          dense
           row-key="name"
+          :rows-per-page-options="[10]"
         >
           <template v-slot:header="props">
             <q-tr :props="props">
@@ -39,23 +40,29 @@
           </template>
 
           <template v-slot:body="props">
-            <q-tr :props="props">
-              <q-td v-for="col in props.cols" :key="col.name" :props="props">
-                {{ col.value }}
-              </q-td>
-              <q-td auto-width>
-                <q-btn
-                  round
-                  class="q-mt-xs q-mr-sm"
-                  size="8px"
-                  dense
-                  outline
-                  color="green"
-                  icon="add"
-                  @click="selectProduct(props.row)"
-                />
-              </q-td>
-            </q-tr>
+            <transition
+              appear
+              enter-active-class="animated fadeIn"
+              leave-active-class="animated fadeOut"
+            >
+              <q-tr :props="props">
+                <q-td v-for="col in props.cols" :key="col.name" :props="props">
+                  {{ col.value }}
+                </q-td>
+                <q-td auto-width>
+                  <q-btn
+                    round
+                    class="q-mt-xs q-mr-sm"
+                    size="8px"
+                    dense
+                    outline
+                    color="green"
+                    icon="add"
+                    @click="selectProduct(props.row)"
+                  />
+                </q-td>
+              </q-tr>
+            </transition>
           </template>
         </q-table>
       </q-step>
@@ -88,17 +95,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import type { QStepper } from 'quasar';
 import { useProductStore, Product } from '../../../stores/productStore';
 
 const productStore = useProductStore();
 const products = ref<Product[]>([]);
-
+const searchQuery = ref('');
 const selectedProduct = ref<Product>();
 
 const step = ref(1);
 
-// const stepperRef = ref<QStepper | null>(null);
+async function onSearch() {
+  products.value = await productStore.searchProducts(searchQuery.value);
+}
 
 onMounted(async () => {
   await productStore.fetchProducts();
@@ -157,17 +165,6 @@ const columns = [
 ];
 
 products.value = productStore.products;
-
-// defineProps({
-//   products: {
-//     type: Object as PropType<Product[]>,
-//     required: true,
-//   },
-// });
-
-const searchQuery = ref('');
-
-const onSearch = () => {};
 </script>
 
 <style scoped>
