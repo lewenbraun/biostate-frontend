@@ -26,6 +26,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/DailyMeal/DailyMealPage.vue'),
         name: 'dailyMeal',
       },
+      {
+        path: '/profile',
+        component: () => import('pages/Profile/ProfilePage.vue'),
+        name: 'profile',
+      },
     ],
   },
   {

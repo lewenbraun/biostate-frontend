@@ -36,6 +36,11 @@ export const useUserStore = defineStore('userStore', {
       this.logoutUser();
       return response;
     },
+    async updateUser(user: Record<string, unknown>) {
+      const { data } = await api.post('/user/update', user);
+      this.setUser(data);
+      return data;
+    },
     async getUser() {
       const { data } = await api.get('/user');
       this.setUser(data);

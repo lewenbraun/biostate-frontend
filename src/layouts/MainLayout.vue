@@ -72,20 +72,19 @@ defineOptions({
 
 const linksList: EssentialLinkProps[] = [
   {
-    title: 'Products',
-    icon: 'egg',
-    link: 'products',
-  },
-  {
     title: 'Daily Meal',
     icon: 'local_pizza',
     link: 'dailyMeal',
   },
   {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
+    title: 'My products',
+    icon: 'egg',
+    link: 'products',
+  },
+  {
+    title: 'Profile',
     icon: 'lunch_dining',
-    link: 'https://chat.quasar.dev',
+    link: 'profile',
   },
   {
     title: 'Forum',
