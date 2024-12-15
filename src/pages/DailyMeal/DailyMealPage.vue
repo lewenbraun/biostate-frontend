@@ -127,12 +127,33 @@ import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
 import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
 import SelectProductList from 'src/components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from 'src/components/DailyMeal/StaticsDailyFeatures.vue';
+    import { useUserStore } from '../../stores/userStore';
 
+const userStore = useUserStore();
+const user = ref<Record<string, unknown>>({});
 const dailyMealStore = useDailyMealStore();
 const card = ref(false);
 const selectedDate = ref<Date>(new Date());
 const meals = ref<Array<Meal>>([]);
 const currentMealOrder = ref<number>(0);
+
+onMounted(async () => {
+  await userStore.getUser();
+  user.value = userStore.user.data;
+
+  selectedDate.value = new Date();
+
+  await dailyMealStore.getOrFetchMealsByDate(selectedDate.value);
+
+  dailyMealStore.meals.forEach((meal) => {
+    meals.value.push({
+      id: meal.id,
+      products: meal.products,
+      meal_order: meal.meal_order,
+      date: meal.date,
+    });
+  });
+});
 
 function getMealTitle(index: number): string {
   const mealTitles = [
@@ -244,22 +265,6 @@ function deleteProductFromDailyMeal(
   });
   dailyMealStore.deleteProductFromMeal(product_id, meal_id);
 }
-onMounted(async () => {
-  const today = new Date();
-
-  selectedDate.value = today;
-
-  await dailyMealStore.getOrFetchMealsByDate(today);
-
-  dailyMealStore.meals.forEach((meal) => {
-    meals.value.push({
-      id: meal.id,
-      products: meal.products,
-      meal_order: meal.meal_order,
-      date: meal.date,
-    });
-  });
-});
 
 const DAYS_RANGE = 4;
 const dates = ref<Date[]>(generateDates(DAYS_RANGE));
