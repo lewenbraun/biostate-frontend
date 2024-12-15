@@ -1,11 +1,11 @@
 <template>
-  <div class="flex justify-center column items-center">
+  <div v-if="user" class="flex justify-center column items-center">
     <q-circular-progress
       show-value
       class="text-orange-8 q-ma-xs"
       :value="dailyCalories"
       size="120px"
-      :max="maxNutritonalQuantity.calories"
+      :max="user.calories"
       track-color="grey-3"
       color="orange-8"
       rounded
@@ -15,9 +15,7 @@
         <div class="text-h5 text-grey-8 q-ma-none">
           {{ dailyCalories }}
         </div>
-        <div class="text-h6 text-grey-8">
-          / {{ maxNutritonalQuantity.calories }}
-        </div>
+        <div class="text-h6 text-grey-8">/ {{ user.calories }}</div>
       </div>
     </q-circular-progress>
 
@@ -29,7 +27,7 @@
           class="text-orange-8 q-ma-xs"
           :value="dailyProteins"
           size="65px"
-          :max="maxNutritonalQuantity.proteins"
+          :max="user.proteins"
           color="orange-8"
           track-color="grey-3"
           rounded
@@ -40,7 +38,7 @@
               {{ dailyProteins }}
             </div>
             <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-              / {{ maxNutritonalQuantity.proteins }}
+              / {{ user.proteins }}
             </div>
           </div>
         </q-circular-progress>
@@ -52,7 +50,7 @@
           class="text-orange-8 q-ma-xs"
           :value="dailyCarbs"
           size="65px"
-          :max="maxNutritonalQuantity.carbs"
+          :max="user.carbs"
           track-color="grey-3"
           color="orange-8"
           rounded
@@ -63,7 +61,7 @@
               {{ dailyCarbs }}
             </div>
             <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-              / {{ maxNutritonalQuantity.carbs }}
+              / {{ user.carbs }}
             </div>
           </div>
         </q-circular-progress>
@@ -75,7 +73,7 @@
           class="text-orange-8 q-ma-xs"
           :value="dailyFats"
           size="65px"
-          :max="maxNutritonalQuantity.fats"
+          :max="user.fats"
           track-color="grey-3"
           color="orange-8"
           rounded
@@ -86,7 +84,7 @@
               {{ dailyFats }}
             </div>
             <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-              / {{ maxNutritonalQuantity.fats }}
+              / {{ user.fats }}
             </div>
           </div>
         </q-circular-progress>
@@ -109,8 +107,6 @@ const dailyMealStore = useDailyMealStore();
 const userStore = useUserStore();
 const user = ref();
 
-const maxNutritonalQuantity = dailyMealStore.getMaxNutritonalQuantity;
-
 const formatedDate = computed(() => props.date.toISOString().split('T')[0]);
 
 const nutritionalSummary = computed(() =>
@@ -123,7 +119,8 @@ const dailyCarbs = computed(() => nutritionalSummary.value.carbs);
 const dailyProteins = computed(() => nutritionalSummary.value.proteins);
 
 onMounted(async () => {
-  user.value = await userStore.getUser;
+  await userStore.getUser();
+  user.value = userStore.user.data;
 });
 </script>
 

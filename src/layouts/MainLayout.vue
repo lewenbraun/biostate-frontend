@@ -83,7 +83,7 @@ const linksList: EssentialLinkProps[] = [
   },
   {
     title: 'Profile',
-    icon: 'lunch_dining',
+    icon: 'person',
     link: 'profile',
   },
   {
