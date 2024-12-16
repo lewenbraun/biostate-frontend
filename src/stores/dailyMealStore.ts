@@ -278,6 +278,18 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         console.error('Error loading categories:', error);
       }
     },
+    async getStatisticsPerDay(date: Date) {
+      try {
+        const { data } = await api.get('/daily-meal/statistics/day', {
+          params: {
+            date,
+          },
+        });
+        console.log('Data:', data);
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    },
     recalculateProduct(product: Product, weight: number) {
       product.proteins = parseFloat(
         ((product.proteins / weight) * product.weight).toFixed(1)
