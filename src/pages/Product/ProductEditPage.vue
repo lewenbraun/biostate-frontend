@@ -163,15 +163,16 @@ import { useRouter } from 'vue-router';
 import { Notify } from 'quasar';
 import { useCategoryStore } from '../../stores/categoryStore';
 import { useProductStore } from '../../stores/productStore';
-import type { Category, CreateProduct } from '../../stores/productStore';
+import type { Category, UpdateProduct } from '../../stores/productStore';
 
 defineOptions({
-  name: 'ProductCreatePage',
+  name: 'ProductUpdatePage',
 });
 
 const router = useRouter();
 
-const productData = ref<CreateProduct>({
+const productData = ref<UpdateProduct>({
+  id: 0,
   description: '',
 });
 
@@ -184,13 +185,27 @@ const productStore = useProductStore();
 const categories = ref<Category[]>([]);
 
 onMounted(async () => {
+  const productId = router.currentRoute.value.params.id;
+  if (productId) {
+    const product = await productStore.getProduct(productId as string);
+    if (product) {
+      productData.value = product;
+    } else {
+      Notify.create({
+        type: 'negative',
+        message: 'Product not found.',
+      });
+      router.push({ name: 'products' });
+    }
+  }
+
   await categoryStore.fetchCategories();
   categories.value = categoryStore.categories;
 });
 
 const submitProduct = async () => {
   try {
-    const createdProduct = await productStore.createProduct(productData.value);
+    const createdProduct = await productStore.updateProduct(productData.value);
     if (createdProduct) {
       Notify.create({
         type: 'positive',
