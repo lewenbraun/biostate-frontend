@@ -95,11 +95,11 @@ const props = defineProps<{
 }>();
 
 const productStore = useProductStore();
-const products = ref<Product[]>([]); // Задаем правильный тип для products
+const products = ref<Product[]>([]);
 
 onMounted(async () => {
   await productStore.fetchProducts();
-  products.value = productStore.products; // Присваиваем данные из store
+  products.value = productStore.products;
 });
 
 products.value = productStore.products;

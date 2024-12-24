@@ -166,7 +166,7 @@ import { useProductStore } from '../../stores/productStore';
 import type { Category, UpdateProduct } from '../../stores/productStore';
 
 defineOptions({
-  name: 'ProductUpdatePage',
+  name: 'ProductEditPage',
 });
 
 const router = useRouter();
