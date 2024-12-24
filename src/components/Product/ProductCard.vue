@@ -33,7 +33,7 @@
                 outline
                 color="grey-7"
                 icon="delete"
-                @click="handleAddProduct(product)"
+                @click="emit('deleteProduct', product.id)"
                 v-close-popup
               />
             </div>
@@ -59,20 +59,12 @@
 </template>
 
 <script lang="ts" setup>
+import { defineProps, PropType, defineEmits } from 'vue';
 import { Product } from 'src/stores/productStore';
-import { defineProps, defineEmits, PropType } from 'vue';
 
 defineOptions({
   name: 'ProductCard',
 });
-
-const emit = defineEmits<{
-  (e: 'addProduct', product: Product): void;
-}>();
-
-function handleAddProduct(product: Product) {
-  emit('addProduct', product);
-}
 
 defineProps({
   product: {
@@ -80,8 +72,11 @@ defineProps({
     required: true,
   },
 });
-</script>
 
+const emit = defineEmits<{
+  (event: 'deleteProduct', productId: number): void;
+}>();
+</script>
 <style scoped>
 .nutrients-info {
   display: flex;

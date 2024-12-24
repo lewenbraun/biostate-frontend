@@ -84,16 +84,6 @@ export const useProductStore = defineStore('productStore', {
         throw error;
       }
     },
-    async updateProduct(productData: UpdateProduct) {
-      try {
-        const { data } = await api.post('/products/update', productData);
-
-        return data;
-      } catch (error) {
-        console.error('Error update product by ID:', error);
-        throw error;
-      }
-    },
     async createProduct(productData: CreateProduct) {
       this.loading = true;
       try {
@@ -105,6 +95,28 @@ export const useProductStore = defineStore('productStore', {
         throw error;
       } finally {
         this.loading = false;
+      }
+    },
+    async updateProduct(productData: UpdateProduct) {
+      try {
+        const { data } = await api.post('/products/update', productData);
+
+        return data;
+      } catch (error) {
+        console.error('Error update product by ID:', error);
+        throw error;
+      }
+    },
+    async deleteProduct(product_id: number) {
+      try {
+        const { data } = await api.post('/products/delete', {
+          product_id: product_id,
+        });
+
+        return data;
+      } catch (error) {
+        console.error('Error delete product:', error);
+        throw error;
       }
     },
     async searchProducts(query: string) {

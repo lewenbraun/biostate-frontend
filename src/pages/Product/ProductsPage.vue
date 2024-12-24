@@ -87,6 +87,7 @@
             v-for="product in products"
             :key="product.id"
             :product="product"
+            @deleteProduct="handleDeleteProduct"
           />
         </div>
       </div>
@@ -102,26 +103,62 @@
   </transition>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { Notify } from 'quasar';
 import ProductCard from '../../components/Product/ProductCard.vue';
 import { useProductStore, Product } from '../../stores/productStore';
 
 const productStore = useProductStore();
 const products = ref<Product[]>([]);
+const searchQuery = ref('');
 
 onMounted(async () => {
   await productStore.fetchProducts();
-  products.value = productStore.products;
+  products.value = [...productStore.products];
 });
 
-products.value = productStore.products;
+async function handleDeleteProduct(productId: number) {
+  try {
+    await productStore.deleteProduct(productId);
+    products.value = products.value.filter(
+      (product) => product.id !== productId
+    );
+    Notify.create({
+      type: 'positive',
+      message: 'Product successfully deleted.',
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+          round: true,
+          handler: () => {
+            /* ... */
+          },
+        },
+      ],
+    });
+  } catch (error) {
+    Notify.create({
+      type: 'negative',
+      message: 'Failed to delete the product.',
+      actions: [
+        {
+          icon: 'close',
+          color: 'white',
+          round: true,
+          handler: () => {
+            /* ... */
+          },
+        },
+      ],
+    });
+  }
+}
 
-const searchQuery = ref('');
+function onSearch() {}
 
-const filterFn = () => {};
-
-const onSearch = () => {};
+function filterFn() {}
 </script>
 
 <style scoped>
