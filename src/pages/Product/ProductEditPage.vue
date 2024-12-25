@@ -11,7 +11,7 @@
       >
         <q-card class="q-mt-md full-width-card" bordered flat>
           <q-card-section>
-            <div class="text-h6">Add product</div>
+            <div class="text-h6">Edit product</div>
           </q-card-section>
           <q-card-section>
             <q-input
@@ -149,7 +149,7 @@
           </q-card-section>
           <q-separator />
           <q-card-section class="flex justify-end">
-            <q-btn label="Create" color="positive" @click="submitProduct" />
+            <q-btn label="Update" color="positive" @click="submitProduct" />
           </q-card-section>
         </q-card>
       </div>
@@ -163,15 +163,16 @@ import { useRouter } from 'vue-router';
 import { Notify } from 'quasar';
 import { useCategoryStore } from '../../stores/categoryStore';
 import { useProductStore } from '../../stores/productStore';
-import type { Category, CreateProduct } from '../../stores/productStore';
+import type { Category, UpdateProduct } from '../../stores/productStore';
 
 defineOptions({
-  name: 'ProductCreatePage',
+  name: 'ProductEditPage',
 });
 
 const router = useRouter();
 
-const productData = ref<CreateProduct>({
+const productData = ref<UpdateProduct>({
+  id: 0,
   description: '',
 });
 
@@ -184,13 +185,28 @@ const productStore = useProductStore();
 const categories = ref<Category[]>([]);
 
 onMounted(async () => {
+  const productId = router.currentRoute.value.params.id;
+  if (productId) {
+    const product = await productStore.getProduct(productId as string);
+    if (product) {
+      productData.value = product;
+    } else {
+      Notify.create({
+        type: 'negative',
+        message: 'Product not found.',
+      });
+      router.push({ name: 'products' });
+    }
+  }
+
   await categoryStore.fetchCategories();
   categories.value = categoryStore.categories;
 });
 
 const submitProduct = async () => {
   try {
-    const createdProduct = await productStore.createProduct(productData.value);
+    const createdProduct = await productStore.updateProduct(productData.value);
+
     if (createdProduct) {
       Notify.create({
         type: 'positive',

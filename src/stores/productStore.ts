@@ -25,14 +25,27 @@ export interface CreateProduct {
   name?: string;
   description: string;
   price?: number;
-  weight?: number;
+  weight_default?: number;
   weight_for_features?: number;
   calories?: number;
   proteins?: number;
   carbs?: number;
   fats?: number;
   category_id?: number;
-  for_weight?: number;
+}
+
+export interface UpdateProduct {
+  id: number;
+  name?: string;
+  description: string;
+  price?: number;
+  weight_default?: number;
+  weight_for_features?: number;
+  calories?: number;
+  proteins?: number;
+  carbs?: number;
+  fats?: number;
+  category_id?: number;
 }
 
 export interface Category {
@@ -57,12 +70,20 @@ export const useProductStore = defineStore('productStore', {
         const { data } = await api.get('/products');
         this.products = data;
       } catch (error) {
-        console.error('Ошибка при загрузке продуктов:', error);
+        console.error('Error fetching products:', error);
       } finally {
         this.loading = false;
       }
     },
-
+    async getProduct(id: string) {
+      try {
+        const { data } = await api.get(`/products/show/${id}`);
+        return data;
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        throw error;
+      }
+    },
     async createProduct(productData: CreateProduct) {
       this.loading = true;
       try {
@@ -74,6 +95,28 @@ export const useProductStore = defineStore('productStore', {
         throw error;
       } finally {
         this.loading = false;
+      }
+    },
+    async updateProduct(productData: UpdateProduct) {
+      try {
+        const { data } = await api.post('/products/update', productData);
+
+        return data;
+      } catch (error) {
+        console.error('Error update product by ID:', error);
+        throw error;
+      }
+    },
+    async deleteProduct(product_id: number) {
+      try {
+        const { data } = await api.post('/products/delete', {
+          product_id: product_id,
+        });
+
+        return data;
+      } catch (error) {
+        console.error('Error delete product:', error);
+        throw error;
       }
     },
     async searchProducts(query: string) {
