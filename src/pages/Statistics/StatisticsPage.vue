@@ -26,7 +26,7 @@
                   <div v-if="user.name">
                     {{ user.name }}
                   </div>
-                  <q-skeleton v-else :type="text" />
+                  <q-skeleton v-else type="text" />
                 </q-item-section>
               </q-item>
               <q-item dense class="q-px-none">
@@ -35,7 +35,6 @@
                 </q-item-section>
                 <q-item-section>
                   <div v-if="user.weight">{{ user.weight }}</div>
-                  <q-skeleton v-else :type="text" />
                 </q-item-section>
               </q-item>
             </q-list>
@@ -48,6 +47,17 @@
   </transition>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import { useUserStore, UserParameters } from '../../stores/userStore';
+
+const userStore = useUserStore();
+let user = <UserParameters>{};
+
+onMounted(async () => {
+  await userStore.getUser();
+  user = userStore.user.data;
+});
+</script>
 
 <style scoped></style>
