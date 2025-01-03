@@ -11,52 +11,163 @@
         bordered
         flat
       >
-        <!-- Statistics for day -->
+        <!-- Statistics title -->
         <q-card-section class="col-12 flex items-center justify-between">
-          <div class="text-h6">Statistics per day</div>
-          <!-- Main Info Section -->
-          <q-card-section class="col-12">
-            <div class="text-body1 text-bold">Main info:</div>
-            <q-list style="max-width: 200px" class="q-ml-xs">
-              <q-item dense class="q-px-none">
-                <q-item-section>
-                  <q-item-label class="text-body1">Name:</q-item-label>
-                </q-item-section>
-                <q-item-section>
-                  <div v-if="user.name">
-                    {{ user.name }}
-                  </div>
-                  <q-skeleton v-else type="text" />
-                </q-item-section>
-              </q-item>
-              <q-item dense class="q-px-none">
-                <q-item-section>
-                  <q-item-label class="text-body1">Weight:</q-item-label>
-                </q-item-section>
-                <q-item-section>
-                  <div v-if="user.weight">{{ user.weight }}</div>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-card-section>
-
-          <q-separator inset />
+          <div class="text-h6">Statistics</div>
         </q-card-section>
+
+        <q-separator inset />
+        <!-- Statistics for day -->
+        <q-card-section
+          class="col-12"
+          v-if="nutritionalSummary && userStore.user.data.name !== ''"
+        >
+          <div class="text-body1 text-bold">Statistics for day:</div>
+          <div class="row justify-center q-gutter-sm">
+            <div class="flex justify-center column items-center">
+              <q-circular-progress
+                show-value
+                class="text-orange-8 q-ma-xs"
+                :value="dailyCalories"
+                size="65px"
+                :max="userStore.user.data.calories"
+                color="orange-8"
+                track-color="grey-3"
+                rounded
+                :angle="180"
+              >
+                <div class="column">
+                  <div
+                    class="text-grey-8 q-ma-none q-ml-sm"
+                    style="font-size: 12px"
+                  >
+                    {{ dailyCalories }}
+                  </div>
+                  <div class="text-grey-8 q-ma-none" style="font-size: 12px">
+                    / {{ userStore.user.data.calories }}
+                  </div>
+                </div>
+              </q-circular-progress>
+              <div class="text-grey-8" style="font-size: 12px">Calories</div>
+            </div>
+            <div class="flex justify-center column items-center">
+              <q-circular-progress
+                show-value
+                class="text-orange-8 q-ma-xs"
+                :value="dailyProteins"
+                size="65px"
+                :max="userStore.user.data.proteins"
+                color="orange-8"
+                track-color="grey-3"
+                rounded
+                :angle="180"
+              >
+                <div class="column">
+                  <div
+                    class="text-grey-8 q-ma-none q-ml-sm"
+                    style="font-size: 12px"
+                  >
+                    {{ dailyProteins }}
+                  </div>
+                  <div class="text-grey-8 q-ma-none" style="font-size: 12px">
+                    / {{ userStore.user.data.proteins }}
+                  </div>
+                </div>
+              </q-circular-progress>
+              <div class="text-grey-8" style="font-size: 12px">Proteins</div>
+            </div>
+            <div class="flex justify-center column items-center">
+              <q-circular-progress
+                show-value
+                class="text-orange-8 q-ma-xs"
+                :value="dailyCarbs"
+                size="65px"
+                :max="userStore.user.data.carbs"
+                color="orange-8"
+                track-color="grey-3"
+                rounded
+                :angle="180"
+              >
+                <div class="column">
+                  <div
+                    class="text-grey-8 q-ma-none q-ml-sm"
+                    style="font-size: 12px"
+                  >
+                    {{ dailyCarbs }}
+                  </div>
+                  <div class="text-grey-8 q-ma-none" style="font-size: 12px">
+                    / {{ userStore.user.data.carbs }}
+                  </div>
+                </div>
+              </q-circular-progress>
+              <div class="text-grey-8" style="font-size: 12px">Carbs</div>
+            </div>
+            <div class="flex justify-center column items-center">
+              <q-circular-progress
+                show-value
+                class="text-orange-8 q-ma-xs"
+                :value="dailyFats"
+                size="65px"
+                :max="userStore.user.data.fats"
+                color="orange-8"
+                track-color="grey-3"
+                rounded
+                :angle="180"
+              >
+                <div class="column">
+                  <div
+                    class="text-grey-8 q-ma-none q-ml-sm"
+                    style="font-size: 12px"
+                  >
+                    {{ dailyFats }}
+                  </div>
+                  <div class="text-grey-8 q-ma-none" style="font-size: 12px">
+                    / {{ userStore.user.data.fats }}
+                  </div>
+                </div>
+              </q-circular-progress>
+              <div class="text-grey-8" style="font-size: 12px">Fats</div>
+            </div>
+          </div>
+        </q-card-section>
+        <q-card-section class="self-center" v-else>
+          <q-circular-progress
+            indeterminate
+            rounded
+            size="50px"
+            color="orange-8"
+          />
+        </q-card-section>
+        <q-separator inset />
       </q-card>
     </q-page>
   </transition>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useUserStore, UserParameters } from '../../stores/userStore';
+import { computed, onMounted } from 'vue';
+import { useDailyMealStore } from '../../stores/dailyMealStore';
+import { useUserStore } from '../../stores/userStore';
 
+const dailyMealStore = useDailyMealStore();
 const userStore = useUserStore();
-let user = <UserParameters>{};
+
+const today = new Date();
+
+const formatedDate = computed(() => today.toISOString().split('T')[0]);
+
+const nutritionalSummary = computed(() =>
+  dailyMealStore.getNutritionalSummary(formatedDate.value)
+);
+
+const dailyCalories = computed(() => nutritionalSummary.value.calories);
+const dailyFats = computed(() => nutritionalSummary.value.fats);
+const dailyCarbs = computed(() => nutritionalSummary.value.carbs);
+const dailyProteins = computed(() => nutritionalSummary.value.proteins);
 
 onMounted(async () => {
+  await dailyMealStore.getOrFetchMealsByDate(today);
   await userStore.getUser();
-  user = userStore.user.data;
 });
 </script>
 

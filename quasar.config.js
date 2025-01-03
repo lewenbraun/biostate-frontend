@@ -8,9 +8,10 @@
 // Configuration for your app
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js
 
-const { configure } = require('quasar/wrappers');
+import { defineConfig } from '#q-app/wrappers';
 
-module.exports = configure(function (/* ctx */) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default defineConfig((ctx) => {
   return {
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,

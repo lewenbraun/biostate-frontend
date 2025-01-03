@@ -96,8 +96,8 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useDailyMealStore } from 'src/stores/dailyMealStore';
-import { useUserStore } from 'src/stores/userStore';
+import { useDailyMealStore } from '../../stores/dailyMealStore';
+import { useUserStore } from '../../stores/userStore';
 
 const props = defineProps<{
   date: Date;

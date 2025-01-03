@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 
 export interface UserParameters {
-  name?: string;
+  name: string;
   weight?: number;
   proteins?: number;
   fats?: number;

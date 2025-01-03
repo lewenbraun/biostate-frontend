@@ -122,12 +122,12 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { Product } from 'src/stores/productStore';
-import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
-import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
-import SelectProductList from 'src/components/Product/Meal/SelectProductList.vue';
-import StaticsDailyFeatures from 'src/components/DailyMeal/StaticsDailyFeatures.vue';
-    import { useUserStore } from '../../stores/userStore';
+import { Product } from '../../stores/productStore';
+import { useDailyMealStore, Meal } from '../../stores/dailyMealStore';
+import AddedProduct from '../../components/DailyMeal/AddedProduct.vue';
+import SelectProductList from '../../components/Product/Meal/SelectProductList.vue';
+import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
+import { useUserStore } from '../../stores/userStore';
 
 const userStore = useUserStore();
 const user = ref<Record<string, unknown>>({});

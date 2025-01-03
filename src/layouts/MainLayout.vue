@@ -56,7 +56,7 @@ import { ref } from 'vue';
 import { useUserStore } from '../stores/userStore';
 import EssentialLink, {
   EssentialLinkProps,
-} from 'components/EssentialLink.vue';
+} from '../components/EssentialLink.vue';
 
 const userStore = useUserStore();
 

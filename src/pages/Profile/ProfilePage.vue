@@ -176,7 +176,7 @@ const cancelChanges = () => {
 
 onMounted(async () => {
   await userStore.getUser();
-  editableUser.value = { ...userStore.user.data };
+  editableUser.value = { ...userStore.user.data }; // Обновляем локальную копию
 });
 </script>
 
