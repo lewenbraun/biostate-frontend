@@ -139,9 +139,17 @@
           />
         </q-card-section>
         <q-separator inset />
-        <div class="q-mx-md">
-          <Line :data="data" :options="options" />
-        </div>
+        <q-card-section
+          class="col-12"
+          v-if="nutritionalSummary && userStore.user.data.name !== ''"
+        >
+          <div class="text-body1 text-bold q-mb-sm">Statistics for week:</div>
+          <div class="text-body2 text-bold">Calories:</div>
+
+          <div class="q-mx-md">
+            <Line :data="data" :options="options" />
+          </div>
+        </q-card-section>
         {{ data }}
       </q-card>
     </q-page>
