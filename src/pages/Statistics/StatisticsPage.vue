@@ -202,6 +202,11 @@ const data = {
 
 const options = {
   maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false,
+    },
+  },
 };
 
 const dailyMealStore = useDailyMealStore();
