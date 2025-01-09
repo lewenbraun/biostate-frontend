@@ -139,10 +139,7 @@
           />
         </q-card-section>
         <q-separator inset />
-        <q-card-section
-          class="col-12"
-          v-if="nutritionalSummary && userStore.user.data.name !== ''"
-        >
+        <q-card-section class="col-12" v-if="!isLoading">
           <div class="text-body1 text-bold q-mb-sm">Statistics for week:</div>
           <div class="text-body2 text-bold">Calories:</div>
 
@@ -150,16 +147,16 @@
             <Line :data="data" :options="options" />
           </div>
         </q-card-section>
-        {{ data }}
       </q-card>
     </q-page>
   </transition>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useDailyMealStore } from '../../stores/dailyMealStore';
 import { useUserStore } from '../../stores/userStore';
+import { useStatisticsStore } from '../../stores/statisticsStore';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -182,34 +179,10 @@ ChartJS.register(
   Legend
 );
 
-const data = {
-  labels: [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ],
-  datasets: [
-    {
-      backgroundColor: '#f87979',
-      data: [40, 39, 10, 40, 39, 80, 40],
-    },
-  ],
-};
-
-const options = {
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false,
-    },
-  },
-};
+// const caloriesPerWeek = ref<DataDays[]>([]);
 
 const dailyMealStore = useDailyMealStore();
+const statisticsStore = useStatisticsStore();
 const userStore = useUserStore();
 
 const today = new Date();
@@ -224,10 +197,40 @@ const dailyCalories = computed(() => nutritionalSummary.value.calories);
 const dailyFats = computed(() => nutritionalSummary.value.fats);
 const dailyCarbs = computed(() => nutritionalSummary.value.carbs);
 const dailyProteins = computed(() => nutritionalSummary.value.proteins);
+const caloriesPerWeek = computed(
+  () => statisticsStore.sumNutrientsPerWeek.calories
+);
+console.log('🚀 ~ caloriesPerWeek:', caloriesPerWeek);
+
+const data = computed(() => ({
+  labels: caloriesPerWeek.value.map((data) => data.date),
+  datasets: [
+    {
+      backgroundColor: '#f87979',
+      data: caloriesPerWeek.value.map((data) => data.total),
+    },
+  ],
+}));
+
+const options = {
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false,
+    },
+  },
+};
+
+const isLoading = ref(true);
 
 onMounted(async () => {
-  await dailyMealStore.getOrFetchMealsByDate(today);
-  await userStore.getUser();
+  try {
+    await dailyMealStore.getOrFetchMealsByDate(today);
+    await statisticsStore.fetchSumNutrientsPerWeek('calories');
+    await userStore.getUser();
+  } finally {
+    isLoading.value = false;
+  }
 });
 </script>
 
