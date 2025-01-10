@@ -168,6 +168,8 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'vue-chartjs';
+import annotationPlugin from 'chartjs-plugin-annotation';
+import type { ChartOptions } from 'chart.js';
 
 ChartJS.register(
   CategoryScale,
@@ -176,10 +178,41 @@ ChartJS.register(
   LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  annotationPlugin
 );
 
-// const caloriesPerWeek = ref<DataDays[]>([]);
+const defaultValue = 50;
+
+const options: ChartOptions<'line'> = {
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    annotation: {
+      annotations: {
+        defaultLine: {
+          type: 'line',
+          yMin: defaultValue,
+          yMax: defaultValue,
+          borderColor: 'red',
+          borderWidth: 2,
+          borderDash: [6, 6],
+          label: {
+            content: 'Дефолтное значение',
+            position: 'end',
+          },
+        },
+      },
+    },
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+    },
+  },
+};
 
 const dailyMealStore = useDailyMealStore();
 const statisticsStore = useStatisticsStore();
@@ -200,7 +233,6 @@ const dailyProteins = computed(() => nutritionalSummary.value.proteins);
 const caloriesPerWeek = computed(
   () => statisticsStore.sumNutrientsPerWeek.calories
 );
-console.log('🚀 ~ caloriesPerWeek:', caloriesPerWeek);
 
 const data = computed(() => ({
   labels: caloriesPerWeek.value.map((data) => data.date),
@@ -212,21 +244,12 @@ const data = computed(() => ({
   ],
 }));
 
-const options = {
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false,
-    },
-  },
-};
-
 const isLoading = ref(true);
 
 onMounted(async () => {
   try {
     await dailyMealStore.getOrFetchMealsByDate(today);
-    await statisticsStore.fetchSumNutrientsPerWeek('calories');
+    await statisticsStore.fetchSumNutrientsPerWeek(['carbs', 'calories']);
     await userStore.getUser();
   } finally {
     isLoading.value = false;

@@ -32,7 +32,7 @@ export const useStatisticsStore = defineStore('statisticsStore', {
   getters: {},
 
   actions: {
-    async fetchSumNutrientsPerWeek(nutrient: string) {
+    async fetchSumNutrientsPerWeek(nutrients: string[]) {
       this.loading = true;
       try {
         const end_date = new Date().toISOString().split('T')[0];
@@ -48,15 +48,11 @@ export const useStatisticsStore = defineStore('statisticsStore', {
             params: {
               start_date: start_date,
               end_date: end_date,
-              nutrient: nutrient,
+              nutrients: nutrients,
             },
           }
         );
-        this.sumNutrientsPerWeek.calories = data;
-        console.log(
-          '🚀 ~ fetchSumNutrientsPerWeek ~ this.sumNutrientsPerWeek.calories :',
-          this.sumNutrientsPerWeek.calories
-        );
+        this.sumNutrientsPerWeek = data;
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
