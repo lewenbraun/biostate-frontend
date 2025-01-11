@@ -141,10 +141,18 @@
         <q-separator inset />
         <q-card-section class="col-12" v-if="!isLoading">
           <div class="text-body1 text-bold q-mb-sm">Statistics for week:</div>
-          <div class="text-body2 text-bold">Calories:</div>
 
-          <div class="q-mx-md">
-            <Line :data="data" :options="options" />
+          <div
+            class="text-body2 text-bold q-mb-md"
+            v-for="(nutrientPerWeek, nameNutrient) in nutrientsPerWeek"
+            :key="nameNutrient"
+          >
+            {{ capitalize(nameNutrient) }}:
+            <ChartLineForPeriodDate
+              :nameNutrient="nameNutrient"
+              :nutrientData="nutrientPerWeek"
+              :maxCountNutrients="userMaxCountNutrients"
+            />
           </div>
         </q-card-section>
       </q-card>
@@ -157,62 +165,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useDailyMealStore } from '../../stores/dailyMealStore';
 import { useUserStore } from '../../stores/userStore';
 import { useStatisticsStore } from '../../stores/statisticsStore';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Line } from 'vue-chartjs';
-import annotationPlugin from 'chartjs-plugin-annotation';
-import type { ChartOptions } from 'chart.js';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  annotationPlugin
-);
-
-const defaultValue = 50;
-
-const options: ChartOptions<'line'> = {
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false,
-    },
-    annotation: {
-      annotations: {
-        defaultLine: {
-          type: 'line',
-          yMin: defaultValue,
-          yMax: defaultValue,
-          borderColor: 'red',
-          borderWidth: 2,
-          borderDash: [6, 6],
-          label: {
-            content: 'Дефолтное значение',
-            position: 'end',
-          },
-        },
-      },
-    },
-  },
-  scales: {
-    y: {
-      beginAtZero: true,
-    },
-  },
-};
+import ChartLineForPeriodDate from 'src/components/Statistics/ChartLineForPeriodDate.vue';
 
 const dailyMealStore = useDailyMealStore();
 const statisticsStore = useStatisticsStore();
@@ -230,31 +183,30 @@ const dailyCalories = computed(() => nutritionalSummary.value.calories);
 const dailyFats = computed(() => nutritionalSummary.value.fats);
 const dailyCarbs = computed(() => nutritionalSummary.value.carbs);
 const dailyProteins = computed(() => nutritionalSummary.value.proteins);
-const caloriesPerWeek = computed(
-  () => statisticsStore.sumNutrientsPerWeek.calories
-);
-
-const data = computed(() => ({
-  labels: caloriesPerWeek.value.map((data) => data.date),
-  datasets: [
-    {
-      backgroundColor: '#f87979',
-      data: caloriesPerWeek.value.map((data) => data.total),
-    },
-  ],
-}));
+const nutrientsPerWeek = computed(() => statisticsStore.sumNutrientsPerWeek);
+const userMaxCountNutrients = computed(() => userStore.maxCountNutrients);
 
 const isLoading = ref(true);
 
 onMounted(async () => {
   try {
     await dailyMealStore.getOrFetchMealsByDate(today);
-    await statisticsStore.fetchSumNutrientsPerWeek(['carbs', 'calories']);
+    await statisticsStore.fetchSumNutrientsPerWeek([
+      'calories',
+      'proteins',
+      'carbs',
+      'fats',
+    ]);
     await userStore.getUser();
   } finally {
     isLoading.value = false;
   }
 });
+
+function capitalize(str: string): string {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 </script>
 
 <style scoped></style>

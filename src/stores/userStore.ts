@@ -27,6 +27,15 @@ export const useUserStore = defineStore('userStore', {
 
   getters: {
     isAuthenticated: (state) => !!state.user.token,
+    maxCountNutrients: (state) => {
+      const { proteins, fats, carbs, calories } = state.user.data;
+      return {
+        proteins: proteins,
+        fats: fats,
+        carbs: carbs,
+        calories: calories,
+      };
+    },
   },
 
   actions: {

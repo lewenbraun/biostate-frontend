@@ -95,10 +95,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, PropType } from 'vue';
 import { useDailyMealStore } from '../../stores/dailyMealStore';
 import { Product } from '../../stores/productStore';
-import { PropType } from 'vue';
 
 const dailyMealStore = useDailyMealStore();
 
