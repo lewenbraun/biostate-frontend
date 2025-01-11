@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Product } from './productStore';
+import { formatToLocal } from '../utils/dateFormatter.ts';
 
 export interface Meal {
   id: number;
@@ -41,7 +42,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       };
     },
     getNutritionalSummary: (state) => (date: string) => {
-      const mealsByDate = state.meals.filter((meal) => meal.date === date);
+      const mealsByDate = state.meals.filter((meal) => meal.date == date);
 
       return mealsByDate.reduce(
         (totals, meal) => {
@@ -66,7 +67,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
   actions: {
     async fetchDailyMeal(date: Date) {
-      const formatedDate = date.toISOString().split('T')[0];
+      const formatedDate = formatToLocal(date);
       this.mealsStatus[formatedDate] = 'loading';
 
       try {
@@ -99,7 +100,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       }
     },
     async getOrFetchMealsByDate(date: Date) {
-      const formatedDate = date.toISOString().split('T')[0];
+      const formatedDate = formatToLocal(date);
 
       if (this.mealsStatus[formatedDate] === 'loading') {
         console.log(`Data for ${formatedDate} still loading.`);
@@ -119,7 +120,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     },
     async createMeal(date: Date, meal_order: number) {
       try {
-        const formatedDate = date.toISOString().split('T')[0];
+        const formatedDate = formatToLocal(date);
 
         const { data } = await api.post('/daily-meal/meal/create', {
           date: formatedDate,
@@ -145,7 +146,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     },
     async deleteMeal(date: Date, meal_id: number) {
       try {
-        const formatedDate = date.toISOString().split('T')[0];
+        const formatedDate = formatToLocal(date);
 
         await api.post('/daily-meal/meal/delete', {
           date,
@@ -169,7 +170,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
           meal_order,
         });
 
-        const formatedDate = date.toISOString().split('T')[0];
+        const formatedDate = formatToLocal(date);
 
         const existingGroup = this.meals.find(
           (group) =>

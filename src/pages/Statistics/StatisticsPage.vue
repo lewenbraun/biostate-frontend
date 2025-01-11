@@ -166,6 +166,7 @@ import { useDailyMealStore } from '../../stores/dailyMealStore';
 import { useUserStore } from '../../stores/userStore';
 import { useStatisticsStore } from '../../stores/statisticsStore';
 import ChartLineForPeriodDate from 'src/components/Statistics/ChartLineForPeriodDate.vue';
+import { formatToLocal } from '../../utils/dateFormatter.ts';
 
 const dailyMealStore = useDailyMealStore();
 const statisticsStore = useStatisticsStore();
@@ -173,7 +174,7 @@ const userStore = useUserStore();
 
 const today = new Date();
 
-const formatedDate = computed(() => today.toISOString().split('T')[0]);
+const formatedDate = computed(() => formatToLocal(today));
 
 const nutritionalSummary = computed(() =>
   dailyMealStore.getNutritionalSummary(formatedDate.value)

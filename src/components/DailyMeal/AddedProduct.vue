@@ -21,7 +21,6 @@
                 <q-btn
                   label="Save"
                   flat
-                  v-close-pop
                   color="success"
                   @click="changeWeightInMeal"
                   no-caps
@@ -63,17 +62,11 @@
                 dense
                 :disable="product.count === 1"
                 size="sm"
-                @click="$emit('decrease')"
+                @click="handleDecrease"
               />
             </template>
             <template v-slot:after>
-              <q-btn
-                icon="add"
-                flat
-                dense
-                size="sm"
-                @click="$emit('increase')"
-              />
+              <q-btn icon="add" flat dense size="sm" @click="handleIncrease" />
             </template>
           </q-field>
         </div>
@@ -84,7 +77,7 @@
             dense
             round
             icon="delete"
-            @click="$emit('deleteProduct')"
+            @click="handleDelete"
           />
         </div>
       </div>
@@ -111,6 +104,20 @@ const props = defineProps({
     required: true,
   },
 });
+
+const emit = defineEmits(['deleteProduct', 'increase', 'decrease']);
+
+const handleDelete = () => {
+  emit('deleteProduct', props.product.id, props.meal_id);
+};
+
+const handleIncrease = () => {
+  emit('increase', props.product.id, props.meal_id);
+};
+
+const handleDecrease = () => {
+  emit('decrease', props.product.id, props.meal_id);
+};
 
 const changeWeight = ref(props.product.weight);
 
