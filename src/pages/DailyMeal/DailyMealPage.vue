@@ -226,19 +226,6 @@ async function createMeal(): Promise<void> {
   }
 }
 
-async function deleteMeal(meal_id: number): Promise<void> {
-  try {
-    let updated_meals = await dailyMealStore.deleteMeal(
-      selectedDate.value,
-      meal_id
-    );
-
-    meals.value = updated_meals;
-  } catch (error) {
-    console.error('Error creating meal:', error);
-  }
-}
-
 function getLastMealOrder() {
   const lastMeal = meals.value[meals.value.length - 1];
 
@@ -253,18 +240,34 @@ function addProductToDailyMeal(product: Product): void {
   );
 }
 
-function deleteProductFromDailyMeal(
+async function deleteMeal(meal_id: number): Promise<void> {
+  try {
+    let updated_meals = await dailyMealStore.deleteMeal(
+      selectedDate.value,
+      meal_id
+    );
+
+    meals.value = updated_meals;
+  } catch (error) {
+    console.error('Error creating meal:', error);
+  }
+}
+
+async function deleteProductFromDailyMeal(
   product_id: number,
   meal_id: number | null
-): void {
-  meals.value.forEach((meal) => {
-    if (meal.id === meal_id) {
-      meal.products = meal.products.filter(
-        (product) => product.id !== product_id
-      );
-    }
-  });
-  dailyMealStore.deleteProductFromMeal(product_id, meal_id);
+): Promise<void> {
+  try {
+    let updated_meals = await dailyMealStore.deleteProductFromMeal(
+      product_id,
+      meal_id,
+      selectedDate.value
+    );
+
+    meals.value = updated_meals;
+  } catch (error) {
+    console.error('Error creating meal:', error);
+  }
 }
 
 const DAYS_RANGE = 4;
