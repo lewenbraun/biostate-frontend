@@ -56,7 +56,7 @@ import { ref } from 'vue';
 import { useUserStore } from '../stores/userStore';
 import EssentialLink, {
   EssentialLinkProps,
-} from 'components/EssentialLink.vue';
+} from '../components/EssentialLink.vue';
 
 const userStore = useUserStore();
 
@@ -87,28 +87,9 @@ const linksList: EssentialLinkProps[] = [
     link: 'profile',
   },
   {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'tapas',
-    link: 'https://forum.quasar.dev',
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'breakfast_dining',
-    link: 'https://twitter.quasar.dev',
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'egg',
-    link: 'https://facebook.quasar.dev',
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'fastfood',
-    link: 'https://awesome.quasar.dev',
+    title: 'Statistics',
+    icon: 'analytics',
+    link: 'statistics',
   },
 ];
 

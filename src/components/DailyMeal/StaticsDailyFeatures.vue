@@ -96,8 +96,9 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useDailyMealStore } from 'src/stores/dailyMealStore';
-import { useUserStore } from 'src/stores/userStore';
+import { useDailyMealStore } from '../../stores/dailyMealStore';
+import { useUserStore } from '../../stores/userStore';
+import { formatToLocal } from '../../utils/dateFormatter.ts';
 
 const props = defineProps<{
   date: Date;
@@ -107,7 +108,7 @@ const dailyMealStore = useDailyMealStore();
 const userStore = useUserStore();
 const user = ref();
 
-const formatedDate = computed(() => props.date.toISOString().split('T')[0]);
+const formatedDate = computed(() => formatToLocal(props.date));
 
 const nutritionalSummary = computed(() =>
   dailyMealStore.getNutritionalSummary(formatedDate.value)

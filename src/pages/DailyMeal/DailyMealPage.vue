@@ -122,15 +122,16 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { Product } from 'src/stores/productStore';
-import { useDailyMealStore, Meal } from 'src/stores/dailyMealStore';
-import AddedProduct from 'src/components/DailyMeal/AddedProduct.vue';
-import SelectProductList from 'src/components/Product/Meal/SelectProductList.vue';
-import StaticsDailyFeatures from 'src/components/DailyMeal/StaticsDailyFeatures.vue';
-    import { useUserStore } from '../../stores/userStore';
+import { Product } from '../../stores/productStore';
+import { useDailyMealStore, Meal } from '../../stores/dailyMealStore';
+import AddedProduct from '../../components/DailyMeal/AddedProduct.vue';
+import SelectProductList from '../../components/Product/Meal/SelectProductList.vue';
+import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
+import { useUserStore, UserParameters } from '../../stores/userStore';
+import { formatToLocal } from '../../utils/dateFormatter.ts';
 
 const userStore = useUserStore();
-const user = ref<Record<string, unknown>>({});
+const user = ref<UserParameters>();
 const dailyMealStore = useDailyMealStore();
 const card = ref(false);
 const selectedDate = ref<Date>(new Date());
@@ -272,6 +273,7 @@ const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 function generateDates(range: number): Date[] {
   const result: Date[] = [];
   const today = new Date();
+  console.log('🚀 ~ generateDates ~ today:', today);
 
   for (let i = -range; i <= range; i++) {
     const newDate = new Date(today);
@@ -299,7 +301,7 @@ function isSelectedDate(date: Date): boolean {
 async function selectDate(date: Date): Promise<void> {
   selectedDate.value = date;
 
-  const formatedDate = date.toISOString().split('T')[0];
+  const formatedDate = formatToLocal(date);
 
   const mealsForDate = await dailyMealStore.getOrFetchMealsByDate(date);
 

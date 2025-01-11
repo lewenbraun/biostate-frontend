@@ -1,21 +1,41 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 
+export interface UserParameters {
+  name: string;
+  weight?: number;
+  proteins?: number;
+  fats?: number;
+  carbs?: number;
+  calories?: number;
+}
+
 interface UserState {
-  data: Record<string, unknown>;
+  data: UserParameters;
   token: string | null;
 }
 
 export const useUserStore = defineStore('userStore', {
   state: (): { user: UserState } => ({
     user: {
-      data: {},
+      data: {
+        name: '',
+      },
       token: localStorage.getItem('TOKEN'),
     },
   }),
 
   getters: {
     isAuthenticated: (state) => !!state.user.token,
+    maxCountNutrients: (state) => {
+      const { proteins, fats, carbs, calories } = state.user.data;
+      return {
+        proteins: proteins,
+        fats: fats,
+        carbs: carbs,
+        calories: calories,
+      };
+    },
   },
 
   actions: {
@@ -36,7 +56,7 @@ export const useUserStore = defineStore('userStore', {
       this.logoutUser();
       return response;
     },
-    async updateUser(user: Record<string, unknown>) {
+    async updateUser(user: UserParameters) {
       const { data } = await api.post('/user/update', user);
       this.setUser(data);
       return data;
@@ -49,7 +69,7 @@ export const useUserStore = defineStore('userStore', {
       const { data } = await api.get('/categories');
       return data;
     },
-    setUser(user: Record<string, unknown>) {
+    setUser(user: UserParameters) {
       this.user.data = user;
     },
     setToken(token: string) {
@@ -61,7 +81,9 @@ export const useUserStore = defineStore('userStore', {
     },
     logoutUser() {
       this.user.token = null;
-      this.user.data = {};
+      this.user.data = {
+        name: '',
+      };
       localStorage.removeItem('TOKEN');
     },
   },

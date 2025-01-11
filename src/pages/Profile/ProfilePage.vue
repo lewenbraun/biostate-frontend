@@ -44,7 +44,7 @@
                 <div v-else-if="user.name">
                   {{ user.name }}
                 </div>
-                <q-skeleton v-else :type="text" />
+                <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
             <q-item dense class="q-px-none">
@@ -59,7 +59,7 @@
                   hide-bottom-space
                 />
                 <div v-else-if="user.weight">{{ user.weight }}</div>
-                <q-skeleton v-else :type="text" />
+                <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
           </q-list>
@@ -83,7 +83,7 @@
                   hide-bottom-space
                 />
                 <div v-else-if="user.calories">{{ user.calories }}</div>
-                <q-skeleton v-else :type="text" />
+                <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
             <q-item dense class="q-px-none">
@@ -98,7 +98,7 @@
                   hide-bottom-space
                 />
                 <div v-else-if="user.proteins">{{ user.proteins }}</div>
-                <q-skeleton v-else :type="text" />
+                <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
             <q-item dense class="q-px-none">
@@ -113,7 +113,7 @@
                   hide-bottom-space
                 />
                 <div v-else-if="user.carbs">{{ user.carbs }}</div>
-                <q-skeleton v-else :type="text" />
+                <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
             <q-item dense class="q-px-none">
@@ -128,7 +128,7 @@
                   hide-bottom-space
                 />
                 <div v-else-if="user.fats">{{ user.fats }}</div>
-                <q-skeleton v-else :type="text" />
+                <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
           </q-list>
@@ -143,39 +143,40 @@
   </transition>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
 import { useUserStore } from '../../stores/userStore';
 
 const userStore = useUserStore();
-const user = ref(userStore.user);
+
+const user = computed(() => userStore.user.data);
+
+const editableUser = ref({ ...user.value });
 
 const isEditing = ref(false);
-const editableUser = ref({});
 
 const toggleEdit = () => {
   if (isEditing.value) {
-    user.value = { ...editableUser.value };
-    userStore.updateUser(user.value);
+    userStore.updateUser(editableUser.value);
   } else {
     editableUser.value = { ...user.value };
   }
   isEditing.value = !isEditing.value;
 };
 
-async function saveChanges() {
+const saveChanges = async () => {
   await userStore.updateUser(editableUser.value);
-  user.value = { ...editableUser.value };
   isEditing.value = false;
-}
+};
 
 const cancelChanges = () => {
   isEditing.value = false;
+  editableUser.value = { ...user.value };
 };
 
 onMounted(async () => {
   await userStore.getUser();
-  user.value = userStore.user.data;
+  editableUser.value = { ...userStore.user.data }; // Обновляем локальную копию
 });
 </script>
 
