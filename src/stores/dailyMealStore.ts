@@ -179,7 +179,9 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         product.count = 1;
         if (existingGroup) {
           const existingProduct = existingGroup.products.find(
-            (productInGroup) => productInGroup.id === product.id
+            (productInGroup) =>
+              productInGroup.id === product.id &&
+              productInGroup.weight === product.weight
           );
           if (existingProduct) {
             this.meals.forEach((meal) => {

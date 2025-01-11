@@ -273,7 +273,6 @@ const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 function generateDates(range: number): Date[] {
   const result: Date[] = [];
   const today = new Date();
-  console.log('🚀 ~ generateDates ~ today:', today);
 
   for (let i = -range; i <= range; i++) {
     const newDate = new Date(today);
