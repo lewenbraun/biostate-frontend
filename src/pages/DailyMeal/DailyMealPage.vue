@@ -128,7 +128,8 @@ import AddedProduct from '../../components/DailyMeal/AddedProduct.vue';
 import SelectProductList from '../../components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
 import { useUserStore, UserParameters } from '../../stores/userStore';
-import { formatToLocal } from '../../utils/dateFormatter.ts';
+import { formatToLocal } from '../../utils/Formatters/dateFormatter';
+import { formatMealTitle } from '../../utils/Formatters/mealTitleFormatter';
 
 const userStore = useUserStore();
 const user = ref<UserParameters>();
@@ -157,29 +158,7 @@ onMounted(async () => {
 });
 
 function getMealTitle(index: number): string {
-  const mealTitles = [
-    'First',
-    'Second',
-    'Third',
-    'Fourth',
-    'Fifth',
-    'Sixth',
-    'Seventh',
-    'Eighth',
-    'Ninth',
-    'Tenth',
-    'Eleventh',
-    'Twelfth',
-    'Thirteenth',
-    'Fourteenth',
-    'Fifteenth',
-    'Sixteenth',
-    'Seventeenth',
-    'Eighteenth',
-    'Nineteenth',
-    'Twentieth',
-  ];
-  return `${mealTitles[index]} meal`;
+  return formatMealTitle(index);
 }
 
 function setCurrentMealOrder(meal_order: number): void {

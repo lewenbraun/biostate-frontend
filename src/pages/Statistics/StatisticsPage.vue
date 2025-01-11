@@ -166,7 +166,7 @@ import { useDailyMealStore } from '../../stores/dailyMealStore';
 import { useUserStore } from '../../stores/userStore';
 import { useStatisticsStore } from '../../stores/statisticsStore';
 import ChartLineForPeriodDate from 'src/components/Statistics/ChartLineForPeriodDate.vue';
-import { formatToLocal } from '../../utils/dateFormatter.ts';
+import { formatToLocal } from '../../utils/Formatters/dateFormatter.ts';
 
 const dailyMealStore = useDailyMealStore();
 const statisticsStore = useStatisticsStore();

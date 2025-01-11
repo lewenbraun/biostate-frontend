@@ -98,7 +98,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useDailyMealStore } from '../../stores/dailyMealStore';
 import { useUserStore } from '../../stores/userStore';
-import { formatToLocal } from '../../utils/dateFormatter.ts';
+import { formatToLocal } from '../../utils/Formatters/dateFormatter.ts';
 
 const props = defineProps<{
   date: Date;

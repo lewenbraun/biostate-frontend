@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Product } from './productStore';
-import { formatToLocal } from '../utils/dateFormatter.ts';
+import { formatToLocal } from '../utils/Formatters/dateFormatter.ts';
 
 export interface Meal {
   id: number;
