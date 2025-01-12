@@ -145,16 +145,16 @@ onMounted(async () => {
 
   selectedDate.value = new Date();
 
-  await dailyMealStore.getOrFetchMealsByDate(selectedDate.value);
+  const mealsForDate = await dailyMealStore.getOrFetchMealsByDate(
+    selectedDate.value
+  );
 
-  dailyMealStore.meals.forEach((meal) => {
-    meals.value.push({
-      id: meal.id,
-      products: meal.products,
-      meal_order: meal.meal_order,
-      date: meal.date,
-    });
-  });
+  meals.value = mealsForDate.map((meal: Meal) => ({
+    id: meal.id,
+    products: meal.products,
+    meal_order: meal.meal_order,
+    date: formatToLocal(selectedDate.value),
+  }));
 });
 
 function getMealTitle(index: number): string {
@@ -190,6 +190,12 @@ function decreaseCountProduct(
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
+function getLastMealOrder() {
+  const lastMeal = meals.value[meals.value.length - 1];
+
+  return lastMeal ? lastMeal.meal_order + 1 : 1;
+}
+
 async function createMeal(): Promise<void> {
   try {
     let lastMealOrder = await getLastMealOrder();
@@ -203,12 +209,6 @@ async function createMeal(): Promise<void> {
   } catch (error) {
     console.error('Error creating meal:', error);
   }
-}
-
-function getLastMealOrder() {
-  const lastMeal = meals.value[meals.value.length - 1];
-
-  return lastMeal ? lastMeal.meal_order + 1 : 1;
 }
 
 function addProductToDailyMeal(product: Product): void {

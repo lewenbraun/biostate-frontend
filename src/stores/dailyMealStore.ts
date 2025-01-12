@@ -76,7 +76,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         });
 
         if (!data.data || data.data.length === 0) {
-          console.warn(`Нет данных для даты ${formatedDate}`);
+          console.warn(`No data for ${formatedDate}`);
           this.mealsStatus[formatedDate] = 'empty';
           return [];
         }
