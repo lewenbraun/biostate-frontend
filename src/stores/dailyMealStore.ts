@@ -219,12 +219,6 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         const formatedDate = formatToLocal(date);
 
-        console.log('weight_product:', weight_product);
-        console.log('this.meals:', JSON.stringify(this.meals, null, 2));
-        this.meals.forEach((meal, index) => {
-          console.log(`Meal ${index + 1} - products:`, meal.products);
-        });
-
         this.meals.forEach((meal) => {
           if (meal.id === meal_id) {
             meal.products = meal.products.filter(
