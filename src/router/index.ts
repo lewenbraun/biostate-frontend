@@ -27,11 +27,8 @@ export default route(function (): Router {
 
     if (to.meta.requiresAuth && !userStore.user.token) {
       next({ name: 'login' });
-    } else if (
-      userStore.user.token &&
-      (to.name === 'login' || to.name === 'register')
-    ) {
-      next({ name: 'main' });
+    } else if (userStore.user.token && to.name === 'main') {
+      next({ name: 'dailyMeal' });
     } else {
       next();
     }
