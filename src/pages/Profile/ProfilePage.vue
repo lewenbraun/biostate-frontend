@@ -41,7 +41,7 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.name">
+                <div v-else-if="user.name !== undefined">
                   {{ user.name }}
                 </div>
                 <q-skeleton v-else type="text" />
@@ -58,7 +58,9 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.weight">{{ user.weight }}</div>
+                <div v-else-if="user.weight !== undefined">
+                  {{ user.weight }}
+                </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
@@ -82,7 +84,9 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.calories">{{ user.calories }}</div>
+                <div v-else-if="user.calories !== undefined">
+                  {{ user.calories || 'Empty' }}
+                </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
@@ -97,7 +101,9 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.proteins">{{ user.proteins }}</div>
+                <div v-else-if="user.proteins !== undefined">
+                  {{ user.proteins || 'Empty' }}
+                </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
@@ -112,7 +118,9 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.carbs">{{ user.carbs }}</div>
+                <div v-else-if="user.carbs !== undefined">
+                  {{ user.carbs || 'Empty' }}
+                </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>
@@ -127,7 +135,9 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.fats">{{ user.fats }}</div>
+                <div v-else-if="user.fats !== undefined">
+                  {{ user.fats }}
+                </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
             </q-item>

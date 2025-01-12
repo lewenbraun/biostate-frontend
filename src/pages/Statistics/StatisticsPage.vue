@@ -44,7 +44,7 @@
                     {{ dailyCalories }}
                   </div>
                   <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-                    / {{ userStore.user.data.calories }}
+                    / {{ userStore.user.data.calories ?? '?' }}
                   </div>
                 </div>
               </q-circular-progress>
@@ -70,7 +70,7 @@
                     {{ dailyProteins }}
                   </div>
                   <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-                    / {{ userStore.user.data.proteins }}
+                    / {{ userStore.user.data.proteins ?? '?' }}
                   </div>
                 </div>
               </q-circular-progress>
@@ -96,7 +96,7 @@
                     {{ dailyCarbs }}
                   </div>
                   <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-                    / {{ userStore.user.data.carbs }}
+                    / {{ userStore.user.data.carbs ?? '?' }}
                   </div>
                 </div>
               </q-circular-progress>
@@ -122,7 +122,7 @@
                     {{ dailyFats }}
                   </div>
                   <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-                    / {{ userStore.user.data.fats }}
+                    / {{ userStore.user.data.fats ?? '?' }}
                   </div>
                 </div>
               </q-circular-progress>
