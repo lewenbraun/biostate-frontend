@@ -63,6 +63,7 @@
                     @deleteProduct="
                       deleteProductFromDailyMeal(
                         product.id,
+                        product.weight,
                         addedProductGroup.id
                       )
                     "
@@ -234,11 +235,13 @@ async function deleteMeal(meal_id: number): Promise<void> {
 
 async function deleteProductFromDailyMeal(
   product_id: number,
+  weight_product: number,
   meal_id: number | null
 ): Promise<void> {
   try {
     let updated_meals = await dailyMealStore.deleteProductFromMeal(
       product_id,
+      weight_product,
       meal_id,
       selectedDate.value
     );

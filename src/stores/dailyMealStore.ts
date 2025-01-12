@@ -147,14 +147,14 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
     async addProductToMeal(product: Product, date: Date, meal_order: number) {
       try {
+        const formatedDate = formatToLocal(date);
+
         const { data } = await api.post('/daily-meal/product/add', {
           product_id: product.id,
           weight: product.weight,
-          date,
+          date: formatedDate,
           meal_order,
         });
-
-        const formatedDate = formatToLocal(date);
 
         const existingGroup = this.meals.find(
           (group) =>
@@ -206,21 +206,31 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     },
     async deleteProductFromMeal(
       product_id: number,
+      weight_product: number,
       meal_id: number | null,
       date: Date
     ) {
       try {
         await api.post('/daily-meal/product/delete', {
           product_id,
+          weight_product,
           meal_id,
         });
 
         const formatedDate = formatToLocal(date);
 
+        console.log('weight_product:', weight_product);
+        console.log('this.meals:', JSON.stringify(this.meals, null, 2));
+        this.meals.forEach((meal, index) => {
+          console.log(`Meal ${index + 1} - products:`, meal.products);
+        });
+
         this.meals.forEach((meal) => {
           if (meal.id === meal_id) {
             meal.products = meal.products.filter(
-              (product) => product.id !== product_id
+              (product) =>
+                product.id !== product_id ||
+                Number(product.weight) !== Number(weight_product)
             );
           }
         });
