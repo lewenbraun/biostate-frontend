@@ -85,7 +85,7 @@
                   hide-bottom-space
                 />
                 <div v-else-if="user.calories !== undefined">
-                  {{ user.calories || 'Empty' }}
+                  {{ user.calories }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -102,7 +102,7 @@
                   hide-bottom-space
                 />
                 <div v-else-if="user.proteins !== undefined">
-                  {{ user.proteins || 'Empty' }}
+                  {{ user.proteins }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -119,7 +119,7 @@
                   hide-bottom-space
                 />
                 <div v-else-if="user.carbs !== undefined">
-                  {{ user.carbs || 'Empty' }}
+                  {{ user.carbs }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
