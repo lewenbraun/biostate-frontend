@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Product } from './productStore';
-import { formatToLocal } from '../utils/dateFormatter.ts';
+import { formatToLocal } from '../utils/Formatters/dateFormatter.ts';
 
 export interface Meal {
   id: number;
@@ -76,7 +76,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         });
 
         if (!data.data || data.data.length === 0) {
-          console.warn(`Нет данных для даты ${formatedDate}`);
+          console.warn(`No data for ${formatedDate}`);
           this.mealsStatus[formatedDate] = 'empty';
           return [];
         }
@@ -144,23 +144,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         throw error;
       }
     },
-    async deleteMeal(date: Date, meal_id: number) {
-      try {
-        const formatedDate = formatToLocal(date);
 
-        await api.post('/daily-meal/meal/delete', {
-          date,
-          meal_id,
-        });
-
-        this.meals = this.meals.filter((meal) => meal.id !== meal_id);
-
-        return this.meals.filter((meal) => meal.date === formatedDate);
-      } catch (error) {
-        console.error('Error delete meal:', error);
-        throw error;
-      }
-    },
     async addProductToMeal(product: Product, date: Date, meal_order: number) {
       try {
         const { data } = await api.post('/daily-meal/product/add', {
@@ -179,7 +163,9 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         product.count = 1;
         if (existingGroup) {
           const existingProduct = existingGroup.products.find(
-            (productInGroup) => productInGroup.id === product.id
+            (productInGroup) =>
+              productInGroup.id === product.id &&
+              productInGroup.weight === product.weight
           );
           if (existingProduct) {
             this.meals.forEach((meal) => {
@@ -201,15 +187,48 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         console.error('Error loading categories:', error);
       }
     },
-    async deleteProductFromMeal(product_id: number, meal_id: number | null) {
+    async deleteMeal(date: Date, meal_id: number) {
       try {
-        const { data } = await api.post('/daily-meal/product/delete', {
+        const formatedDate = formatToLocal(date);
+
+        await api.post('/daily-meal/meal/delete', {
+          date,
+          meal_id,
+        });
+
+        this.meals = this.meals.filter((meal) => meal.id !== meal_id);
+
+        return this.meals.filter((meal) => meal.date === formatedDate);
+      } catch (error) {
+        console.error('Error delete meal:', error);
+        throw error;
+      }
+    },
+    async deleteProductFromMeal(
+      product_id: number,
+      meal_id: number | null,
+      date: Date
+    ) {
+      try {
+        await api.post('/daily-meal/product/delete', {
           product_id,
           meal_id,
         });
-        console.log('Data:', data);
+
+        const formatedDate = formatToLocal(date);
+
+        this.meals.forEach((meal) => {
+          if (meal.id === meal_id) {
+            meal.products = meal.products.filter(
+              (product) => product.id !== product_id
+            );
+          }
+        });
+
+        return this.meals.filter((meal) => meal.date === formatedDate);
       } catch (error) {
         console.error('Error loading categories:', error);
+        throw error;
       }
     },
     async increaseCountProduct(product_id: number, meal_id: number | null) {

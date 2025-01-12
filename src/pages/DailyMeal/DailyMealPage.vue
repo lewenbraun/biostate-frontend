@@ -128,7 +128,8 @@ import AddedProduct from '../../components/DailyMeal/AddedProduct.vue';
 import SelectProductList from '../../components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
 import { useUserStore, UserParameters } from '../../stores/userStore';
-import { formatToLocal } from '../../utils/dateFormatter.ts';
+import { formatToLocal } from '../../utils/Formatters/dateFormatter';
+import { formatMealTitle } from '../../utils/Formatters/mealTitleFormatter';
 
 const userStore = useUserStore();
 const user = ref<UserParameters>();
@@ -144,42 +145,20 @@ onMounted(async () => {
 
   selectedDate.value = new Date();
 
-  await dailyMealStore.getOrFetchMealsByDate(selectedDate.value);
+  const mealsForDate = await dailyMealStore.getOrFetchMealsByDate(
+    selectedDate.value
+  );
 
-  dailyMealStore.meals.forEach((meal) => {
-    meals.value.push({
-      id: meal.id,
-      products: meal.products,
-      meal_order: meal.meal_order,
-      date: meal.date,
-    });
-  });
+  meals.value = mealsForDate.map((meal: Meal) => ({
+    id: meal.id,
+    products: meal.products,
+    meal_order: meal.meal_order,
+    date: formatToLocal(selectedDate.value),
+  }));
 });
 
 function getMealTitle(index: number): string {
-  const mealTitles = [
-    'First',
-    'Second',
-    'Third',
-    'Fourth',
-    'Fifth',
-    'Sixth',
-    'Seventh',
-    'Eighth',
-    'Ninth',
-    'Tenth',
-    'Eleventh',
-    'Twelfth',
-    'Thirteenth',
-    'Fourteenth',
-    'Fifteenth',
-    'Sixteenth',
-    'Seventeenth',
-    'Eighteenth',
-    'Nineteenth',
-    'Twentieth',
-  ];
-  return `${mealTitles[index]} meal`;
+  return formatMealTitle(index);
 }
 
 function setCurrentMealOrder(meal_order: number): void {
@@ -211,6 +190,12 @@ function decreaseCountProduct(
   dailyMealStore.decreaseCountProduct(product_id, meal_id);
 }
 
+function getLastMealOrder() {
+  const lastMeal = meals.value[meals.value.length - 1];
+
+  return lastMeal ? lastMeal.meal_order + 1 : 1;
+}
+
 async function createMeal(): Promise<void> {
   try {
     let lastMealOrder = await getLastMealOrder();
@@ -226,6 +211,14 @@ async function createMeal(): Promise<void> {
   }
 }
 
+function addProductToDailyMeal(product: Product): void {
+  dailyMealStore.addProductToMeal(
+    product,
+    selectedDate.value,
+    currentMealOrder.value
+  );
+}
+
 async function deleteMeal(meal_id: number): Promise<void> {
   try {
     let updated_meals = await dailyMealStore.deleteMeal(
@@ -239,32 +232,21 @@ async function deleteMeal(meal_id: number): Promise<void> {
   }
 }
 
-function getLastMealOrder() {
-  const lastMeal = meals.value[meals.value.length - 1];
-
-  return lastMeal ? lastMeal.meal_order + 1 : 1;
-}
-
-function addProductToDailyMeal(product: Product): void {
-  dailyMealStore.addProductToMeal(
-    product,
-    selectedDate.value,
-    currentMealOrder.value
-  );
-}
-
-function deleteProductFromDailyMeal(
+async function deleteProductFromDailyMeal(
   product_id: number,
   meal_id: number | null
-): void {
-  meals.value.forEach((meal) => {
-    if (meal.id === meal_id) {
-      meal.products = meal.products.filter(
-        (product) => product.id !== product_id
-      );
-    }
-  });
-  dailyMealStore.deleteProductFromMeal(product_id, meal_id);
+): Promise<void> {
+  try {
+    let updated_meals = await dailyMealStore.deleteProductFromMeal(
+      product_id,
+      meal_id,
+      selectedDate.value
+    );
+
+    meals.value = updated_meals;
+  } catch (error) {
+    console.error('Error creating meal:', error);
+  }
 }
 
 const DAYS_RANGE = 4;
@@ -273,7 +255,6 @@ const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 function generateDates(range: number): Date[] {
   const result: Date[] = [];
   const today = new Date();
-  console.log('🚀 ~ generateDates ~ today:', today);
 
   for (let i = -range; i <= range; i++) {
     const newDate = new Date(today);
