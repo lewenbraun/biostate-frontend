@@ -16,11 +16,6 @@ export interface DailylMealState {
   mealsStatus: Record<string, 'loading' | 'loaded' | 'empty' | 'error'>;
 }
 
-export interface Category {
-  id: string;
-  name: string;
-}
-
 export const useDailyMealStore = defineStore('dailyMealStore', {
   state: (): DailylMealState => ({
     meals: [],

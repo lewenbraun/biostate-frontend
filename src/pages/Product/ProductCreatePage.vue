@@ -41,20 +41,6 @@
                   style="min-width: 50px"
                 />
               </div>
-              <div class="col">
-                <q-select
-                  outlined
-                  dense
-                  v-model="productData.category_id"
-                  label="Category"
-                  option-label="name"
-                  option-value="id"
-                  emit-value
-                  map-options
-                  :options="categories"
-                  style="min-width: 50px"
-                />
-              </div>
 
               <div class="col-12">
                 <q-editor
@@ -161,9 +147,8 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Notify } from 'quasar';
-import { useCategoryStore } from '../../stores/categoryStore';
 import { useProductStore } from '../../stores/productStore';
-import type { Category, CreateProduct } from '../../stores/productStore';
+import type { CreateProduct } from '../../stores/productStore';
 
 defineOptions({
   name: 'ProductCreatePage',
@@ -179,14 +164,7 @@ const ruleNumber = [
   (val: string) => /^\d+(\.\d{1,2})?$/.test(val) || 'Only numbers allowed',
 ];
 
-const categoryStore = useCategoryStore();
 const productStore = useProductStore();
-const categories = ref<Category[]>([]);
-
-onMounted(async () => {
-  await categoryStore.fetchCategories();
-  categories.value = categoryStore.categories;
-});
 
 const submitProduct = async () => {
   try {

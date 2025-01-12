@@ -18,7 +18,6 @@ export interface Product {
   carbs: number;
   fats: number;
   count: number;
-  category: Category;
 }
 
 export interface CreateProduct {
@@ -31,7 +30,6 @@ export interface CreateProduct {
   proteins?: number;
   carbs?: number;
   fats?: number;
-  category_id?: number;
 }
 
 export interface UpdateProduct {
@@ -45,12 +43,6 @@ export interface UpdateProduct {
   proteins?: number;
   carbs?: number;
   fats?: number;
-  category_id?: number;
-}
-
-export interface Category {
-  id: string;
-  name: string;
 }
 
 export const useProductStore = defineStore('productStore', {
