@@ -7,7 +7,7 @@
     <q-page class="flex items-center column q-mx-md">
       <div
         class="q-mt-md"
-        style="max-width: 800px; min-width: 350px; width: 100%"
+        style="max-width: 600px; min-width: 350px; width: 100%"
       >
         <q-card class="q-mt-md full-width-card" bordered flat>
           <q-card-section>
@@ -16,10 +16,11 @@
           <q-card-section>
             <q-input
               outlined
+              ref="nameRef"
               dense
               v-model="productData.name"
               label="Name"
-              class="q-mb-md"
+              :rules="ruleRequired"
             />
             <div class="row q-gutter-x-sm">
               <div class="col-3">
@@ -34,21 +35,22 @@
               <div class="col-3">
                 <q-input
                   outlined
+                  ref="weight_defalult"
                   dense
                   v-model="productData.weight_default"
-                  label="Weight"
                   :rules="ruleNumber"
+                  label="Weight"
                   style="min-width: 50px"
+                  lazy-rules
                 />
               </div>
-
-              <div class="col-12">
-                <q-editor
-                  placeholder="Description"
-                  v-model="productData.description"
-                  min-height="5rem"
-                />
-              </div>
+            </div>
+            <div class="col-12">
+              <q-editor
+                placeholder="Description"
+                v-model="productData.description"
+                min-height="5rem"
+              />
             </div>
           </q-card-section>
           <q-separator />
@@ -146,8 +148,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Notify } from 'quasar';
+import { Notify, QForm } from 'quasar';
 import { useProductStore } from '../../stores/productStore';
+import { ruleNumber, ruleRequired } from '../../utils/validations.ts';
 import type { CreateProduct } from '../../stores/productStore';
 
 defineOptions({
@@ -160,13 +163,16 @@ const productData = ref<CreateProduct>({
   description: '',
 });
 
-const ruleNumber = [
-  (val: string) => /^\d+(\.\d{1,2})?$/.test(val) || 'Only numbers allowed',
-];
-
 const productStore = useProductStore();
 
+const weight_defaultRef = ref<QForm | null>(null);
+const nameRef = ref<QForm | null>(null);
+
 const submitProduct = async () => {
+  weight_defaultRef.value?.validate();
+  nameRef.value?.validate();
+
+  productData.value;
   try {
     const createdProduct = await productStore.createProduct(productData.value);
     if (createdProduct) {

@@ -7,7 +7,7 @@
     <q-page class="flex items-center column q-mx-md">
       <div
         class="q-mt-md"
-        style="max-width: 800px; min-width: 350px; width: 100%"
+        style="max-width: 600px; min-width: 350px; width: 100%"
       >
         <q-card class="q-mt-md full-width-card" bordered flat>
           <q-card-section>
@@ -16,6 +16,7 @@
           <q-card-section>
             <q-input
               outlined
+              ref="nameRef"
               dense
               v-model="productData.name"
               label="Name"
@@ -34,6 +35,7 @@
               <div class="col-3">
                 <q-input
                   outlined
+                  ref="weight_defalult"
                   dense
                   v-model="productData.weight_default"
                   label="Weight"
@@ -146,7 +148,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Notify } from 'quasar';
+import { Notify, QForm } from 'quasar';
 import { useProductStore } from '../../stores/productStore';
 import type { UpdateProduct } from '../../stores/productStore';
 
@@ -183,7 +185,13 @@ onMounted(async () => {
   }
 });
 
+const weight_defaultRef = ref<QForm | null>(null);
+const nameRef = ref<QForm | null>(null);
+
 const submitProduct = async () => {
+  weight_defaultRef.value?.validate();
+  nameRef.value?.validate();
+
   try {
     const createdProduct = await productStore.updateProduct(productData.value);
 
