@@ -79,11 +79,11 @@ export const useProductStore = defineStore('productStore', {
     async createProduct(productData: CreateProduct) {
       this.loading = true;
       try {
-        const { data } = await api.post('/products/update', productData);
+        const { data } = await api.post('/products/create', productData);
         this.products.push(data);
         return data;
       } catch (error) {
-        console.error('Ошибка при создании продукта:', error);
+        console.error('Error create product:', error);
         throw error;
       } finally {
         this.loading = false;
