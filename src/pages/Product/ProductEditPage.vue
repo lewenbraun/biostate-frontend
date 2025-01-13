@@ -21,6 +21,7 @@
               v-model="productData.name"
               label="Name"
               class="q-mb-md"
+              :rules="ruleRequired"
             />
             <div class="row q-gutter-x-sm">
               <div class="col-3">
@@ -41,6 +42,7 @@
                   label="Weight"
                   :rules="ruleNumber"
                   style="min-width: 50px"
+                  lazy-rules
                 />
               </div>
 
@@ -150,6 +152,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Notify, QForm } from 'quasar';
 import { useProductStore } from '../../stores/productStore';
+import { ruleNumber, ruleRequired } from '../../utils/validations.ts';
 import type { UpdateProduct } from '../../stores/productStore';
 
 defineOptions({
@@ -162,10 +165,6 @@ const productData = ref<UpdateProduct>({
   id: 0,
   description: '',
 });
-
-const ruleNumber = [
-  (val: string) => /^\d+(\.\d{1,2})?$/.test(val) || 'Only numbers allowed',
-];
 
 const productStore = useProductStore();
 
