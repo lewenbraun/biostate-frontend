@@ -3,7 +3,7 @@ export const ruleNumber = [
     val === null ||
     val === undefined ||
     val === '' ||
-    /^\d+(\.\d{1,2})?$/.test(val) ||
+    /^(0|[1-9]\d*)(\.\d{1,3})?$/.test(val) ||
     'Only numbers allowed',
 ];
 
