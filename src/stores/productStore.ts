@@ -12,6 +12,7 @@ export interface Product {
   description: string;
   price: number;
   weight: number;
+  weight_for_features: number;
   image: string;
   calories: number;
   proteins: number;

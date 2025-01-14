@@ -27,6 +27,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     getMealsByDate: (state) => (date: string) => {
       return state.meals.filter((meal) => meal.date == date);
     },
+    WEIGHT_FACTOR_BASE: () => 100,
     getMaxNutritonalQuantity: () => {
       return {
         calories: 2000,
@@ -79,7 +80,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         const mealsWithRecalculatedProducts = data.data.map((meal: Meal) => {
           meal.products = meal.products.map((product: Product) => {
-            this.recalculateProduct(product, product.weight);
+            this.recalculateProduct(product);
             return product;
           });
           return meal;
@@ -172,7 +173,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
               }
             });
           } else {
-            this.recalculateProduct(product, product.weight);
+            this.recalculateProduct(product);
             existingGroup.products.push(product);
           }
         }
@@ -270,23 +271,26 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       }
     },
     async updateProductWeight(
-      product_id: number,
+      product: Product,
       meal_id: number | null,
       changed_weight: number
     ) {
       try {
         const { data } = await api.post('/daily-meal/product/update-weight', {
-          product_id,
+          product_id: product.id,
+          weight_product: product.weight,
           meal_id,
           changed_weight,
         });
         this.meals.forEach((meal) => {
           if (meal.id === meal_id) {
-            meal.products.forEach((product) => {
-              if (product.id === product_id) {
-                const weight_for_calculating = product.weight;
-                product.weight = changed_weight;
-                this.recalculateProduct(product, weight_for_calculating);
+            meal.products.forEach((mealProduct) => {
+              if (
+                mealProduct.id === product.id &&
+                mealProduct.weight === product.weight
+              ) {
+                mealProduct.weight = changed_weight;
+                this.recalculateProduct(mealProduct);
               }
             });
           }
@@ -296,19 +300,37 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         console.error('Error loading categories:', error);
       }
     },
-    recalculateProduct(product: Product, weight: number) {
+    recalculateProduct(product: Product) {
       product.proteins = parseFloat(
-        ((product.proteins / weight) * product.weight).toFixed(1)
+        (
+          ((product.weight ?? this.WEIGHT_FACTOR_BASE) /
+            product.weight_for_features) *
+          product.proteins
+        ).toFixed(1)
       );
       product.carbs = parseFloat(
-        ((product.carbs / weight) * product.weight).toFixed(1)
+        (
+          ((product.weight ?? this.WEIGHT_FACTOR_BASE) /
+            product.weight_for_features) *
+          product.carbs
+        ).toFixed(1)
       );
       product.fats = parseFloat(
-        ((product.fats / weight) * product.weight).toFixed(1)
+        (
+          ((product.weight ?? this.WEIGHT_FACTOR_BASE) /
+            product.weight_for_features) *
+          product.fats
+        ).toFixed(1)
       );
       product.calories = parseFloat(
-        ((product.calories / weight) * product.weight).toFixed(1)
+        (
+          ((product.weight ?? this.WEIGHT_FACTOR_BASE) /
+            product.weight_for_features) *
+          product.calories
+        ).toFixed(1)
       );
+
+      product.weight_for_features = product.weight;
     },
   },
 });
