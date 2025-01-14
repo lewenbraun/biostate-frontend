@@ -24,7 +24,7 @@ export interface CreateProduct {
   name?: string;
   description: string;
   price?: number;
-  weight_default?: number;
+  weight?: number;
   weight_for_features?: number;
   calories?: number;
   proteins?: number;
@@ -37,7 +37,7 @@ export interface UpdateProduct {
   name?: string;
   description: string;
   price?: number;
-  weight_default?: number;
+  weight?: number;
   weight_for_features?: number;
   calories?: number;
   proteins?: number;

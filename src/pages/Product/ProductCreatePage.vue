@@ -35,9 +35,9 @@
               <div class="col-3">
                 <q-input
                   outlined
-                  ref="weight_defalult"
+                  ref="weight"
                   dense
-                  v-model="productData.weight_default"
+                  v-model="productData.weight"
                   :rules="ruleNumber"
                   label="Weight"
                   style="min-width: 50px"
@@ -165,11 +165,11 @@ const productData = ref<CreateProduct>({
 
 const productStore = useProductStore();
 
-const weight_defaultRef = ref<QForm | null>(null);
+const weightRef = ref<QForm | null>(null);
 const nameRef = ref<QForm | null>(null);
 
 const submitProduct = async () => {
-  weight_defaultRef.value?.validate();
+  weightRef.value?.validate();
   nameRef.value?.validate();
 
   productData.value;

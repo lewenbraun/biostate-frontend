@@ -104,13 +104,6 @@ onMounted(async () => {
 
 products.value = productStore.products;
 
-// defineProps({
-//   products: {
-//     type: Object as PropType<Product[]>,
-//     required: true,
-//   },
-// });
-
 const searchQuery = ref('');
 
 const filterFn = () => {};
