@@ -27,7 +27,6 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     getMealsByDate: (state) => (date: string) => {
       return state.meals.filter((meal) => meal.date == date);
     },
-    WEIGHT_FACTOR_BASE: () => 100,
     getMaxNutritonalQuantity: () => {
       return {
         calories: 2000,
@@ -80,7 +79,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         const mealsWithRecalculatedProducts = data.data.map((meal: Meal) => {
           meal.products = meal.products.map((product: Product) => {
-            this.recalculateProduct(product, this.WEIGHT_FACTOR_BASE);
+            this.recalculateProduct(product, product.weight);
             return product;
           });
           return meal;
@@ -173,7 +172,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
               }
             });
           } else {
-            this.recalculateProduct(product, this.WEIGHT_FACTOR_BASE);
+            this.recalculateProduct(product, product.weight);
             existingGroup.products.push(product);
           }
         }
