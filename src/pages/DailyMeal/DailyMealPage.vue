@@ -18,91 +18,22 @@
         </div>
         <q-separator inset />
 
-        <q-card-section horizontal>
+        <!-- Desktop version -->
+        <q-card-section horizontal class="gt-sm">
           <q-card-section class="col-7">
-            <template
-              v-for="(addedProductGroup, groupIndex) in meals"
-              :key="groupIndex"
-            >
-              <div class="row justify-between items-center">
-                <div class="row items-center">
-                  <div class="text-h6">{{ getMealTitle(groupIndex) }}</div>
-                  <q-btn
-                    color="red-5"
-                    flat
-                    size="10px"
-                    class="q-ml-sm"
-                    dense
-                    icon="delete"
-                    @click="deleteMeal(addedProductGroup.id)"
-                  />
-                </div>
-                <q-btn
-                  round
-                  outline
-                  color="green"
-                  size="10px"
-                  dense
-                  icon="add"
-                  @click="setCurrentMealOrder(addedProductGroup.meal_order)"
-                />
-              </div>
-              <transition
-                appear
-                enter-active-class="animated fadeIn"
-                leave-active-class="animated fadeOut"
-              >
-                <q-list v-if="addedProductGroup.products.length > 0">
-                  <AddedProduct
-                    v-for="(
-                      product, productIndex
-                    ) in addedProductGroup.products"
-                    :key="`${groupIndex}-${productIndex}`"
-                    :product="product"
-                    :meal_id="addedProductGroup.id"
-                    @deleteProduct="
-                      deleteProductFromDailyMeal(
-                        product.id,
-                        product.weight,
-                        addedProductGroup.id
-                      )
-                    "
-                    @increase="
-                      increaseCountProduct(product.id, addedProductGroup.id)
-                    "
-                    @decrease="
-                      decreaseCountProduct(
-                        product.id,
-                        product.count,
-                        addedProductGroup.id
-                      )
-                    "
-                  />
-                </q-list>
-                <q-item-label
-                  class="flex justify-center text-grey-6 q-my-sm"
-                  style="user-select: none"
-                  v-else
-                >
-                  Empty
-                </q-item-label>
-              </transition>
-            </template>
-            <div class="q-ma-md">
-              <q-btn
-                outline
-                color="green"
-                class="full-width"
-                size="10px"
-                dense
-                icon="add"
-                style="opacity: 60%"
-                @click="createMeal"
-              />
-            </div>
+            <MealsList
+              :meals="meals"
+              @deleteMeal="deleteMeal"
+              @setCurrentMealOrder="setCurrentMealOrder"
+              @createMeal="createMeal"
+              @deleteProduct="deleteProductFromDailyMeal"
+              @increase="increaseCountProduct"
+              @decrease="decreaseCountProduct"
+            />
           </q-card-section>
 
           <q-separator inset vertical />
+
           <q-card-section class="col-5">
             <StaticsDailyFeatures
               v-if="meals.length > 0"
@@ -110,6 +41,43 @@
             />
           </q-card-section>
         </q-card-section>
+
+        <!-- Mobile version -->
+        <div class="lt-md">
+          <q-tabs
+            v-model="activeTab"
+            dense
+            class="text-grey"
+            active-color="primary"
+            indicator-color="primary"
+            align="justify"
+            narrow-indicator
+          >
+            <q-tab name="meals" label="Meals" icon="restaurant_menu" />
+            <q-tab name="stats" label="Statistics" icon="insert_chart" />
+          </q-tabs>
+
+          <q-tab-panels v-model="activeTab" animated>
+            <q-tab-panel name="meals">
+              <MealsList
+                :meals="meals"
+                @deleteMeal="deleteMeal"
+                @setCurrentMealOrder="setCurrentMealOrder"
+                @createMeal="createMeal"
+                @deleteProduct="deleteProductFromDailyMeal"
+                @increase="increaseCountProduct"
+                @decrease="decreaseCountProduct"
+              />
+            </q-tab-panel>
+
+            <q-tab-panel name="stats">
+              <StaticsDailyFeatures
+                v-if="meals.length > 0"
+                :date="selectedDate"
+              />
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
       </q-card>
 
       <q-dialog v-model="card">
@@ -125,12 +93,11 @@
 import { onMounted, ref } from 'vue';
 import { Product } from '../../stores/productStore';
 import { useDailyMealStore, Meal } from '../../stores/dailyMealStore';
-import AddedProduct from '../../components/DailyMeal/AddedProduct.vue';
 import SelectProductList from '../../components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
 import { useUserStore, UserParameters } from '../../stores/userStore';
 import { formatToLocal } from '../../utils/Formatters/dateFormatter';
-import { formatMealTitle } from '../../utils/Formatters/mealTitleFormatter';
+import MealsList from '../../components/DailyMeal/MealsList.vue';
 
 const userStore = useUserStore();
 const user = ref<UserParameters>();
@@ -139,6 +106,8 @@ const card = ref(false);
 const selectedDate = ref<Date>(new Date());
 const meals = ref<Array<Meal>>([]);
 const currentMealOrder = ref<number>(0);
+
+const activeTab = ref('meals');
 
 onMounted(async () => {
   await userStore.getUser();
@@ -157,10 +126,6 @@ onMounted(async () => {
     date: formatToLocal(selectedDate.value),
   }));
 });
-
-function getMealTitle(index: number): string {
-  return formatMealTitle(index);
-}
 
 function setCurrentMealOrder(meal_order: number): void {
   card.value = true;
