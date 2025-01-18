@@ -71,10 +71,16 @@
             </q-tab-panel>
 
             <q-tab-panel name="stats">
-              <StaticsDailyFeatures
-                v-if="meals.length > 0"
-                :date="selectedDate"
-              />
+              <transition
+                appear
+                enter-active-class="animated fadeIn"
+                leave-active-class="animated fadeOut"
+              >
+                <StaticsDailyFeatures
+                  v-if="meals.length > 0"
+                  :date="selectedDate"
+                />
+              </transition>
             </q-tab-panel>
           </q-tab-panels>
         </div>
