@@ -31,6 +31,7 @@ export interface CreateProduct {
   proteins?: number;
   carbs?: number;
   fats?: number;
+  is_public: boolean;
 }
 
 export interface UpdateProduct {
@@ -44,6 +45,7 @@ export interface UpdateProduct {
   proteins?: number;
   carbs?: number;
   fats?: number;
+  is_public: boolean;
 }
 
 export const useProductStore = defineStore('productStore', {

@@ -137,6 +137,13 @@
           </q-card-section>
           <q-separator />
           <q-card-section class="flex justify-end">
+            <q-toggle
+              v-model="productData.is_public"
+              color="deep-orange-9"
+              label="Public product"
+              class="q-mr-sm"
+              left-label
+            />
             <q-btn label="Create" color="positive" @click="submitProduct" />
           </q-card-section>
         </q-card>
@@ -161,6 +168,7 @@ const router = useRouter();
 
 const productData = ref<CreateProduct>({
   description: '',
+  is_public: false,
 });
 
 const productStore = useProductStore();
