@@ -12,26 +12,26 @@ export interface Product {
   description: string;
   price: number;
   weight: number;
+  weight_for_features: number;
   image: string;
   calories: number;
   proteins: number;
   carbs: number;
   fats: number;
   count: number;
-  category: Category;
 }
 
 export interface CreateProduct {
   name?: string;
   description: string;
   price?: number;
-  weight_default?: number;
+  weight?: number;
   weight_for_features?: number;
   calories?: number;
   proteins?: number;
   carbs?: number;
   fats?: number;
-  category_id?: number;
+  is_public: boolean;
 }
 
 export interface UpdateProduct {
@@ -39,18 +39,13 @@ export interface UpdateProduct {
   name?: string;
   description: string;
   price?: number;
-  weight_default?: number;
+  weight?: number;
   weight_for_features?: number;
   calories?: number;
   proteins?: number;
   carbs?: number;
   fats?: number;
-  category_id?: number;
-}
-
-export interface Category {
-  id: string;
-  name: string;
+  is_public: boolean;
 }
 
 export const useProductStore = defineStore('productStore', {
@@ -87,11 +82,11 @@ export const useProductStore = defineStore('productStore', {
     async createProduct(productData: CreateProduct) {
       this.loading = true;
       try {
-        const { data } = await api.post('/products/update', productData);
+        const { data } = await api.post('/products/create', productData);
         this.products.push(data);
         return data;
       } catch (error) {
-        console.error('Ошибка при создании продукта:', error);
+        console.error('Error create product:', error);
         throw error;
       } finally {
         this.loading = false;

@@ -7,7 +7,7 @@
     <q-page class="flex items-center column q-mx-md">
       <div
         class="q-mt-md"
-        style="max-width: 800px; min-width: 350px; width: 100%"
+        style="max-width: 600px; min-width: 350px; width: 100%"
       >
         <q-card class="q-mt-md full-width-card" bordered flat>
           <q-card-section>
@@ -16,10 +16,12 @@
           <q-card-section>
             <q-input
               outlined
+              ref="nameRef"
               dense
               v-model="productData.name"
               label="Name"
               class="q-mb-md"
+              :rules="ruleRequired"
             />
             <div class="row q-gutter-x-sm">
               <div class="col-3">
@@ -34,25 +36,13 @@
               <div class="col-3">
                 <q-input
                   outlined
+                  ref="weight"
                   dense
-                  v-model="productData.weight_default"
+                  v-model="productData.weight"
                   label="Weight"
                   :rules="ruleNumber"
                   style="min-width: 50px"
-                />
-              </div>
-              <div class="col">
-                <q-select
-                  outlined
-                  dense
-                  v-model="productData.category_id"
-                  label="Category"
-                  option-label="name"
-                  option-value="id"
-                  emit-value
-                  map-options
-                  :options="categories"
-                  style="min-width: 50px"
+                  lazy-rules
                 />
               </div>
 
@@ -149,6 +139,13 @@
           </q-card-section>
           <q-separator />
           <q-card-section class="flex justify-end">
+            <q-toggle
+              v-model="productData.is_public"
+              color="deep-orange-9"
+              label="Public product"
+              class="q-mr-sm"
+              left-label
+            />
             <q-btn label="Update" color="positive" @click="submitProduct" />
           </q-card-section>
         </q-card>
@@ -160,10 +157,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Notify } from 'quasar';
-import { useCategoryStore } from '../../stores/categoryStore';
+import { Notify, QForm } from 'quasar';
 import { useProductStore } from '../../stores/productStore';
-import type { Category, UpdateProduct } from '../../stores/productStore';
+import { ruleNumber, ruleRequired } from '../../utils/validations.ts';
+import type { UpdateProduct } from '../../stores/productStore';
 
 defineOptions({
   name: 'ProductEditPage',
@@ -174,15 +171,10 @@ const router = useRouter();
 const productData = ref<UpdateProduct>({
   id: 0,
   description: '',
+  is_public: false,
 });
 
-const ruleNumber = [
-  (val: string) => /^\d+(\.\d{1,2})?$/.test(val) || 'Only numbers allowed',
-];
-
-const categoryStore = useCategoryStore();
 const productStore = useProductStore();
-const categories = ref<Category[]>([]);
 
 onMounted(async () => {
   const productId = router.currentRoute.value.params.id;
@@ -198,12 +190,15 @@ onMounted(async () => {
       router.push({ name: 'products' });
     }
   }
-
-  await categoryStore.fetchCategories();
-  categories.value = categoryStore.categories;
 });
 
+const weightRef = ref<QForm | null>(null);
+const nameRef = ref<QForm | null>(null);
+
 const submitProduct = async () => {
+  weightRef.value?.validate();
+  nameRef.value?.validate();
+
   try {
     const createdProduct = await productStore.updateProduct(productData.value);
 

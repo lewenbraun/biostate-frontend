@@ -76,7 +76,7 @@
         <q-input
           dense
           class="q-mb-md"
-          v-model="selectedProduct!.weight"
+          v-model.number="selectedProduct!.weight"
           label="Change weight"
         />
         <div class="flex justify-end q-mb-sm">

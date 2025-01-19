@@ -15,7 +15,7 @@
         <div class="text-h5 text-grey-8 q-ma-none">
           {{ dailyCalories }}
         </div>
-        <div class="text-h6 text-grey-8">/ {{ user.calories }}</div>
+        <div class="text-h6 text-grey-8">/ {{ user.calories ?? '?' }}</div>
       </div>
     </q-circular-progress>
 
@@ -38,7 +38,7 @@
               {{ dailyProteins }}
             </div>
             <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-              / {{ user.proteins }}
+              / {{ user.proteins ?? '?' }}
             </div>
           </div>
         </q-circular-progress>
@@ -61,7 +61,7 @@
               {{ dailyCarbs }}
             </div>
             <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-              / {{ user.carbs }}
+              / {{ user.carbs ?? '?' }}
             </div>
           </div>
         </q-circular-progress>
@@ -84,7 +84,7 @@
               {{ dailyFats }}
             </div>
             <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-              / {{ user.fats }}
+              / {{ user.fats ?? '?' }}
             </div>
           </div>
         </q-circular-progress>

@@ -123,7 +123,7 @@ const changeWeight = ref(props.product.weight);
 
 async function changeWeightInMeal() {
   await dailyMealStore.updateProductWeight(
-    props.product.id,
+    props.product,
     props.meal_id,
     changeWeight.value
   );

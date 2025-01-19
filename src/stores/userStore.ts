@@ -65,10 +65,6 @@ export const useUserStore = defineStore('userStore', {
       const { data } = await api.get('/user');
       this.setUser(data);
     },
-    async getCategories() {
-      const { data } = await api.get('/categories');
-      return data;
-    },
     setUser(user: UserParameters) {
       this.user.data = user;
     },

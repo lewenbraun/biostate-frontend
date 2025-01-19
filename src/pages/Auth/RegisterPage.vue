@@ -65,7 +65,6 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '../../stores/userStore';
 
-// Переменные для данных пользователя
 const user = ref({
   name: '',
   nickname: '',
@@ -74,18 +73,14 @@ const user = ref({
   password_confirmation: '',
 });
 
-// Инициализация маршрутизатора
 const router = useRouter();
 const userStore = useUserStore();
 
-// Функция для отправки данных регистрации
 function register() {
   userStore.register(user.value).then(() => {
-    router.push({ name: 'main' });
+    router.push({ name: 'profile' });
   });
 }
 </script>
 
-<style scoped>
-/* Добавляем стили, если необходимо */
-</style>
+<style scoped></style>

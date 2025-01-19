@@ -16,11 +16,6 @@ export interface DailylMealState {
   mealsStatus: Record<string, 'loading' | 'loaded' | 'empty' | 'error'>;
 }
 
-export interface Category {
-  id: string;
-  name: string;
-}
-
 export const useDailyMealStore = defineStore('dailyMealStore', {
   state: (): DailylMealState => ({
     meals: [],
@@ -85,7 +80,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         const mealsWithRecalculatedProducts = data.data.map((meal: Meal) => {
           meal.products = meal.products.map((product: Product) => {
-            this.recalculateProduct(product, this.WEIGHT_FACTOR_BASE);
+            this.recalculateProduct(product);
             return product;
           });
           return meal;
@@ -147,14 +142,14 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
     async addProductToMeal(product: Product, date: Date, meal_order: number) {
       try {
+        const formatedDate = formatToLocal(date);
+
         const { data } = await api.post('/daily-meal/product/add', {
           product_id: product.id,
           weight: product.weight,
-          date,
+          date: formatedDate,
           meal_order,
         });
-
-        const formatedDate = formatToLocal(date);
 
         const existingGroup = this.meals.find(
           (group) =>
@@ -178,7 +173,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
               }
             });
           } else {
-            this.recalculateProduct(product, this.WEIGHT_FACTOR_BASE);
+            this.recalculateProduct(product);
             existingGroup.products.push(product);
           }
         }
@@ -206,12 +201,14 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
     },
     async deleteProductFromMeal(
       product_id: number,
+      weight_product: number,
       meal_id: number | null,
       date: Date
     ) {
       try {
         await api.post('/daily-meal/product/delete', {
           product_id,
+          weight_product,
           meal_id,
         });
 
@@ -220,7 +217,9 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         this.meals.forEach((meal) => {
           if (meal.id === meal_id) {
             meal.products = meal.products.filter(
-              (product) => product.id !== product_id
+              (product) =>
+                product.id !== product_id ||
+                Number(product.weight) !== Number(weight_product)
             );
           }
         });
@@ -272,23 +271,26 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       }
     },
     async updateProductWeight(
-      product_id: number,
+      product: Product,
       meal_id: number | null,
       changed_weight: number
     ) {
       try {
         const { data } = await api.post('/daily-meal/product/update-weight', {
-          product_id,
+          product_id: product.id,
+          weight_product: product.weight,
           meal_id,
           changed_weight,
         });
         this.meals.forEach((meal) => {
           if (meal.id === meal_id) {
-            meal.products.forEach((product) => {
-              if (product.id === product_id) {
-                const weight_for_calculating = product.weight;
-                product.weight = changed_weight;
-                this.recalculateProduct(product, weight_for_calculating);
+            meal.products.forEach((mealProduct) => {
+              if (
+                mealProduct.id === product.id &&
+                mealProduct.weight === product.weight
+              ) {
+                mealProduct.weight = changed_weight;
+                this.recalculateProduct(mealProduct);
               }
             });
           }
@@ -298,19 +300,37 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         console.error('Error loading categories:', error);
       }
     },
-    recalculateProduct(product: Product, weight: number) {
+    recalculateProduct(product: Product) {
       product.proteins = parseFloat(
-        ((product.proteins / weight) * product.weight).toFixed(1)
+        (
+          ((product.weight ?? this.WEIGHT_FACTOR_BASE) /
+            product.weight_for_features) *
+          product.proteins
+        ).toFixed(1)
       );
       product.carbs = parseFloat(
-        ((product.carbs / weight) * product.weight).toFixed(1)
+        (
+          ((product.weight ?? this.WEIGHT_FACTOR_BASE) /
+            product.weight_for_features) *
+          product.carbs
+        ).toFixed(1)
       );
       product.fats = parseFloat(
-        ((product.fats / weight) * product.weight).toFixed(1)
+        (
+          ((product.weight ?? this.WEIGHT_FACTOR_BASE) /
+            product.weight_for_features) *
+          product.fats
+        ).toFixed(1)
       );
       product.calories = parseFloat(
-        ((product.calories / weight) * product.weight).toFixed(1)
+        (
+          ((product.weight ?? this.WEIGHT_FACTOR_BASE) /
+            product.weight_for_features) *
+          product.calories
+        ).toFixed(1)
       );
+
+      product.weight_for_features = product.weight;
     },
   },
 });

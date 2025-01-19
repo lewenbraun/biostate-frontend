@@ -12,7 +12,7 @@
         />
 
         <q-toolbar-title
-          @click="$router.push({ name: 'main' })"
+          @click="$router.push({ name: 'dailyMeal' })"
           style="cursor: pointer"
         >
           What-to-eat-a
