@@ -72,9 +72,7 @@ async function handleDeleteProduct(productId: number) {
           icon: 'close',
           color: 'white',
           round: true,
-          handler: () => {
-            /* ... */
-          },
+          handler: () => {},
         },
       ],
     });
@@ -87,16 +85,16 @@ async function handleDeleteProduct(productId: number) {
           icon: 'close',
           color: 'white',
           round: true,
-          handler: () => {
-            /* ... */
-          },
+          handler: () => {},
         },
       ],
     });
   }
 }
 
-function onSearch() {}
+async function onSearch() {
+  products.value = await productStore.searchProducts(searchQuery.value);
+}
 </script>
 
 <style scoped>
