@@ -101,12 +101,9 @@ import { Product } from '../../stores/productStore';
 import { useDailyMealStore, Meal } from '../../stores/dailyMealStore';
 import SelectProductList from '../../components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
-import { useUserStore, UserParameters } from '../../stores/userStore';
 import { formatToLocal } from '../../utils/Formatters/dateFormatter';
 import MealsList from '../../components/DailyMeal/MealsList.vue';
 
-const userStore = useUserStore();
-const user = ref<UserParameters>();
 const dailyMealStore = useDailyMealStore();
 const card = ref(false);
 const selectedDate = ref<Date>(new Date());
@@ -116,9 +113,6 @@ const currentMealOrder = ref<number>(0);
 const activeTab = ref('meals');
 
 onMounted(async () => {
-  await userStore.getUser();
-  user.value = userStore.user.data;
-
   selectedDate.value = new Date();
 
   const mealsForDate = await dailyMealStore.getOrFetchMealsByDate(

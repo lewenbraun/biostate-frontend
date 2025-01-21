@@ -2,12 +2,20 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 
 export interface UserParameters {
-  name: string;
-  weight?: number;
+  maxNutrients: MaxNutrients;
+  profileData: ProfileData;
+}
+
+export interface MaxNutrients {
   proteins?: number;
   fats?: number;
   carbs?: number;
   calories?: number;
+}
+
+export interface ProfileData {
+  name: string;
+  weight?: number;
 }
 
 interface UserState {
@@ -19,7 +27,10 @@ export const useUserStore = defineStore('userStore', {
   state: (): { user: UserState } => ({
     user: {
       data: {
-        name: '',
+        maxNutrients: {},
+        profileData: {
+          name: '',
+        },
       },
       token: localStorage.getItem('TOKEN'),
     },
@@ -28,7 +39,7 @@ export const useUserStore = defineStore('userStore', {
   getters: {
     isAuthenticated: (state) => !!state.user.token,
     maxCountNutrients: (state) => {
-      const { proteins, fats, carbs, calories } = state.user.data;
+      const { proteins, fats, carbs, calories } = state.user.data.maxNutrients;
       return {
         proteins: proteins,
         fats: fats,
@@ -65,6 +76,20 @@ export const useUserStore = defineStore('userStore', {
       const { data } = await api.get('/user');
       this.setUser(data);
     },
+    async getProfileData() {
+      const { data } = await api.get('/user/profile-data');
+      this.setProfileData(data);
+    },
+    async getMaxNutrients() {
+      const { data } = await api.get('/user/max-nutrients');
+      this.setMaxNutrients(data);
+    },
+    async setMaxNutrients(maxNutrients: MaxNutrients) {
+      this.user.data.maxNutrients = maxNutrients;
+    },
+    async setProfileData(profileData: ProfileData) {
+      this.user.data.profileData = profileData;
+    },
     setUser(user: UserParameters) {
       this.user.data = user;
     },
@@ -78,7 +103,10 @@ export const useUserStore = defineStore('userStore', {
     logoutUser() {
       this.user.token = null;
       this.user.data = {
-        name: '',
+        maxNutrients: {},
+        profileData: {
+          name: '',
+        },
       };
       localStorage.removeItem('TOKEN');
     },

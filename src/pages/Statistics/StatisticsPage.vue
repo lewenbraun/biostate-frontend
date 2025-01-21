@@ -18,10 +18,7 @@
 
         <q-separator inset />
         <!-- Statistics for day -->
-        <q-card-section
-          class="col-12"
-          v-if="nutritionalSummary && userStore.user.data.name !== ''"
-        >
+        <q-card-section class="col-12" v-if="!isLoading">
           <div class="text-body1 text-bold">Statistics for day:</div>
           <div class="row justify-center q-gutter-sm">
             <div class="flex justify-center column items-center">
@@ -30,7 +27,7 @@
                 class="text-orange-8 q-ma-xs"
                 :value="dailyCalories"
                 size="65px"
-                :max="userStore.user.data.calories"
+                :max="user.maxNutrients.calories"
                 color="orange-8"
                 track-color="grey-3"
                 rounded
@@ -44,7 +41,7 @@
                     {{ dailyCalories }}
                   </div>
                   <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-                    / {{ userStore.user.data.calories ?? '?' }}
+                    / {{ user.maxNutrients.calories ?? '?' }}
                   </div>
                 </div>
               </q-circular-progress>
@@ -56,7 +53,7 @@
                 class="text-orange-8 q-ma-xs"
                 :value="dailyProteins"
                 size="65px"
-                :max="userStore.user.data.proteins"
+                :max="user.maxNutrients.proteins"
                 color="orange-8"
                 track-color="grey-3"
                 rounded
@@ -70,7 +67,7 @@
                     {{ dailyProteins }}
                   </div>
                   <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-                    / {{ userStore.user.data.proteins ?? '?' }}
+                    / {{ user.maxNutrients.proteins ?? '?' }}
                   </div>
                 </div>
               </q-circular-progress>
@@ -82,7 +79,7 @@
                 class="text-orange-8 q-ma-xs"
                 :value="dailyCarbs"
                 size="65px"
-                :max="userStore.user.data.carbs"
+                :max="user.maxNutrients.carbs"
                 color="orange-8"
                 track-color="grey-3"
                 rounded
@@ -96,7 +93,7 @@
                     {{ dailyCarbs }}
                   </div>
                   <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-                    / {{ userStore.user.data.carbs ?? '?' }}
+                    / {{ user.maxNutrients.carbs ?? '?' }}
                   </div>
                 </div>
               </q-circular-progress>
@@ -108,7 +105,7 @@
                 class="text-orange-8 q-ma-xs"
                 :value="dailyFats"
                 size="65px"
-                :max="userStore.user.data.fats"
+                :max="user.maxNutrients.fats"
                 color="orange-8"
                 track-color="grey-3"
                 rounded
@@ -122,7 +119,7 @@
                     {{ dailyFats }}
                   </div>
                   <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-                    / {{ userStore.user.data.fats ?? '?' }}
+                    / {{ user.maxNutrients.fats ?? '?' }}
                   </div>
                 </div>
               </q-circular-progress>
@@ -171,10 +168,29 @@ import { formatToLocal } from '../../utils/Formatters/dateFormatter.ts';
 const dailyMealStore = useDailyMealStore();
 const statisticsStore = useStatisticsStore();
 const userStore = useUserStore();
+const user = ref();
 
 const today = new Date();
 
 const formatedDate = computed(() => formatToLocal(today));
+
+onMounted(async () => {
+  try {
+    await dailyMealStore.getOrFetchMealsByDate(today);
+    await statisticsStore.fetchSumNutrientsPerWeek([
+      'calories',
+      'proteins',
+      'carbs',
+      'fats',
+    ]);
+    await userStore.getProfileData();
+    await userStore.getMaxNutrients();
+
+    user.value = userStore.user.data;
+  } finally {
+    isLoading.value = false;
+  }
+});
 
 const nutritionalSummary = computed(() =>
   dailyMealStore.getNutritionalSummary(formatedDate.value)
@@ -188,21 +204,6 @@ const nutrientsPerWeek = computed(() => statisticsStore.sumNutrientsPerWeek);
 const userMaxCountNutrients = computed(() => userStore.maxCountNutrients);
 
 const isLoading = ref(true);
-
-onMounted(async () => {
-  try {
-    await dailyMealStore.getOrFetchMealsByDate(today);
-    await statisticsStore.fetchSumNutrientsPerWeek([
-      'calories',
-      'proteins',
-      'carbs',
-      'fats',
-    ]);
-    await userStore.getUser();
-  } finally {
-    isLoading.value = false;
-  }
-});
 
 function capitalize(str: string): string {
   if (!str) return '';
