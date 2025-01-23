@@ -105,7 +105,7 @@ export const useProductStore = defineStore('productStore', {
     async deleteProduct(product_id: number) {
       try {
         const { data } = await api.post('/products/delete', {
-          product_id: product_id,
+          id: product_id,
         });
 
         return data;
