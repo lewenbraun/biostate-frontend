@@ -103,6 +103,7 @@ import SelectProductList from '../../components/Product/Meal/SelectProductList.v
 import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
 import { formatToLocal } from '../../utils/Formatters/dateFormatter';
 import MealsList from '../../components/DailyMeal/MealsList.vue';
+import { handleApiError } from '../../utils/errorHandler';
 
 const dailyMealStore = useDailyMealStore();
 const card = ref(false);
@@ -173,7 +174,7 @@ async function createMeal(): Promise<void> {
 
     meals.value = updated_meals;
   } catch (error) {
-    console.error('Error creating meal:', error);
+    handleApiError(error);
   }
 }
 
@@ -194,7 +195,7 @@ async function deleteMeal(meal_id: number): Promise<void> {
 
     meals.value = updated_meals;
   } catch (error) {
-    console.error('Error creating meal:', error);
+    handleApiError(error);
   }
 }
 
@@ -213,7 +214,7 @@ async function deleteProductFromDailyMeal(
 
     meals.value = updated_meals;
   } catch (error) {
-    console.error('Error creating meal:', error);
+    handleApiError(error);
   }
 }
 

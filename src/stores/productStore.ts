@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
+import { handleApiError } from '../utils/errorHandler';
 
 export interface ProductState {
   products: Product[];
@@ -59,13 +60,13 @@ export const useProductStore = defineStore('productStore', {
   },
 
   actions: {
-    async fetchProducts() {
+    async fetchProducts(): Promise<void> {
       this.loading = true;
       try {
         const { data } = await api.get('/products');
         this.products = data;
       } catch (error) {
-        console.error('Error fetching products:', error);
+        handleApiError(error);
       } finally {
         this.loading = false;
       }
@@ -75,8 +76,7 @@ export const useProductStore = defineStore('productStore', {
         const { data } = await api.get(`/products/show/${id}`);
         return data;
       } catch (error) {
-        console.error('Error fetching product:', error);
-        throw error;
+        handleApiError(error);
       }
     },
     async createProduct(productData: CreateProduct) {
@@ -86,8 +86,7 @@ export const useProductStore = defineStore('productStore', {
         this.products.push(data);
         return data;
       } catch (error) {
-        console.error('Error create product:', error);
-        throw error;
+        handleApiError(error);
       } finally {
         this.loading = false;
       }
@@ -98,8 +97,7 @@ export const useProductStore = defineStore('productStore', {
 
         return data;
       } catch (error) {
-        console.error('Error update product by ID:', error);
-        throw error;
+        handleApiError(error);
       }
     },
     async deleteProduct(product_id: number) {
@@ -110,8 +108,7 @@ export const useProductStore = defineStore('productStore', {
 
         return data;
       } catch (error) {
-        console.error('Error delete product:', error);
-        throw error;
+        handleApiError(error);
       }
     },
     async searchProducts(query: string) {
@@ -119,7 +116,7 @@ export const useProductStore = defineStore('productStore', {
         const { data } = await api.get(`/products/search/${query}`);
         return data;
       } catch (error) {
-        console.error('Error search products:', error);
+        handleApiError(error);
         throw error;
       }
     },
