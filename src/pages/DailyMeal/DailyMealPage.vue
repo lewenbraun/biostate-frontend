@@ -53,8 +53,8 @@
             align="justify"
             narrow-indicator
           >
-            <q-tab name="meals" label="Meals" icon="restaurant_menu" />
-            <q-tab name="stats" label="Statistics" icon="insert_chart" />
+            <q-tab name="meals" label="Meals" />
+            <q-tab name="stats" label="Statistics" />
           </q-tabs>
 
           <q-tab-panels v-model="activeTab" animated>

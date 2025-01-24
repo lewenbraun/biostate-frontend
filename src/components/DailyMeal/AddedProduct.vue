@@ -39,7 +39,7 @@
           </div>
         </div>
       </q-item-label>
-      <q-item-label caption class="row q-gutter-md" lines="2">
+      <q-item-label caption class="row q-gutter-sm" lines="2">
         <span caption>Proteins: {{ product.proteins }}</span>
         <span caption>Carbs: {{ product.carbs }}</span>
         <span caption>Fats: {{ product.fats }}</span>
