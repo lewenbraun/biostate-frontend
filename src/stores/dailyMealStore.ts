@@ -72,7 +72,6 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         });
 
         if (!data.data || data.data.length === 0) {
-          console.warn(`No data for ${formatedDate}`);
           this.mealsStatus[formatedDate] = 'empty';
           return [];
         }
@@ -99,12 +98,10 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       const formatedDate = formatToLocal(date);
 
       if (this.mealsStatus[formatedDate] === 'loading') {
-        console.log(`Data for ${formatedDate} still loading.`);
         return [];
       }
 
       if (this.mealsStatus[formatedDate] === 'empty') {
-        console.warn(`For date ${formatedDate} data is empty.`);
         return [];
       }
 

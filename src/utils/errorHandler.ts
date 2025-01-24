@@ -3,7 +3,6 @@ import axios from 'axios';
 
 export function handleApiError(error: unknown): void {
   let errorMessage = 'An unexpected error occurred. Please try again later.';
-  console.log(error);
 
   if (axios.isAxiosError(error)) {
     if (error.response?.data && error.response.data.message) {

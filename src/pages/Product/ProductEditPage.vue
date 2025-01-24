@@ -214,7 +214,6 @@ const submitProduct = async () => {
       type: 'negative',
       message: 'Failed to create product.',
     });
-    console.error('Error creating product:', error);
   }
 };
 </script>

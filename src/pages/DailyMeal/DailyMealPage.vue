@@ -257,7 +257,6 @@ async function selectDate(date: Date): Promise<void> {
 
   switch (dailyMealStore.mealsStatus[formatedDate]) {
     case 'empty':
-      console.warn(`For date ${formatedDate} data is empty.`);
       meals.value = [];
       break;
 
@@ -271,12 +270,10 @@ async function selectDate(date: Date): Promise<void> {
       break;
 
     case 'error':
-      console.error(`Error loading ${formatedDate}`);
       meals.value = [];
       break;
 
     default:
-      console.log(`Data for ${formatedDate} still loading.`);
       meals.value = [];
   }
 }
