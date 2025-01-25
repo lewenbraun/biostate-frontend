@@ -60,14 +60,12 @@ export const useUserStore = defineStore('userStore', {
       const { data } = await api.post('/login', user);
       this.setUser(data.user);
       this.setToken(data.token);
-      return data;
     },
     async logout() {
-      const response = await api.post('/logout');
+      await api.post('/logout');
       this.logoutUser();
-      return response;
     },
-    async updateUser(user: UserParameters) {
+    async updateUser(user: UserParameters): Promise<UserParameters> {
       const { data } = await api.post('/user/update', user);
       this.setUser(data);
       return data;

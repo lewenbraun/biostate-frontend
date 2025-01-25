@@ -159,6 +159,7 @@ import { Notify, QForm } from 'quasar';
 import { useProductStore } from '../../stores/productStore';
 import { ruleNumber, ruleRequired } from '../../utils/validations.ts';
 import type { CreateProduct } from '../../stores/productStore';
+import { handleApiError } from '../../utils/errorHandler.ts';
 
 defineOptions({
   name: 'ProductCreatePage',
@@ -191,10 +192,7 @@ const submitProduct = async () => {
       router.push({ name: 'products' });
     }
   } catch (error) {
-    Notify.create({
-      type: 'negative',
-      message: 'Failed to create product.',
-    });
+    handleApiError(error);
   }
 };
 </script>

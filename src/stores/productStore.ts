@@ -20,6 +20,7 @@ export interface Product {
   carbs: number;
   fats: number;
   count: number;
+  is_public: boolean;
 }
 
 export interface CreateProduct {
@@ -71,27 +72,29 @@ export const useProductStore = defineStore('productStore', {
         this.loading = false;
       }
     },
-    async getProduct(id: string) {
+    async getProduct(id: string): Promise<Product> {
       try {
-        const { data } = await api.get(`/products/show/${id}`);
-        return data;
+        const response = await api.get(`/products/show/${id}`);
+        return response.data || null;
       } catch (error) {
-        handleApiError(error);
+        throw error;
       }
     },
-    async createProduct(productData: CreateProduct) {
+    async createProduct(productData: CreateProduct): Promise<Product> {
       this.loading = true;
       try {
         const { data } = await api.post('/products/create', productData);
         this.products.push(data);
         return data;
       } catch (error) {
-        handleApiError(error);
+        throw error;
       } finally {
         this.loading = false;
       }
     },
-    async updateProduct(productData: UpdateProduct) {
+    async updateProduct(
+      productData: UpdateProduct
+    ): Promise<Product | undefined> {
       try {
         const { data } = await api.post('/products/update', productData);
 
@@ -100,7 +103,7 @@ export const useProductStore = defineStore('productStore', {
         handleApiError(error);
       }
     },
-    async deleteProduct(product_id: number) {
+    async deleteProduct(product_id: number): Promise<Product | undefined> {
       try {
         const { data } = await api.post('/products/delete', {
           id: product_id,
@@ -111,13 +114,13 @@ export const useProductStore = defineStore('productStore', {
         handleApiError(error);
       }
     },
-    async searchProducts(query: string) {
+    async searchProducts(query: string): Promise<Product[]> {
       try {
         const { data } = await api.get(`/products/search/${query}`);
-        return data;
+        return data || [];
       } catch (error) {
         handleApiError(error);
-        throw error;
+        return [];
       }
     },
   },

@@ -62,7 +62,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
   },
 
   actions: {
-    async fetchDailyMeal(date: Date) {
+    async fetchDailyMeal(date: Date): Promise<Meal[]> {
       const formatedDate = formatToLocal(date);
       this.mealsStatus[formatedDate] = 'loading';
 
@@ -94,7 +94,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         return [];
       }
     },
-    async getOrFetchMealsByDate(date: Date) {
+    async getOrFetchMealsByDate(date: Date): Promise<Meal[]> {
       const formatedDate = formatToLocal(date);
 
       if (this.mealsStatus[formatedDate] === 'loading') {
@@ -137,7 +137,11 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       }
     },
 
-    async addProductToMeal(product: Product, date: Date, meal_order: number) {
+    async addProductToMeal(
+      product: Product,
+      date: Date,
+      meal_order: number
+    ): Promise<void> {
       try {
         const formatedDate = formatToLocal(date);
 
@@ -178,7 +182,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         handleApiError(error);
       }
     },
-    async deleteMeal(date: Date, meal_id: number) {
+    async deleteMeal(date: Date, meal_id: number): Promise<Meal[]> {
       try {
         const formatedDate = formatToLocal(date);
 
@@ -199,7 +203,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       weight_product: number,
       meal_id: number | null,
       date: Date
-    ) {
+    ): Promise<Meal[]> {
       try {
         await api.post('/daily-meal/product/delete', {
           product_id,
@@ -224,7 +228,10 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         throw error;
       }
     },
-    async increaseCountProduct(product_id: number, meal_id: number | null) {
+    async increaseCountProduct(
+      product_id: number,
+      meal_id: number | null
+    ): Promise<void> {
       try {
         await api.post('/daily-meal/product/increase-count', {
           product_id,
@@ -243,7 +250,10 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         handleApiError(error);
       }
     },
-    async decreaseCountProduct(product_id: number, meal_id: number | null) {
+    async decreaseCountProduct(
+      product_id: number,
+      meal_id: number | null
+    ): Promise<void> {
       try {
         await api.post('/daily-meal/product/decrease-count', {
           product_id,
@@ -266,7 +276,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       product: Product,
       meal_id: number | null,
       changed_weight: number
-    ) {
+    ): Promise<void> {
       try {
         await api.post('/daily-meal/product/update-weight', {
           product_id: product.id,
@@ -291,7 +301,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         handleApiError(error);
       }
     },
-    recalculateProduct(product: Product) {
+    recalculateProduct(product: Product): void {
       product.proteins = parseFloat(
         (
           ((product.weight ?? this.WEIGHT_FACTOR_BASE) /
