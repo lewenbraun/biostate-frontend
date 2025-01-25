@@ -70,7 +70,11 @@
               />
             </q-tab-panel>
 
-            <q-tab-panel name="stats">
+            <q-tab-panel
+              name="stats"
+              class="q-mb-md"
+              style="width: 100vw; max-width: 100vw; padding: 0"
+            >
               <transition
                 appear
                 enter-active-class="animated fadeIn"
