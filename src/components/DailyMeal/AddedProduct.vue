@@ -34,7 +34,7 @@
           </div>
           <div class="flex">
             <span class="text-subtitle2 text-dark item-end self-center"
-              >Calories: {{ parseFloat(product.calories.toFixed(0)) }}</span
+              >Calories: {{ parseFloat(product.calories.toFixed(1)) }}</span
             >
           </div>
         </div>
