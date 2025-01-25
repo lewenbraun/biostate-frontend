@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
+import dayjs from 'dayjs';
+import { Notify } from 'quasar';
 
 export interface StatisticsState {
   sumNutrientsPerWeek: SumNutrientsPerWeek;
@@ -7,13 +9,13 @@ export interface StatisticsState {
 }
 
 export interface SumNutrientsPerWeek {
-  calories: DataDays[];
-  proteins: DataDays[];
-  fats: DataDays[];
-  carbs: DataDays[];
+  calories: DataDay[];
+  proteins: DataDay[];
+  fats: DataDay[];
+  carbs: DataDay[];
 }
 
-export interface DataDays {
+export interface DataDay {
   total: number;
   date: string;
 }
@@ -29,32 +31,30 @@ export const useStatisticsStore = defineStore('statisticsStore', {
     loading: false,
   }),
 
-  getters: {},
-
   actions: {
-    async fetchSumNutrientsPerWeek(nutrients: string[]) {
+    async fetchSumNutrientsPerWeek(nutrients: string[]): Promise<void> {
       this.loading = true;
       try {
-        const end_date = new Date().toISOString().split('T')[0];
-        const start_date = new Date(
-          new Date().setDate(new Date().getDate() - 7)
-        )
-          .toISOString()
-          .split('T')[0];
+        const end_date = dayjs().format('YYYY-MM-DD');
+        const start_date = dayjs().subtract(7, 'days').format('YYYY-MM-DD');
 
-        const { data } = await api.get(
+        const { data } = await api.get<SumNutrientsPerWeek>(
           '/statistics/sum-nutrients-for-period-date',
           {
             params: {
-              start_date: start_date,
-              end_date: end_date,
-              nutrients: nutrients,
+              start_date,
+              end_date,
+              nutrients,
             },
           }
         );
+
         this.sumNutrientsPerWeek = data;
       } catch (error) {
-        console.error('Error fetching products:', error);
+        Notify.create({
+          type: 'negative',
+          message: 'Error fetching nutrients per week',
+        });
       } finally {
         this.loading = false;
       }

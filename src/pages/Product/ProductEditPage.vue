@@ -161,6 +161,7 @@ import { Notify, QForm } from 'quasar';
 import { useProductStore } from '../../stores/productStore';
 import { ruleNumber, ruleRequired } from '../../utils/validations.ts';
 import type { UpdateProduct } from '../../stores/productStore';
+import { handleApiError } from '../../utils/errorHandler.ts';
 
 defineOptions({
   name: 'ProductEditPage',
@@ -177,19 +178,10 @@ const productData = ref<UpdateProduct>({
 const productStore = useProductStore();
 
 onMounted(async () => {
-  const productId = router.currentRoute.value.params.id;
-  if (productId) {
-    const product = await productStore.getProduct(productId as string);
-    if (product) {
-      productData.value = product;
-    } else {
-      Notify.create({
-        type: 'negative',
-        message: 'Product not found.',
-      });
-      router.push({ name: 'products' });
-    }
-  }
+  const productId = router.currentRoute.value.params.id as string;
+  const product = await productStore.getProduct(productId);
+
+  productData.value = product as UpdateProduct;
 });
 
 const weightRef = ref<QForm | null>(null);
@@ -210,11 +202,7 @@ const submitProduct = async () => {
       router.push({ name: 'products' });
     }
   } catch (error) {
-    Notify.create({
-      type: 'negative',
-      message: 'Failed to create product.',
-    });
-    console.error('Error creating product:', error);
+    handleApiError(error);
   }
 };
 </script>

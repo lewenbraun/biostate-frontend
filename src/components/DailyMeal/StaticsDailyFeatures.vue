@@ -5,7 +5,7 @@
       class="text-orange-8 q-ma-xs"
       :value="dailyCalories"
       size="120px"
-      :max="user.calories"
+      :max="user.maxNutrients.calories"
       track-color="grey-3"
       color="orange-8"
       rounded
@@ -15,7 +15,9 @@
         <div class="text-h5 text-grey-8 q-ma-none">
           {{ dailyCalories }}
         </div>
-        <div class="text-h6 text-grey-8">/ {{ user.calories ?? '?' }}</div>
+        <div class="text-h6 text-grey-8">
+          / {{ user.maxNutrients.calories ?? '?' }}
+        </div>
       </div>
     </q-circular-progress>
 
@@ -27,7 +29,7 @@
           class="text-orange-8 q-ma-xs"
           :value="dailyProteins"
           size="65px"
-          :max="user.proteins"
+          :max="user.maxNutrients.proteins"
           color="orange-8"
           track-color="grey-3"
           rounded
@@ -38,7 +40,7 @@
               {{ dailyProteins }}
             </div>
             <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-              / {{ user.proteins ?? '?' }}
+              / {{ user.maxNutrients.proteins ?? '?' }}
             </div>
           </div>
         </q-circular-progress>
@@ -50,7 +52,7 @@
           class="text-orange-8 q-ma-xs"
           :value="dailyCarbs"
           size="65px"
-          :max="user.carbs"
+          :max="user.maxNutrients.carbs"
           track-color="grey-3"
           color="orange-8"
           rounded
@@ -61,7 +63,7 @@
               {{ dailyCarbs }}
             </div>
             <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-              / {{ user.carbs ?? '?' }}
+              / {{ user.maxNutrients.carbs ?? '?' }}
             </div>
           </div>
         </q-circular-progress>
@@ -73,7 +75,7 @@
           class="text-orange-8 q-ma-xs"
           :value="dailyFats"
           size="65px"
-          :max="user.fats"
+          :max="user.maxNutrients.fats"
           track-color="grey-3"
           color="orange-8"
           rounded
@@ -84,7 +86,7 @@
               {{ dailyFats }}
             </div>
             <div class="text-grey-8 q-ma-none" style="font-size: 12px">
-              / {{ user.fats ?? '?' }}
+              / {{ user.maxNutrients.fats ?? '?' }}
             </div>
           </div>
         </q-circular-progress>
@@ -120,7 +122,7 @@ const dailyCarbs = computed(() => nutritionalSummary.value.carbs);
 const dailyProteins = computed(() => nutritionalSummary.value.proteins);
 
 onMounted(async () => {
-  await userStore.getUser();
+  await userStore.getMaxNutrients();
   user.value = userStore.user.data;
 });
 </script>

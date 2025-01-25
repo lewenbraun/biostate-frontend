@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
+import { handleApiError } from '../utils/errorHandler';
 
 export interface ProductState {
   products: Product[];
@@ -19,6 +20,7 @@ export interface Product {
   carbs: number;
   fats: number;
   count: number;
+  is_public: boolean;
 }
 
 export interface CreateProduct {
@@ -59,68 +61,66 @@ export const useProductStore = defineStore('productStore', {
   },
 
   actions: {
-    async fetchProducts() {
+    async fetchProducts(): Promise<void> {
       this.loading = true;
       try {
         const { data } = await api.get('/products');
         this.products = data;
       } catch (error) {
-        console.error('Error fetching products:', error);
+        handleApiError(error);
       } finally {
         this.loading = false;
       }
     },
-    async getProduct(id: string) {
+    async getProduct(id: string): Promise<Product> {
       try {
-        const { data } = await api.get(`/products/show/${id}`);
-        return data;
+        const response = await api.get(`/products/show/${id}`);
+        return response.data || null;
       } catch (error) {
-        console.error('Error fetching product:', error);
         throw error;
       }
     },
-    async createProduct(productData: CreateProduct) {
+    async createProduct(productData: CreateProduct): Promise<Product> {
       this.loading = true;
       try {
         const { data } = await api.post('/products/create', productData);
         this.products.push(data);
         return data;
       } catch (error) {
-        console.error('Error create product:', error);
         throw error;
       } finally {
         this.loading = false;
       }
     },
-    async updateProduct(productData: UpdateProduct) {
+    async updateProduct(
+      productData: UpdateProduct
+    ): Promise<Product | undefined> {
       try {
         const { data } = await api.post('/products/update', productData);
 
         return data;
       } catch (error) {
-        console.error('Error update product by ID:', error);
-        throw error;
+        handleApiError(error);
       }
     },
-    async deleteProduct(product_id: number) {
+    async deleteProduct(product_id: number): Promise<Product | undefined> {
       try {
         const { data } = await api.post('/products/delete', {
-          product_id: product_id,
+          id: product_id,
         });
 
         return data;
       } catch (error) {
-        console.error('Error delete product:', error);
-        throw error;
+        handleApiError(error);
       }
     },
-    async searchProducts(query: string) {
+    async searchProducts(query: string): Promise<Product[]> {
       try {
         const { data } = await api.get(`/products/search/${query}`);
-        return data;
+        return data || [];
       } catch (error) {
-        console.error('Error search products:', error);
-        throw error;
+        handleApiError(error);
+        return [];
       }
     },
   },

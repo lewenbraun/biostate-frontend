@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { Product } from './productStore';
 import { formatToLocal } from '../utils/Formatters/dateFormatter.ts';
+import { handleApiError } from '../utils/errorHandler.ts';
 
 export interface Meal {
   id: number;
@@ -49,10 +50,10 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
           });
 
           return {
-            calories: parseFloat(totals.calories.toFixed(0)),
-            fats: parseFloat(totals.fats.toFixed(0)),
-            carbs: parseFloat(totals.carbs.toFixed(0)),
-            proteins: parseFloat(totals.proteins.toFixed(0)),
+            calories: parseFloat(totals.calories.toFixed(1)),
+            fats: parseFloat(totals.fats.toFixed(1)),
+            carbs: parseFloat(totals.carbs.toFixed(1)),
+            proteins: parseFloat(totals.proteins.toFixed(1)),
           };
         },
         { calories: 0, fats: 0, carbs: 0, proteins: 0 }
@@ -61,7 +62,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
   },
 
   actions: {
-    async fetchDailyMeal(date: Date) {
+    async fetchDailyMeal(date: Date): Promise<Meal[]> {
       const formatedDate = formatToLocal(date);
       this.mealsStatus[formatedDate] = 'loading';
 
@@ -71,7 +72,6 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         });
 
         if (!data.data || data.data.length === 0) {
-          console.warn(`No data for ${formatedDate}`);
           this.mealsStatus[formatedDate] = 'empty';
           return [];
         }
@@ -89,21 +89,19 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         this.meals = [...this.meals, ...mealsWithRecalculatedProducts];
         return mealsWithRecalculatedProducts;
       } catch (error) {
-        console.error('Error loading meals:', error);
+        handleApiError(error);
         this.mealsStatus[formatedDate] = 'error';
         return [];
       }
     },
-    async getOrFetchMealsByDate(date: Date) {
+    async getOrFetchMealsByDate(date: Date): Promise<Meal[]> {
       const formatedDate = formatToLocal(date);
 
       if (this.mealsStatus[formatedDate] === 'loading') {
-        console.log(`Data for ${formatedDate} still loading.`);
         return [];
       }
 
       if (this.mealsStatus[formatedDate] === 'empty') {
-        console.warn(`For date ${formatedDate} data is empty.`);
         return [];
       }
 
@@ -113,7 +111,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
       return await this.fetchDailyMeal(date);
     },
-    async createMeal(date: Date, meal_order: number) {
+    async createMeal(date: Date, meal_order: number): Promise<Meal[]> {
       try {
         const formatedDate = formatToLocal(date);
 
@@ -135,16 +133,19 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         return this.meals.filter((meal) => meal.date === formatedDate);
       } catch (error) {
-        console.error('Error create new meal:', error);
         throw error;
       }
     },
 
-    async addProductToMeal(product: Product, date: Date, meal_order: number) {
+    async addProductToMeal(
+      product: Product,
+      date: Date,
+      meal_order: number
+    ): Promise<void> {
       try {
         const formatedDate = formatToLocal(date);
 
-        const { data } = await api.post('/daily-meal/product/add', {
+        await api.post('/daily-meal/product/add', {
           product_id: product.id,
           weight: product.weight,
           date: formatedDate,
@@ -177,12 +178,11 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
             existingGroup.products.push(product);
           }
         }
-        console.log('Data:', data);
       } catch (error) {
-        console.error('Error loading categories:', error);
+        handleApiError(error);
       }
     },
-    async deleteMeal(date: Date, meal_id: number) {
+    async deleteMeal(date: Date, meal_id: number): Promise<Meal[]> {
       try {
         const formatedDate = formatToLocal(date);
 
@@ -195,7 +195,6 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         return this.meals.filter((meal) => meal.date === formatedDate);
       } catch (error) {
-        console.error('Error delete meal:', error);
         throw error;
       }
     },
@@ -204,7 +203,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
       weight_product: number,
       meal_id: number | null,
       date: Date
-    ) {
+    ): Promise<Meal[]> {
       try {
         await api.post('/daily-meal/product/delete', {
           product_id,
@@ -226,13 +225,15 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
 
         return this.meals.filter((meal) => meal.date === formatedDate);
       } catch (error) {
-        console.error('Error loading categories:', error);
         throw error;
       }
     },
-    async increaseCountProduct(product_id: number, meal_id: number | null) {
+    async increaseCountProduct(
+      product_id: number,
+      meal_id: number | null
+    ): Promise<void> {
       try {
-        const { data } = await api.post('/daily-meal/product/increase-count', {
+        await api.post('/daily-meal/product/increase-count', {
           product_id,
           meal_id,
         });
@@ -245,14 +246,16 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
             });
           }
         });
-        console.log('Data:', data);
       } catch (error) {
-        console.error('Error loading categories:', error);
+        handleApiError(error);
       }
     },
-    async decreaseCountProduct(product_id: number, meal_id: number | null) {
+    async decreaseCountProduct(
+      product_id: number,
+      meal_id: number | null
+    ): Promise<void> {
       try {
-        const { data } = await api.post('/daily-meal/product/decrease-count', {
+        await api.post('/daily-meal/product/decrease-count', {
           product_id,
           meal_id,
         });
@@ -265,18 +268,17 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
             });
           }
         });
-        console.log('Data:', data);
       } catch (error) {
-        console.error('Error loading categories:', error);
+        handleApiError(error);
       }
     },
     async updateProductWeight(
       product: Product,
       meal_id: number | null,
       changed_weight: number
-    ) {
+    ): Promise<void> {
       try {
-        const { data } = await api.post('/daily-meal/product/update-weight', {
+        await api.post('/daily-meal/product/update-weight', {
           product_id: product.id,
           weight_product: product.weight,
           meal_id,
@@ -295,12 +297,11 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
             });
           }
         });
-        console.log('Data:', data);
       } catch (error) {
-        console.error('Error loading categories:', error);
+        handleApiError(error);
       }
     },
-    recalculateProduct(product: Product) {
+    recalculateProduct(product: Product): void {
       product.proteins = parseFloat(
         (
           ((product.weight ?? this.WEIGHT_FACTOR_BASE) /

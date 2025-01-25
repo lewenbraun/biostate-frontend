@@ -53,8 +53,8 @@
             align="justify"
             narrow-indicator
           >
-            <q-tab name="meals" label="Meals" icon="restaurant_menu" />
-            <q-tab name="stats" label="Statistics" icon="insert_chart" />
+            <q-tab name="meals" label="Meals" />
+            <q-tab name="stats" label="Statistics" />
           </q-tabs>
 
           <q-tab-panels v-model="activeTab" animated>
@@ -70,7 +70,11 @@
               />
             </q-tab-panel>
 
-            <q-tab-panel name="stats">
+            <q-tab-panel
+              name="stats"
+              class="q-mb-md"
+              style="width: 100vw; max-width: 100vw; padding: 0"
+            >
               <transition
                 appear
                 enter-active-class="animated fadeIn"
@@ -96,29 +100,28 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { Product } from '../../stores/productStore';
 import { useDailyMealStore, Meal } from '../../stores/dailyMealStore';
+import { handleApiError } from '../../utils/errorHandler';
+import { formatToLocal } from '../../utils/Formatters/dateFormatter';
+import { useQuasar } from 'quasar';
 import SelectProductList from '../../components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
-import { useUserStore, UserParameters } from '../../stores/userStore';
-import { formatToLocal } from '../../utils/Formatters/dateFormatter';
 import MealsList from '../../components/DailyMeal/MealsList.vue';
 
-const userStore = useUserStore();
-const user = ref<UserParameters>();
 const dailyMealStore = useDailyMealStore();
 const card = ref(false);
 const selectedDate = ref<Date>(new Date());
 const meals = ref<Array<Meal>>([]);
 const currentMealOrder = ref<number>(0);
 
+const $q = useQuasar();
+const isMobile = computed(() => $q.platform.is.mobile);
+
 const activeTab = ref('meals');
 
 onMounted(async () => {
-  await userStore.getUser();
-  user.value = userStore.user.data;
-
   selectedDate.value = new Date();
 
   const mealsForDate = await dailyMealStore.getOrFetchMealsByDate(
@@ -179,7 +182,7 @@ async function createMeal(): Promise<void> {
 
     meals.value = updated_meals;
   } catch (error) {
-    console.error('Error creating meal:', error);
+    handleApiError(error);
   }
 }
 
@@ -200,7 +203,7 @@ async function deleteMeal(meal_id: number): Promise<void> {
 
     meals.value = updated_meals;
   } catch (error) {
-    console.error('Error creating meal:', error);
+    handleApiError(error);
   }
 }
 
@@ -219,11 +222,11 @@ async function deleteProductFromDailyMeal(
 
     meals.value = updated_meals;
   } catch (error) {
-    console.error('Error creating meal:', error);
+    handleApiError(error);
   }
 }
 
-const DAYS_RANGE = 4;
+const DAYS_RANGE = isMobile.value ? 1 : 4;
 const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 
 function generateDates(range: number): Date[] {
@@ -262,7 +265,6 @@ async function selectDate(date: Date): Promise<void> {
 
   switch (dailyMealStore.mealsStatus[formatedDate]) {
     case 'empty':
-      console.warn(`For date ${formatedDate} data is empty.`);
       meals.value = [];
       break;
 
@@ -276,12 +278,10 @@ async function selectDate(date: Date): Promise<void> {
       break;
 
     case 'error':
-      console.error(`Error loading ${formatedDate}`);
       meals.value = [];
       break;
 
     default:
-      console.log(`Data for ${formatedDate} still loading.`);
       meals.value = [];
   }
 }

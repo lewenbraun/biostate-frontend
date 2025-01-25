@@ -37,12 +37,12 @@
               <q-item-section>
                 <q-input
                   v-if="isEditing"
-                  v-model="editableUser.name"
+                  v-model="editableUser.profileData.name"
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.name !== undefined">
-                  {{ user.name }}
+                <div v-else-if="user.profileData.name !== undefined">
+                  {{ user.profileData.name }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -54,12 +54,12 @@
               <q-item-section>
                 <q-input
                   v-if="isEditing"
-                  v-model="editableUser.weight"
+                  v-model="editableUser.profileData.weight"
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.weight !== undefined">
-                  {{ user.weight }}
+                <div v-else-if="user.profileData.weight !== undefined">
+                  {{ user.profileData.weight }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -80,12 +80,12 @@
               <q-item-section>
                 <q-input
                   v-if="isEditing"
-                  v-model="editableUser.calories"
+                  v-model="editableUser.maxNutrients.calories"
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.calories !== undefined">
-                  {{ user.calories }}
+                <div v-else-if="user.maxNutrients.calories !== undefined">
+                  {{ user.maxNutrients.calories }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -97,12 +97,12 @@
               <q-item-section>
                 <q-input
                   v-if="isEditing"
-                  v-model="editableUser.proteins"
+                  v-model="editableUser.maxNutrients.proteins"
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.proteins !== undefined">
-                  {{ user.proteins }}
+                <div v-else-if="user.maxNutrients.proteins !== undefined">
+                  {{ user.maxNutrients.proteins }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -114,12 +114,12 @@
               <q-item-section>
                 <q-input
                   v-if="isEditing"
-                  v-model="editableUser.carbs"
+                  v-model="editableUser.maxNutrients.carbs"
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.carbs !== undefined">
-                  {{ user.carbs }}
+                <div v-else-if="user.maxNutrients.carbs !== undefined">
+                  {{ user.maxNutrients.carbs }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -131,12 +131,12 @@
               <q-item-section>
                 <q-input
                   v-if="isEditing"
-                  v-model="editableUser.fats"
+                  v-model="editableUser.maxNutrients.fats"
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.fats !== undefined">
-                  {{ user.fats }}
+                <div v-else-if="user.maxNutrients.fats !== undefined">
+                  {{ user.maxNutrients.fats }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -185,7 +185,8 @@ const cancelChanges = () => {
 };
 
 onMounted(async () => {
-  await userStore.getUser();
+  await userStore.getProfileData();
+  await userStore.getMaxNutrients();
   editableUser.value = { ...userStore.user.data }; // Обновляем локальную копию
 });
 </script>
