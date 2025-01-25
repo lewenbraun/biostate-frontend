@@ -96,20 +96,24 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import { Product } from '../../stores/productStore';
 import { useDailyMealStore, Meal } from '../../stores/dailyMealStore';
+import { handleApiError } from '../../utils/errorHandler';
+import { formatToLocal } from '../../utils/Formatters/dateFormatter';
+import { useQuasar } from 'quasar';
 import SelectProductList from '../../components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
-import { formatToLocal } from '../../utils/Formatters/dateFormatter';
 import MealsList from '../../components/DailyMeal/MealsList.vue';
-import { handleApiError } from '../../utils/errorHandler';
 
 const dailyMealStore = useDailyMealStore();
 const card = ref(false);
 const selectedDate = ref<Date>(new Date());
 const meals = ref<Array<Meal>>([]);
 const currentMealOrder = ref<number>(0);
+
+const $q = useQuasar();
+const isMobile = computed(() => $q.platform.is.mobile);
 
 const activeTab = ref('meals');
 
@@ -218,7 +222,7 @@ async function deleteProductFromDailyMeal(
   }
 }
 
-const DAYS_RANGE = 4;
+const DAYS_RANGE = isMobile.value ? 1 : 4;
 const dates = ref<Date[]>(generateDates(DAYS_RANGE));
 
 function generateDates(range: number): Date[] {
