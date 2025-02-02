@@ -22,7 +22,7 @@ FROM nginx:stable-alpine
 RUN rm /etc/nginx/conf.d/default.conf
 
 # Copy our custom Nginx configuration into the container
-COPY docker/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY .docker/nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the built static files from the builder stage
 COPY --from=builder /app/dist/spa /usr/share/nginx/html
