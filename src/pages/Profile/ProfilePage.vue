@@ -41,8 +41,8 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.profileData.name !== undefined">
-                  {{ user.profileData.name }}
+                <div v-else-if="editableUser.profileData.name !== undefined">
+                  {{ editableUser.profileData.name }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -58,8 +58,8 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.profileData.weight !== undefined">
-                  {{ user.profileData.weight }}
+                <div v-else-if="editableUser.profileData.weight !== undefined">
+                  {{ editableUser.profileData.weight }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -84,8 +84,10 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.maxNutrients.calories !== undefined">
-                  {{ user.maxNutrients.calories }}
+                <div
+                  v-else-if="editableUser.maxNutrients.calories !== undefined"
+                >
+                  {{ editableUser.maxNutrients.calories }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -101,8 +103,10 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.maxNutrients.proteins !== undefined">
-                  {{ user.maxNutrients.proteins }}
+                <div
+                  v-else-if="editableUser.maxNutrients.proteins !== undefined"
+                >
+                  {{ editableUser.maxNutrients.proteins }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -118,8 +122,8 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.maxNutrients.carbs !== undefined">
-                  {{ user.maxNutrients.carbs }}
+                <div v-else-if="editableUser.maxNutrients.carbs !== undefined">
+                  {{ editableUser.maxNutrients.carbs }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -135,8 +139,8 @@
                   dense
                   hide-bottom-space
                 />
-                <div v-else-if="user.maxNutrients.fats !== undefined">
-                  {{ user.maxNutrients.fats }}
+                <div v-else-if="editableUser.maxNutrients.fats !== undefined">
+                  {{ editableUser.maxNutrients.fats }}
                 </div>
                 <q-skeleton v-else type="text" />
               </q-item-section>
@@ -187,7 +191,7 @@ const cancelChanges = () => {
 onMounted(async () => {
   await userStore.getProfileData();
   await userStore.getMaxNutrients();
-  editableUser.value = { ...userStore.user.data }; // Обновляем локальную копию
+  editableUser.value = { ...userStore.user.data };
 });
 </script>
 
