@@ -6,16 +6,11 @@
   >
     <q-page class="flex items-center column">
       <q-card class="q-mt-md full-width-card" bordered flat>
-        <div class="q-pa-md q-gutter-md row justify-around">
-          <q-btn
-            v-for="(date, index) in dates"
-            :key="index"
-            :label="formatDate(date)"
-            outline
-            :class="{ 'today-btn': isSelectedDate(date) }"
-            @click="selectDate(date)"
-          />
-        </div>
+        <ListDays
+          :dates="dates"
+          :selected-date="selectedDate"
+          @select-date="selectDate"
+        />
         <q-separator inset />
 
         <!-- Desktop version -->
@@ -109,6 +104,7 @@ import { useQuasar } from 'quasar';
 import SelectProductList from '../../components/Product/Meal/SelectProductList.vue';
 import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
 import MealsList from '../../components/DailyMeal/MealsList.vue';
+import ListDays from '../../components/DailyMeal/ListDays.vue';
 
 const dailyMealStore = useDailyMealStore();
 const card = ref(false);
@@ -240,20 +236,6 @@ function generateDates(range: number): Date[] {
   }
 
   return result;
-}
-
-function formatDate(date: Date): string {
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  return `${day}.${month}`;
-}
-
-function isSelectedDate(date: Date): boolean {
-  return (
-    date.getDate() === selectedDate.value.getDate() &&
-    date.getMonth() === selectedDate.value.getMonth() &&
-    date.getFullYear() === selectedDate.value.getFullYear()
-  );
 }
 
 async function selectDate(date: Date): Promise<void> {
