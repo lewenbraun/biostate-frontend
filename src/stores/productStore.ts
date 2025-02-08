@@ -21,6 +21,7 @@ export interface Product {
   fats: number;
   count: number;
   is_public: boolean;
+  is_alcohol: boolean;
 }
 
 export interface CreateProduct {
@@ -34,6 +35,7 @@ export interface CreateProduct {
   carbs?: number;
   fats?: number;
   is_public: boolean;
+  is_alcohol: boolean;
 }
 
 export interface UpdateProduct {
@@ -48,6 +50,7 @@ export interface UpdateProduct {
   carbs?: number;
   fats?: number;
   is_public: boolean;
+  is_alcohol: boolean;
 }
 
 export const useProductStore = defineStore('productStore', {
