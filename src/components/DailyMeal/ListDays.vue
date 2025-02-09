@@ -1,18 +1,23 @@
 <template>
   <div class="q-pa-md">
     <div class="row justify-between items-center">
-      <!-- Button to navigate to previous dates -->
-      <q-btn icon="chevron_left" @click="prevDates" flat round />
-
       <!-- Wrapper for transition (overflow:hidden hides "overflowing" elements) -->
-      <div class="transition-wrapper">
-        <!-- Transition with a dynamically computed animation name depending on direction -->
+      <div class="transition-wrapper row">
+        <!-- Button to navigate to previous dates -->
+        <q-btn
+          dense
+          icon="chevron_left"
+          class="q-mr-sm"
+          @click="prevDates"
+          flat
+        />
         <transition :name="transitionName" mode="out-in">
           <!-- Date block, key changes when currentStartDate changes -->
           <div
             :key="currentKey"
             class="dates-container row justify-around q-gutter-md"
           >
+            <!-- Transition with a dynamically computed animation name depending on direction -->
             <q-btn
               v-for="(date, index) in currentDates"
               :key="index"
@@ -23,10 +28,15 @@
             />
           </div>
         </transition>
+        <!-- Button to navigate to next dates -->
+        <q-btn
+          icon="chevron_right"
+          class="q-ml-sm"
+          dense
+          @click="nextDates"
+          flat
+        />
       </div>
-
-      <!-- Button to navigate to next dates -->
-      <q-btn icon="chevron_right" @click="nextDates" flat round />
     </div>
   </div>
 </template>
@@ -128,7 +138,8 @@ const transitionName = computed(() =>
 
 /* Date container takes up 100% width */
 .dates-container {
-  width: 100%;
+  flex-grow: 1;
+  min-width: 0;
 }
 
 /* "Slide-fade" effect for transitioning to next dates (right) */
