@@ -143,57 +143,63 @@
                 </q-item>
               </q-list>
             </q-card-section>
-            <q-card-section v-if="productData.is_alcohol">
-              <q-list style="max-width: 220px">
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1">Percent:</q-item-label>
-                  </q-item-section>
+            <transition
+              appear
+              enter-active-class="animated fadeIn"
+              leave-active-class="animated fadeOut"
+            >
+              <q-card-section v-if="productData.is_alcohol">
+                <q-list style="max-width: 220px">
+                  <q-item class="q-px-none">
+                    <q-item-section>
+                      <q-item-label class="text-body1">Percent:</q-item-label>
+                    </q-item-section>
 
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.calories"
-                      label="Calories"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1"
-                      >Type alcohol:</q-item-label
-                    >
-                  </q-item-section>
+                    <q-item-section>
+                      <q-input
+                        outlined
+                        dense
+                        v-model="productData.calories"
+                        label="Calories"
+                        style="max-width: 150px"
+                      />
+                    </q-item-section>
+                  </q-item>
+                  <q-item class="q-px-none">
+                    <q-item-section>
+                      <q-item-label class="text-body1"
+                        >Type alcohol:</q-item-label
+                      >
+                    </q-item-section>
 
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.proteins"
-                      label="Proteins"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1">Carbs:</q-item-label>
-                  </q-item-section>
+                    <q-item-section>
+                      <q-input
+                        outlined
+                        dense
+                        v-model="productData.proteins"
+                        label="Proteins"
+                        style="max-width: 150px"
+                      />
+                    </q-item-section>
+                  </q-item>
+                  <q-item class="q-px-none">
+                    <q-item-section>
+                      <q-item-label class="text-body1">Carbs:</q-item-label>
+                    </q-item-section>
 
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.carbs"
-                      label="Carbohydrates"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-card-section>
+                    <q-item-section>
+                      <q-input
+                        outlined
+                        dense
+                        v-model="productData.carbs"
+                        label="Carbohydrates"
+                        style="max-width: 150px"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-card-section>
+            </transition>
           </div>
           <q-separator />
           <q-card-section class="flex justify-end">
