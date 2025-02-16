@@ -23,7 +23,7 @@
               :rules="ruleRequired"
             />
             <div class="row self-center flex q-gutter-x-sm">
-              <div class="col-3">
+              <div class="col-4">
                 <q-input
                   outlined
                   dense
@@ -32,7 +32,7 @@
                   :rules="ruleNumber"
                 />
               </div>
-              <div class="col-3">
+              <div class="col-4">
                 <q-input
                   outlined
                   ref="weight"
@@ -43,11 +43,13 @@
                 />
               </div>
               <div class="col">
-                <q-toggle
-                  v-model="productData.is_alcohol"
-                  color="deep-orange-9"
-                  label="Is alcohol"
-                />
+                <div class="flex justify-center">
+                  <q-toggle
+                    v-model="productData.is_alcohol"
+                    color="deep-orange-9"
+                    label="Is alcohol"
+                  />
+                </div>
               </div>
             </div>
             <div class="col-12">
