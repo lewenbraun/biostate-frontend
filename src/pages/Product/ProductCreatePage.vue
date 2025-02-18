@@ -9,7 +9,7 @@
         class="q-mt-md"
         style="max-width: 600px; min-width: 350px; width: 100%"
       >
-        <q-card class="q-mt-md full-width-card" bordered flat>
+        <q-card class="q-mt-md full-width-card q-mb-md" bordered flat>
           <q-card-section>
             <div class="text-h6">Add product</div>
           </q-card-section>
@@ -62,7 +62,7 @@
           </q-card-section>
           <q-separator />
           <div class="row g-gutter-md">
-            <q-card-section>
+            <q-card-section class="nutrition-section">
               <q-list style="max-width: 220px">
                 <q-item class="q-px-none">
                   <q-item-section>
@@ -148,7 +148,10 @@
               enter-active-class="animated fadeIn"
               leave-active-class="animated fadeOut"
             >
-              <q-card-section v-if="productData.is_alcohol">
+              <q-card-section
+                v-if="productData.is_alcohol"
+                class="alcohol-section"
+              >
                 <q-list style="max-width: 220px">
                   <q-item class="q-px-none">
                     <q-item-section>
@@ -267,5 +270,17 @@ const submitProduct = async () => {
 <style scoped>
 .full-width-card {
   width: 100%;
+}
+
+@media (max-width: 599px) {
+  .nutrition-section {
+    padding-bottom: 0 !important;
+  }
+}
+
+@media (max-width: 599px) {
+  .alcohol-section {
+    padding-top: 0 !important;
+  }
 }
 </style>
