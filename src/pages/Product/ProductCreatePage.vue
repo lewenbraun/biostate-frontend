@@ -152,7 +152,7 @@
                 v-if="productData.is_alcohol"
                 class="alcohol-section"
               >
-                <q-list style="max-width: 220px">
+                <q-list>
                   <q-item class="q-px-none">
                     <q-item-section>
                       <q-item-label class="text-body1">Percent:</q-item-label>
@@ -162,8 +162,8 @@
                       <q-input
                         outlined
                         dense
-                        v-model="productData.calories"
-                        label="Calories"
+                        v-model="productData.percent"
+                        label="Percent"
                         style="max-width: 150px"
                       />
                     </q-item-section>
@@ -176,26 +176,11 @@
                     </q-item-section>
 
                     <q-item-section>
-                      <q-input
+                      <q-select
                         outlined
                         dense
-                        v-model="productData.proteins"
-                        label="Proteins"
-                        style="max-width: 150px"
-                      />
-                    </q-item-section>
-                  </q-item>
-                  <q-item class="q-px-none">
-                    <q-item-section>
-                      <q-item-label class="text-body1">Carbs:</q-item-label>
-                    </q-item-section>
-
-                    <q-item-section>
-                      <q-input
-                        outlined
-                        dense
-                        v-model="productData.carbs"
-                        label="Carbohydrates"
+                        v-model="productData.type_alcohol"
+                        label="Type alcohol"
                         style="max-width: 150px"
                       />
                     </q-item-section>
