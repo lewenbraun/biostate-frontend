@@ -1,8 +1,8 @@
 {
-  "name": "what-to-eat-a",
-  "version": "0.0.1",
-  "description": "what-to-eat-a?",
-  "productName": "What-to-eat-A",
+  "name": "bio-state",
+  "version": "1.0.1",
+  "description": "bio-state",
+  "productName": "BioState",
   "author": "de-lolec",
   "private": true,
   "type": "module",
