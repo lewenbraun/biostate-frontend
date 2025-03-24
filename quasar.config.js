@@ -189,7 +189,7 @@ export default defineConfig((ctx) => {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'what-to-eat-a',
+        appId: 'bio-state',
       },
     },
 

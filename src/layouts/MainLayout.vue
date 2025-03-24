@@ -15,7 +15,7 @@
           @click="$router.push({ name: 'dailyMeal' })"
           style="cursor: pointer"
         >
-          What-to-eat-a
+          BioState
         </q-toolbar-title>
         <div v-if="!userAuth()" class="row q-gutter-xs">
           <q-btn flat :to="{ name: 'login' }">Sign in</q-btn>
