@@ -173,7 +173,6 @@ const productData = ref<UpdateProduct>({
   id: 0,
   description: '',
   is_public: false,
-  is_alcohol: false,
 });
 
 const productStore = useProductStore();
