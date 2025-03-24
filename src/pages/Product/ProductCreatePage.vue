@@ -22,14 +22,14 @@
               label="Name"
               :rules="ruleRequired"
             />
-            <div class="row self-center flex q-gutter-x-sm">
+            <div class="row q-gutter-x-sm">
               <div class="col-3">
                 <q-input
                   outlined
                   dense
                   v-model.number="productData.price"
                   label="Price"
-                  :rules="ruleNumber"
+                  class="q-mb-md"
                 />
               </div>
               <div class="col-3">
@@ -40,13 +40,8 @@
                   v-model="productData.weight"
                   :rules="ruleNumber"
                   label="Weight"
-                />
-              </div>
-              <div class="col">
-                <q-toggle
-                  v-model="productData.is_alcohol"
-                  color="deep-orange-9"
-                  label="Is alcohol"
+                  style="min-width: 50px"
+                  lazy-rules
                 />
               </div>
             </div>
@@ -59,140 +54,87 @@
             </div>
           </q-card-section>
           <q-separator />
-          <div class="row g-gutter-md">
-            <q-card-section>
-              <q-list style="max-width: 220px">
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1 text-bold"
-                      >For weight:</q-item-label
-                    >
-                  </q-item-section>
+          <q-card-section>
+            <q-list style="max-width: 250px">
+              <q-item class="q-px-none">
+                <q-item-section>
+                  <q-item-label class="text-body1 text-bold"
+                    >For weight:</q-item-label
+                  >
+                </q-item-section>
 
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.weight_for_features"
-                      label="Weight"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1">Calories:</q-item-label>
-                  </q-item-section>
+                <q-item-section>
+                  <q-input
+                    outlined
+                    dense
+                    v-model="productData.weight_for_features"
+                    label="Weight"
+                    style="max-width: 150px"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-item class="q-px-none">
+                <q-item-section>
+                  <q-item-label class="text-body1">Calories:</q-item-label>
+                </q-item-section>
 
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.calories"
-                      label="Calories"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1">Proteins:</q-item-label>
-                  </q-item-section>
+                <q-item-section>
+                  <q-input
+                    outlined
+                    dense
+                    v-model="productData.calories"
+                    label="Calories"
+                    style="max-width: 150px"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-item class="q-px-none">
+                <q-item-section>
+                  <q-item-label class="text-body1">Proteins:</q-item-label>
+                </q-item-section>
 
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.proteins"
-                      label="Proteins"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1">Carbs:</q-item-label>
-                  </q-item-section>
+                <q-item-section>
+                  <q-input
+                    outlined
+                    dense
+                    v-model="productData.proteins"
+                    label="Proteins"
+                    style="max-width: 150px"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-item class="q-px-none">
+                <q-item-section>
+                  <q-item-label class="text-body1">Carbs:</q-item-label>
+                </q-item-section>
 
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.carbs"
-                      label="Carbohydrates"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1">Fats:</q-item-label>
-                  </q-item-section>
+                <q-item-section>
+                  <q-input
+                    outlined
+                    dense
+                    v-model="productData.carbs"
+                    label="Carbohydrates"
+                    style="max-width: 150px"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-item class="q-px-none">
+                <q-item-section>
+                  <q-item-label class="text-body1">Fats:</q-item-label>
+                </q-item-section>
 
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.fats"
-                      label="Fats"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-card-section>
-            <q-card-section v-if="productData.is_alcohol">
-              <q-list style="max-width: 220px">
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1">Percent:</q-item-label>
-                  </q-item-section>
-
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.calories"
-                      label="Calories"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1"
-                      >Type alcohol:</q-item-label
-                    >
-                  </q-item-section>
-
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.proteins"
-                      label="Proteins"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-                <q-item class="q-px-none">
-                  <q-item-section>
-                    <q-item-label class="text-body1">Carbs:</q-item-label>
-                  </q-item-section>
-
-                  <q-item-section>
-                    <q-input
-                      outlined
-                      dense
-                      v-model="productData.carbs"
-                      label="Carbohydrates"
-                      style="max-width: 150px"
-                    />
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </q-card-section>
-          </div>
+                <q-item-section>
+                  <q-input
+                    outlined
+                    dense
+                    v-model="productData.fats"
+                    label="Fats"
+                    style="max-width: 150px"
+                  />
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
           <q-separator />
           <q-card-section class="flex justify-end">
             <q-toggle
@@ -228,7 +170,6 @@ const router = useRouter();
 const productData = ref<CreateProduct>({
   description: '',
   is_public: false,
-  is_alcohol: false,
 });
 
 const productStore = useProductStore();
