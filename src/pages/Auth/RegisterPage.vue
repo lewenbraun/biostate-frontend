@@ -14,11 +14,6 @@
                   <q-icon name="person" />
                 </template>
               </q-input>
-              <q-input v-model="user.nickname" type="text" label="Nickname">
-                <template v-slot:prepend>
-                  <q-icon name="person" />
-                </template>
-              </q-input>
               <q-input v-model="user.email" type="email" label="Email">
                 <template v-slot:prepend>
                   <q-icon name="email" />
@@ -67,7 +62,6 @@ import { useUserStore } from '../../stores/userStore';
 
 const user = ref({
   name: '',
-  nickname: '',
   email: '',
   password: '',
   password_confirmation: '',
