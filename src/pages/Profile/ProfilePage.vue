@@ -159,7 +159,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useUserStore, UserParameters } from '../../stores/userStore';
+import { useUserStore } from '../../stores/userStore';
+import type { UserParameters } from '../../types/user';
 
 const userStore = useUserStore();
 

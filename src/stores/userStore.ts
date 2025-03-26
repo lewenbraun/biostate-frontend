@@ -1,28 +1,14 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import { handleApiError } from '../utils/errorHandler';
-
-export interface UserParameters {
-  maxNutrients: MaxNutrients;
-  profileData: ProfileData;
-}
-
-export interface MaxNutrients {
-  proteins?: number;
-  fats?: number;
-  carbs?: number;
-  calories?: number;
-}
-
-export interface ProfileData {
-  name: string;
-  weight?: number;
-}
-
-interface UserState {
-  data: UserParameters;
-  token: string | null;
-}
+import type {
+  LoginData,
+  RegisterData,
+  UserState,
+  UserParameters,
+  MaxNutrients,
+  ProfileData,
+} from '../types/user';
 
 export const useUserStore = defineStore('userStore', {
   state: (): { user: UserState } => ({
@@ -38,8 +24,15 @@ export const useUserStore = defineStore('userStore', {
   }),
 
   getters: {
-    isAuthenticated: (state) => !!state.user.token,
-    maxCountNutrients: (state) => {
+    isAuthenticated: (state): boolean => !!state.user.token,
+    maxCountNutrients: (
+      state
+    ): {
+      proteins: MaxNutrients['proteins'];
+      fats: MaxNutrients['fats'];
+      carbs: MaxNutrients['carbs'];
+      calories: MaxNutrients['calories'];
+    } => {
       const { proteins, fats, carbs, calories } = state.user.data.maxNutrients;
       return {
         proteins: proteins,
@@ -51,7 +44,7 @@ export const useUserStore = defineStore('userStore', {
   },
 
   actions: {
-    async register(user: Record<string, unknown>) {
+    async register(user: RegisterData): Promise<void> {
       try {
         const { data } = await api.post('/register', user);
         this.setUser(data.user);
@@ -60,49 +53,64 @@ export const useUserStore = defineStore('userStore', {
         handleApiError(error);
       }
     },
-    async login(user: Record<string, unknown>) {
-      const { data } = await api.post('/login', user);
-      this.setUser(data.user);
-      this.setToken(data.token);
+    async login(user: LoginData): Promise<void> {
+      try {
+        const { data } = await api.post('/login', user);
+        this.setUser(data.user);
+        this.setToken(data.token);
+      } catch (error) {
+        handleApiError(error);
+      }
     },
-    async logout() {
-      await api.post('/logout');
-      this.deleteCurrentSession();
+    async logout(): Promise<void> {
+      try {
+        await api.post('/logout');
+        this.deleteCurrentSession();
+      } catch (error) {
+        handleApiError(error);
+      }
     },
-    async updateUser(user: UserParameters): Promise<UserParameters> {
-      const { data } = await api.post('/user/update', user);
-      this.setUser(data);
-      return data;
+    async updateUser(user: UserParameters): Promise<void> {
+      try {
+        const { data } = await api.post('/user/update', user);
+        this.setUser(data);
+      } catch (error) {
+        handleApiError(error);
+      }
     },
-    async getUser() {
-      const { data } = await api.get('/user');
-      this.setUser(data);
+    async getProfileData(): Promise<void> {
+      try {
+        const { data } = await api.get('/user/profile-data');
+        this.setProfileData(data);
+      } catch (error) {
+        handleApiError(error);
+      }
     },
-    async getProfileData() {
-      const { data } = await api.get('/user/profile-data');
-      this.setProfileData(data);
+    async getMaxNutrients(): Promise<void> {
+      try {
+        const { data } = await api.get('/user/max-nutrients');
+        this.setMaxNutrients(data);
+      } catch (error) {
+        handleApiError(error);
+      }
     },
-    async getMaxNutrients() {
-      const { data } = await api.get('/user/max-nutrients');
-      this.setMaxNutrients(data);
-    },
-    async setMaxNutrients(maxNutrients: MaxNutrients) {
+    setMaxNutrients(maxNutrients: MaxNutrients): void {
       this.user.data.maxNutrients = maxNutrients;
     },
-    async setProfileData(profileData: ProfileData) {
+    setProfileData(profileData: ProfileData): void {
       this.user.data.profileData = profileData;
     },
-    setUser(user: UserParameters) {
+    setUser(user: UserParameters): void {
       this.user.data = user;
     },
-    setToken(token: string) {
+    setToken(token: string): void {
       this.user.token = token;
       localStorage.setItem('TOKEN', token);
     },
-    userAuth() {
-      return this.user.token ? true : false;
+    userAuth(): boolean {
+      return !!this.user.token;
     },
-    deleteCurrentSession() {
+    deleteCurrentSession(): void {
       this.user.token = null;
       this.user.data = {
         maxNutrients: {},

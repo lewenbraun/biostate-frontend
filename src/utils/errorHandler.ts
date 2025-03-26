@@ -6,8 +6,13 @@ export function handleApiError(error: unknown): void {
   let errorMessage = 'An unexpected error occurred. Please try again later.';
 
   if (axios.isAxiosError(error)) {
-    if (error.response?.data && error.response.data.message) {
-      errorMessage = error.response.data.message;
+    
+    if (error.response?.data) {
+      if (error.response.data.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.response.data.error) {
+        errorMessage = error.response.data.error;
+      }
     }
 
     if (
