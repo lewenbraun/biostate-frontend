@@ -159,13 +159,19 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useUserStore } from '../../stores/userStore';
+import { useUserStore, UserParameters } from '../../stores/userStore';
 
 const userStore = useUserStore();
 
 const user = computed(() => userStore.user.data);
 
-const editableUser = ref({ ...user.value });
+const editableUser = ref<UserParameters>({
+  maxNutrients: {},
+  profileData: {
+    name: '',
+    weight: undefined,
+  },
+});
 
 const isEditing = ref(false);
 

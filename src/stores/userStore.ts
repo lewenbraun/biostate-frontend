@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
+import { handleApiError } from '../utils/errorHandler';
 
 export interface UserParameters {
   maxNutrients: MaxNutrients;
@@ -51,10 +52,13 @@ export const useUserStore = defineStore('userStore', {
 
   actions: {
     async register(user: Record<string, unknown>) {
-      const { data } = await api.post('/register', user);
-      this.setUser(data.user);
-      this.setToken(data.token);
-      return data;
+      try {
+        const { data } = await api.post('/register', user);
+        this.setUser(data.user);
+        this.setToken(data.token);
+      } catch (error) {
+        handleApiError(error);
+      }
     },
     async login(user: Record<string, unknown>) {
       const { data } = await api.post('/login', user);
@@ -63,7 +67,7 @@ export const useUserStore = defineStore('userStore', {
     },
     async logout() {
       await api.post('/logout');
-      this.logoutUser();
+      this.deleteCurrentSession();
     },
     async updateUser(user: UserParameters): Promise<UserParameters> {
       const { data } = await api.post('/user/update', user);
@@ -98,7 +102,7 @@ export const useUserStore = defineStore('userStore', {
     userAuth() {
       return this.user.token ? true : false;
     },
-    logoutUser() {
+    deleteCurrentSession() {
       this.user.token = null;
       this.user.data = {
         maxNutrients: {},
@@ -107,6 +111,7 @@ export const useUserStore = defineStore('userStore', {
         },
       };
       localStorage.removeItem('TOKEN');
+      window.location.reload();
     },
   },
 });
