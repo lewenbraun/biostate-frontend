@@ -175,8 +175,7 @@ export const useDailyMealStore = defineStore('dailyMealStore', {
         const formatedDate = formatToLocal(date);
 
         await api.post('/daily-meal/meal/delete', {
-          date,
-          meal_id,
+          id: meal_id,
         });
 
         this.meals = this.meals.filter((meal) => meal.id !== meal_id);
