@@ -19,7 +19,7 @@ import {
 import { Line } from 'vue-chartjs';
 import annotationPlugin from 'chartjs-plugin-annotation';
 import type { ChartOptions } from 'chart.js';
-import { DataDay } from '../../stores/statisticsStore';
+import type { DataDay } from '../../types/statistics';
 
 const props = defineProps({
   nutrientData: {

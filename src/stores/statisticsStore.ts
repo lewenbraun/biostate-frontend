@@ -2,23 +2,7 @@ import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
 import dayjs from 'dayjs';
 import { Notify } from 'quasar';
-
-export interface StatisticsState {
-  sumNutrientsPerWeek: SumNutrientsPerWeek;
-  loading: boolean;
-}
-
-export interface SumNutrientsPerWeek {
-  calories: DataDay[];
-  proteins: DataDay[];
-  fats: DataDay[];
-  carbs: DataDay[];
-}
-
-export interface DataDay {
-  total: number;
-  date: string;
-}
+import type { SumNutrientsPerWeek, StatisticsState } from '../types/statistics';
 
 export const useStatisticsStore = defineStore('statisticsStore', {
   state: (): StatisticsState => ({

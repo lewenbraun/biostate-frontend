@@ -60,7 +60,7 @@
 
 <script lang="ts" setup>
 import { defineProps, PropType, defineEmits } from 'vue';
-import { Product } from '../../stores/productStore';
+import { Product } from '../../types/product';
 
 defineOptions({
   name: 'ProductCard',

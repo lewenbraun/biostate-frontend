@@ -160,8 +160,8 @@ import { useRouter } from 'vue-router';
 import { Notify, QForm } from 'quasar';
 import { useProductStore } from '../../stores/productStore';
 import { ruleNumber, ruleRequired } from '../../utils/validations.ts';
-import type { UpdateProduct } from '../../stores/productStore';
 import { handleApiError } from '../../utils/errorHandler.ts';
+import type { UpdateProduct } from '../../types/product';
 
 defineOptions({
   name: 'ProductEditPage',

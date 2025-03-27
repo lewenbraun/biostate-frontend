@@ -158,8 +158,8 @@ import { useRouter } from 'vue-router';
 import { Notify, QForm } from 'quasar';
 import { useProductStore } from '../../stores/productStore';
 import { ruleNumber, ruleRequired } from '../../utils/validations.ts';
-import type { CreateProduct } from '../../stores/productStore';
 import { handleApiError } from '../../utils/errorHandler.ts';
+import type { CreateProduct } from '../../types/product';
 
 defineOptions({
   name: 'ProductCreatePage',
