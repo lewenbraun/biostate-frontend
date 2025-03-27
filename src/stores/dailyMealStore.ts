@@ -1,24 +1,12 @@
 import { defineStore } from 'pinia';
 import { api } from '../boot/axios';
-import { Product } from './productStore';
 import { formatToLocal } from '../utils/Formatters/dateFormatter.ts';
 import { handleApiError } from '../utils/errorHandler.ts';
-
-export interface Meal {
-  id: number;
-  products: Product[];
-  meal_order: number;
-  date: string;
-}
-
-export interface DailylMealState {
-  meals: Meal[];
-  loading: boolean;
-  mealsStatus: Record<string, 'loading' | 'loaded' | 'empty' | 'error'>;
-}
+import type { Product } from '../types/product';
+import type { Meal, DailyMealState } from '../types/dailyMeal';
 
 export const useDailyMealStore = defineStore('dailyMealStore', {
-  state: (): DailylMealState => ({
+  state: (): DailyMealState => ({
     meals: [],
     loading: false,
     mealsStatus: {},

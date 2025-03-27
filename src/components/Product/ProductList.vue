@@ -88,7 +88,8 @@
 <script setup lang="ts">
 import { ref, onMounted, defineProps } from 'vue';
 import ProductCard from '../../components/Product/ProductCard.vue';
-import { useProductStore, Product } from '../../stores/productStore';
+import { useProductStore } from '../../stores/productStore';
+import type { Product } from '../../types/product';
 
 const props = defineProps<{
   addProduct: (product: Product) => void;

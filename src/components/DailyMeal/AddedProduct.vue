@@ -90,7 +90,7 @@
 <script setup lang="ts">
 import { ref, PropType } from 'vue';
 import { useDailyMealStore } from '../../stores/dailyMealStore';
-import { Product } from '../../stores/productStore';
+import type { Product } from '../../types/product';
 
 const dailyMealStore = useDailyMealStore();
 

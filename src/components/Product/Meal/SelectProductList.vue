@@ -95,7 +95,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useProductStore, Product } from '../../../stores/productStore';
+import { useProductStore } from '../../../stores/productStore';
+import type { Product } from '../../../types/product';
 
 const productStore = useProductStore();
 const products = ref<Product[]>([]);

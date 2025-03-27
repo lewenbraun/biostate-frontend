@@ -96,8 +96,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue';
-import { Product } from '../../stores/productStore';
-import { useDailyMealStore, Meal } from '../../stores/dailyMealStore';
+import { useDailyMealStore } from '../../stores/dailyMealStore';
 import { handleApiError } from '../../utils/errorHandler';
 import { formatToLocal } from '../../utils/Formatters/dateFormatter';
 import { useQuasar } from 'quasar';
@@ -105,6 +104,8 @@ import SelectProductList from '../../components/Product/Meal/SelectProductList.v
 import StaticsDailyFeatures from '../../components/DailyMeal/StaticsDailyFeatures.vue';
 import MealsList from '../../components/DailyMeal/MealsList.vue';
 import ListDays from '../../components/DailyMeal/ListDays.vue';
+import type { Product } from '../../types/product';
+import type { Meal } from '../../types/dailyMeal';
 
 const dailyMealStore = useDailyMealStore();
 const card = ref(false);

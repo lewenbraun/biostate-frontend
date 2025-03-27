@@ -47,7 +47,8 @@
 import { ref, onMounted } from 'vue';
 import { Notify } from 'quasar';
 import ProductCard from '../../components/Product/ProductCard.vue';
-import { useProductStore, Product } from '../../stores/productStore';
+import { useProductStore } from '../../stores/productStore';
+import { Product } from '../../types/product';
 
 const productStore = useProductStore();
 const products = ref<Product[]>([]);

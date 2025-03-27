@@ -75,9 +75,9 @@
 
 <script setup lang="ts">
 import { PropType, defineEmits } from 'vue';
-import { Meal } from '../../stores/dailyMealStore';
 import { formatMealTitle } from '../../utils/Formatters/mealTitleFormatter';
 import AddedProduct from './AddedProduct.vue';
+import type { Meal } from '../../types/dailyMeal';
 
 defineProps({
   meals: {
