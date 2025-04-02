@@ -16,19 +16,17 @@ RUN npm i -g @quasar/cli
 # Build the application in production mode
 RUN quasar build
 
-# Stage 2: Serve the built application using Nginx
 FROM nginx:stable-alpine
-# Remove the default Nginx configuration
-RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy our custom Nginx configuration into the container
-COPY .docker/nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY .docker/nginx/prod/nginx.conf.template /etc/nginx/conf.d/nginx.conf.template
+COPY .docker/nginx/prod/entrypoint.sh /opt/entrypoint.sh
 
-# Copy the built static files from the builder stage
 COPY --from=builder /app/dist/spa /usr/share/nginx/html
 
-# Expose port 80 for the container
-EXPOSE 80
+RUN apk add --no-cache certbot openssl bash busybox-openrc gettext && \
+    chmod +x /opt/entrypoint.sh && \
+    mkdir -p /var/www/acme && \
+    chown -R nginx:nginx /var/www/acme && \
+    chmod -R 755 /var/www/acme
 
-# Start Nginx in the foreground
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/opt/entrypoint.sh"]
